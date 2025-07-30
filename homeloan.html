@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="generator" content="GitLab Pages">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Loan Calculator</title>
+  <link rel="stylesheet" href="homeloan.css">
+  <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="script.js">
+</head>
+
+<body>
+  <header class="header">
+    <div class="menu-toggle" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="brandp">
+      <div class="brandAp">
+        <a href="index.html" class="brandname">
+          <div class="one"><b>C</b></div>
+          <div class="two"><b>A</b></div>
+          <div class="three"><b>L</b></div>
+          <div class="four"><b>C</b></div>
+          <div class="five"><b>I</b></div>
+          <div class="six"><b>G</b></div>
+          <div class="seven"><b>O</b></div>
+        </a>
+      </div>
+    </div>
+
+
+
+  </header>
+
+
+  <div class="menu-overlay" id="menuOverlay">
+    <ul class="menu-list">
+      <li class="menu-item">
+        <a href="index.html" class="menu-link">
+          <!-- <span class="icon">🔒</span> -->
+          <span>Home</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="personal.html" class="menu-link">
+          <!-- <span class="icon">📱</span> -->
+          <span>Personal Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="gold.html" class="menu-link">
+          <!-- <span class="icon">📊</span> -->
+          <span>Gold Purchase Value</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="homeloan.html" class="menu-link">
+          <!-- <span class="icon">💌</span> -->
+          <span>Home Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="bikeloan.html" class="menu-link">
+          <!-- <span class="icon">📁</span> -->
+          <span>Bike Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="carloan.html" class="menu-link">
+          <!-- <span class="icon">⚙️</span> -->
+          <span>Car Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="productsloan.html" class="menu-link">
+          <!-- <span class="icon">👤</span> -->
+          <span>Products Loan</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    menuToggle.addEventListener('click', () => {
+      menuToggle.classList.toggle('active');
+      menuOverlay.classList.toggle('active');
+
+      // Reset animations when closing menu
+      if (!menuOverlay.classList.contains('active')) {
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateX(-20px)';
+        });
+      }
+    });
+  </script>
+
+
+
+  <div class="navborder">
+
+    <div class="brand">
+      <div class="brandA">
+        <a href="index.html" class="brandname">
+          <div class="one">A</div>
+          <div class="two">B</div>
+          <div class="three">C</div>
+        </a>
+      </div>
+      <div class="brandB">
+        <a href="#" class="brandcontact">
+          <i class='fa fa-phone'></i>Contact US
+        </a>
+      </div>
+    </div>
+
+    <div class="navlist">
+      <section class="lists">
+        <a href="personal.html" class="listline">Personal Loan</a>
+        <a href="gold.html" class="btn listline">Gold Purchase Value</a>
+        <a href="homeloan.html" class="listline active">Home Loan</a>
+        <!-- <select id="companyname" name="companyname">
+          <option value="select">Crypto Purchase Value</option>
+          <a href="binance.html" class="listline">
+            <option value="binance">Binance</option>
+          </a>
+          <a href="coindcx.html" class="listline">
+            <option value="coinDCX">CoinDCX</option>
+          </a>
+          <a href="coinbase.html" class="listline">
+            <option value="coinbase">Coinbase</option>
+          </a>
+        </select> -->
+        <a href="bikeloan.html" class="listline">Bike Loan</a>
+        <a href="carloan.html" class="listline">Car Loan</a>
+        <a href="productsloan.html" class="listline">Products Loan</a>
+      </section>
+    </div>
+  </div>
+
+
+
+  <div class="container">
+    <h1>EMI for your <span>Home</span> Loan</h1>
+    <div class="inputs">
+      <label for="principal">Principal Amount (₹)*</label>
+      <input class="divlabel" type="number" id="principal" step="0.01" placeholder="Enter Principal Amount" required>
+
+      <label for="interest">Annual Rate of Interest (%)*</label>
+      <input type="number" id="interest" step="0.01" placeholder="e.g., 8.5%" required>
+
+      <label for="tenure">Tenure*</label>
+      <label><input type="checkbox" id="tenureCheckbox"> Months</label>
+      <input type="number" id="tenure" value="5" min="1" placeholder="default Years" required>
+
+
+      <div id="otherChargesSection" class="hidden">
+        <label for="otherCharges">Other Charges (₹)</label>
+        <label><input type="checkbox" id="otherChargesCheckbox"> </label>
+        <input type="number" id="otherCharges" step="0.01" placeholder="e.g., 2000rs">
+      </div>
+
+
+      <label>Reducing Rate of Interest</label>
+      <input class="reducingrate" type="checkbox" id="reducingRateCheckbox">
+
+      <button id="calculateBtn">Calculate</button>
+    </div>
+
+    <div class="outputs">
+      <h3>Total Amt Payable: <span id="totalPayable">₹0.00</span></h3>
+      <h3>Total Interest: <span id="totalInterest">₹0.00</span></h3>
+      <h2>Total Interest (% of Principal): <span id="totalInterestPercentage">0.00%</span></h2>
+    </div>
+
+    <table id="resultsTable">
+      <thead>
+        <tr>
+          <th>Months</th>
+          <th>Opening Principal</th>
+          <th>EMI</th>
+          <th>Principal (part of EMI)</th>
+          <th>Monthly Interest</th>
+          <th>Closing Principal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Results will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    document.getElementById('calculateBtn').addEventListener('click', calculateEMI);
+    document.getElementById('otherChargesCheckbox').addEventListener('change', toggleOtherCharges);
+    document.getElementById('tenureCheckbox').addEventListener('change', toggleTenure);
+
+    function toggleOtherCharges() {
+      const otherChargesSection = document.getElementById('otherChargesSection');
+      otherChargesSection.classList.toggle('hidden', !this.checked);
+    }
+
+    function toggleTenure() {
+      const tenureInput = document.getElementById('tenure');
+      if (this.checked) {
+        tenureInput.value = tenureInput.value * 12; // Convert years to months
+        tenureInput.setAttribute('max', 360); // Set max to 30 years in months
+      } else {
+        tenureInput.value = Math.ceil(tenureInput.value / 12); // Convert months to years
+        tenureInput.setAttribute('max', 30); // Set max to 30 years
+      }
+    }
+
+    function calculateEMI() {
+      const principal = parseFloat(document.getElementById('principal').value);
+      const annualInterest = parseFloat(document.getElementById('interest').value);
+      const tenure = parseInt(document.getElementById('tenure').value);
+      const otherCharges = document.getElementById('otherChargesCheckbox').checked ? parseFloat(document.getElementById('otherCharges').value) || 0 : 0;
+      const isReducingRate = document.getElementById('reducingRateCheckbox').checked;
+
+      const monthlyInterestRate = (annualInterest / 100) / 12;
+      const totalMonths = document.getElementById('tenureCheckbox').checked ? tenure : tenure * 12;
+
+      let emi, totalInterest, totalPayable;
+
+      if (isReducingRate) {
+        emi = (principal * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, totalMonths)) / (Math.pow(1 + monthlyInterestRate, totalMonths) - 1);
+        totalPayable = emi * totalMonths;
+        totalInterest = totalPayable - principal;
+      } else {
+        emi = (principal * (annualInterest / 100) / 12) + (principal / totalMonths);
+        totalPayable = emi * totalMonths;
+        totalInterest = totalPayable - principal;
+      }
+
+      totalInterest += otherCharges;
+
+      document.getElementById('totalPayable').innerText = `₹${totalPayable.toFixed(2)}`;
+      document.getElementById('totalInterest').innerText = `₹${totalInterest.toFixed(2)}`;
+      document.getElementById('totalInterestPercentage').innerText = `${((totalInterest / principal) * 100).toFixed(2)}%`;
+
+      updateResultsTable(totalMonths, principal, emi, monthlyInterestRate, isReducingRate);
+    }
+
+    function updateResultsTable(totalMonths, principal, emi, monthlyInterestRate, isReducingRate) {
+      const resultsTableBody = document.getElementById('resultsTable').getElementsByTagName('tbody')[0];
+      resultsTableBody.innerHTML = ''; // Clear previous results
+
+      let openingPrincipal = principal;
+
+      for (let month = 1; month <= totalMonths; month++) {
+        let monthlyInterest = openingPrincipal * monthlyInterestRate;
+        let principalPart = emi - monthlyInterest;
+        let closingPrincipal = openingPrincipal - principalPart;
+
+        if (closingPrincipal < 0) closingPrincipal = 0; // Prevent negative closing principal
+
+        const row = resultsTableBody.insertRow();
+        row.insertCell(0).innerText = month;
+        row.insertCell(1).innerText = `₹${openingPrincipal.toFixed(2)}`;
+        row.insertCell(2).innerText = `₹${emi.toFixed(2)}`;
+        row.insertCell(3).innerText = `₹${principalPart.toFixed(2)}`;
+        row.insertCell(4).innerText = `₹${monthlyInterest.toFixed(2)}`;
+        row.insertCell(5).innerText = `₹${closingPrincipal.toFixed(2)}`;
+
+        openingPrincipal = closingPrincipal; // Update opening principal for next month
+      }
+    }
+
+  </script>
+
+
+
+  <hr class="footerhh">
+  <div class="footerc">
+    <footer>
+      <div class="containers">
+        <div class="services">
+          <h3>Services</h3>
+          <ul>
+            <li><a href="gold.html">Gold Value</a></li>
+            <li><a href="personal.html">Personal Loan</a></li>
+            <li><a href="homeloan.html">Home Loan</a></li>
+            <li><a href="bikeloan.html">Bike Loan</a></li>
+            <li><a href="carloan.html">Car Loan</a></li>
+          </ul>
+        </div>
+        <div class="about">
+          <h3>About</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">Company</a></li>
+            <li><a href="#">Benefits</a></li>
+          </ul>
+        </div>
+        <div class="careers">
+          <h3>Developers</h3>
+          <ul>
+            <li><a href="https://www.instagram.com/faraz.nawab1?igsh=MWFpcGJpZXlhMWQwcg==">Faraz</a></li>
+            <li><a href="https://www.snapchat.com/add/sk_a6076?share_id=J8IglNHAVXk&locale=en-IN">Adnan</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="fafa">
+        <!-- <a href="#">
+                    <i class="fa fa-facebook-square" aria-hidden="true"></i>
+                </a> -->
+        <a href="https://x.com/AdsShaik97116?t=Hu2ta0nZVeYM2PdgxmPoUA&s=09">
+          <i class="fa fa-twitter-square" aria-hidden="true"></i>
+        </a>
+        <!-- <a href="#">
+                    <i class="fa fa-telegram" aria-hidden="true"></i>
+                </a> -->
+        <a href="#">
+          <i class="fa fa-youtube-play" aria-hidden="true"></i>
+        </a>
+        <!-- <a href="#">
+                    <i class="fa fa-snapchat-square" aria-hidden="true"></i>
+                </a> -->
+        <a href="https://www.instagram.com/_sk_adnan?igsh=a25wanJndnJsMnp5">
+          <i class="fa fa-instagram" aria-hidden="true"></i>
+        </a>
+        <a href="https://github.com/ska6076">
+          <i class="fa fa-github" aria-hidden="true"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/sk-adnan/">
+          <i class="fa fa-linkedin-square" aria-hidden="true"></i>
+        </a>
+      </div>
+      <p class="copyright">CalciGo © 2025</p>
+    </footer>
+  </div>
+
+</body>
+
+</html>
