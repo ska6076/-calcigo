@@ -5,6 +5,10 @@
   font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+  #desktop-note {
+    display: none;
+  }
+
 body {
   background-color: #EBF4F6;
   overflow-x: hidden;
@@ -943,4 +947,5 @@ body {
   .brandp {
     display: none;
   }
+
 }
