@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="GitLab Pages">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gold Purchase Value</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="gold.css">
+  <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
+
+</head>
+
+<body>
+  <header class="header">
+    <div class="menu-toggle" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="brandp">
+      <div class="brandAp">
+        <a href="index.html" class="brandname">
+          <div class="one"><b>C</b></div>
+          <div class="two"><b>A</b></div>
+          <div class="three"><b>L</b></div>
+          <div class="four"><b>C</b></div>
+          <div class="five"><b>I</b></div>
+          <div class="six"><b>G</b></div>
+          <div class="seven"><b>O</b></div>
+        </a>
+      </div>
+    </div>
+
+
+
+  </header>
+
+
+  <div class="menu-overlay" id="menuOverlay">
+    <ul class="menu-list">
+      <li class="menu-item">
+        <a href="index.html" class="menu-link">
+          <!-- <span class="icon">🔒</span> -->
+          <span>Home</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="personal.html" class="menu-link">
+          <!-- <span class="icon">📱</span> -->
+          <span>Personal Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="gold.html" class="menu-link">
+          <!-- <span class="icon">📊</span> -->
+          <span>Gold Purchase Value</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="homeloan.html" class="menu-link">
+          <!-- <span class="icon">💌</span> -->
+          <span>Home Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="bikeloan.html" class="menu-link">
+          <!-- <span class="icon">📁</span> -->
+          <span>Bike Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="carloan.html" class="menu-link">
+          <!-- <span class="icon">⚙️</span> -->
+          <span>Car Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="productsloan.html" class="menu-link">
+          <!-- <span class="icon">👤</span> -->
+          <span>Products Loan</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    menuToggle.addEventListener('click', () => {
+      menuToggle.classList.toggle('active');
+      menuOverlay.classList.toggle('active');
+
+      // Reset animations when closing menu
+      if (!menuOverlay.classList.contains('active')) {
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateX(-20px)';
+        });
+      }
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+  <div class="navborder">
+    <div class="brand">
+      <div class="brandA">
+        <a href="index.html" class="brandname">
+          <div class="one">A</div>
+          <div class="two">B</div>
+          <div class="three">C</div>
+        </a>
+      </div>
+
+      <div class="brandB">
+        <a href="#" class="brandcontact">
+          <i class='fa fa-phone'></i>Contact US
+        </a>
+      </div>
+    </div>
+
+    <div class="navlist">
+      <section class="lists">
+        <a href="personal.html" class="listline">Personal Loan</a>
+        <a href="gold.html" class="listline active">Gold Purchase Value</a>
+        <a href="homeloan.html" class="listline">Home Loan</a>
+        <!-- <select id="companyname" name="companyname">
+          <option value="select">Crypto Purchase Value</option>
+          <a href="binance.html" class="listline">
+            <option value="binance">Binance</option>
+          </a>
+          <a href="coindcx.html" class="listline">
+            <option value="coinDCX">CoinDCX</option>
+          </a>
+          <a href="coinbase.html" class="listline">
+            <option value="coinbase">Coinbase</option>
+          </a>
+        </select> -->
+        <a href="bikeloan.html" class="listline">Bike Loan</a>
+        <a href="carloan.html" class="listline">Car Loan</a>
+        <a href="productsloan.html" class="listline">Products Loan</a>
+      </section>
+    </div>
+  </div>
+
+  <div class="parentc">
+    <main class="container">
+      <h1><span>Gold </span>Purchase Value</h1>
+
+      <form id="priceForm" class="form1" onsubmit="calculatePrice(event)">
+        <label for="goldRate">Gold Rate per gram (₹)*</label><br>
+        <input type="number" inputmode="decimal" step="any" min="0" id="goldRate" name="goldRate"
+          placeholder="e.g., Rs: 10000" required /><br>
+
+        <label for="weight">Weight in grams*</label><br>
+        <input type="number" inputmode="decimal" step="any" min="0" id="weight" name="weight" placeholder="e.g., 14.7"
+          required /><br>
+
+        <label for="makingCharges">Making Charges / Wastage*</label>
+        <input type="number" inputmode="decimal" step="any" min="0" id="makingCharges" name="makingCharges"
+          placeholder="e.g., 200rs" required /><br>
+
+        <label for="gst">GST*</label><br>
+        <input type="number" inputmode="decimal" step="any" min="0" id="gst" name="gst" placeholder="e.g., 3% to 25%"
+          required /><br>
+
+        <label for="hallmarkingCharges">
+          <div class="comment">Hallmarking Charges*
+            <span class="commenttext">Fixed 45rs</span>
+          </div>
+        </label>
+
+        <input type="number" id="hallmarkingCharges" name="hallmarkingCharges" value="45" required step="any" min="0"
+          placeholder="e.g., Rs: 45rs" />
+
+        <input type="submit" value="Calculate">
+
+        <p aria-live="polite" id="result" class="para"></p>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    function calculatePrice(event) {
+      event.preventDefault();
+
+      const goldRate = parseFloat(document.getElementById('goldRate').value);
+      const weight = parseFloat(document.getElementById('weight').value);
+      const makingCharges = parseFloat(document.getElementById('makingCharges').value);
+      const gst = parseFloat(document.getElementById('gst').value);
+      const hallmarkingCharges = parseFloat(document.getElementById('hallmarkingCharges').value);
+
+      // Validate all values are numbers and >= 0
+      if (
+        isNaN(goldRate) || goldRate < 0 ||
+        isNaN(weight) || weight < 0 ||
+        isNaN(makingCharges) || makingCharges < 0 ||
+        isNaN(gst) || gst < 0 ||
+        isNaN(hallmarkingCharges) || hallmarkingCharges < 0
+      ) {
+        document.getElementById('result').textContent = "Please enter valid non-negative numbers in all fields.";
+        return;
+      }
+
+      // Calculate final price using formula:
+      // (Gold Rate per gram * Weight in grams) + Making Charges + GST + Hallmarking Charges = Final Price
+      const finalPrice = (goldRate * weight) + makingCharges + gst + hallmarkingCharges;
+
+      // Format final price to 2 decimals
+      const formattedFinalPrice = finalPrice.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
+
+      document.getElementById('result').textContent = `Final Price: ${formattedFinalPrice}`;
+    }
+  </script>
+
+  <br>
+
+
+
+
+
+  <div class="information">
+    <div class="purity">
+      <h2>Understanding Gold Purity</h2>
+      <ul class="purityul1">
+        <li>24 KT Gold : 100% Pure Gold</li>
+        <li>22 KT Gold : 91.6% Pure Gold</li>
+        <li>18 KT Gold : 75% Pure Gold</li>
+        <li>14 KT Gold : 58.3% Pure Gold</li>
+      </ul>
+      <br>
+      <h4>To Calculate the gold percentage are as follows</h4>
+      <h4 class="purityh4">For example:</h4>
+      <ul class="purityul2">
+        <li>24KT gold contains (24/24)*100=100% pure gold.</li>
+        <li>22KT gold contains (22/24)*100=91.6% pure gold.</li>
+        <li>18KT gold contains (18/24)*100=75% pure gold.</li>
+        <li>14KT gold contains (14/24)*100=58.3% pure gold.</li>
+      </ul>
+    </div>
+
+    <div class="basic">
+      <h2 class="basich2">Basic Gold price Calculation Formula:</h2>
+      <p class="basicp1">The fundamental formula for Calculation gold jewelry price is:</p>
+      <p>
+        Formula:<code> (Gold Rate per gram * Weight in grams) + Making Charges + GST + Hallmarking Charges = Final Price</code><br>
+      </p>
+      <br>
+      <h4>Detailed Calculation Example</h4>
+      <p class="basicp2">Let's Calculate the price of a <span>22k Gold Bangle</span> Weighting
+        15.76gm
+      </p>
+
+      <br>
+      <p>
+        <code>=> (7000*15.76) + 16548 + 3806 + 45 <br>=> <span style="color: rgb(198, 154, 43);"><b>1,30,719</b></span></code>
+      </p>
+      <table class="basictable">
+        <tr>
+          <th>Component</th>
+          <th>Calculation</th>
+          <th>Amount</th>
+        </tr>
+        <tr>
+          <td>Gold rate 22k</td>
+          <td>70,000 per 10gm</td>
+          <td>7,000 per gm</td>
+        </tr>
+        <tr>
+          <td>Gold value</td>
+          <td>15.76gm * 7000</td>
+          <td>1,10,320</td>
+        </tr>
+        <tr>
+          <td>Making Charges (15%)</td>
+          <td>15% of 1,10,320</td>
+          <td>16,548</td>
+        </tr>
+        <tr>
+          <td>GST (3%)</td>
+          <td>3% of 1,26,868</td>
+          <td>3,806</td>
+        </tr>
+        <tr>
+          <td>Hallmarking Charges</td>
+          <td>Fixed Charge</td>
+          <td>45</td>
+        </tr>
+        <tr>
+          <td>Final Price</td>
+          <td>Total</td>
+          <td><span style="color: rgb(198, 154, 43);"><b>1,30,719</b></span></td>
+        </tr>
+      </table>
+
+
+    </div>
+
+  </div>
+
+
+
+
+
+
+
+  <hr class="footerhh">
+  <div class="footerc">
+    <footer>
+      <div class="containers">
+        <div class="services">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="gold.html">Gold Value</a></li>
+            <li><a href="personal.html">Personal EMI</a></li>
+            <li><a href="homeloan.html">Home EMI</a></li>
+            <li><a href="bikeloan.html">Bike EMI</a></li>
+            <li><a href="carloan.html">Car EMI</a></li>
+            <li><a href="productsloan.html">Product EMI</a></li>
+          </ul>
+        </div>
+        <div class="about">
+          <h3>About</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Service</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="careers">
+          <h3>Developer</h3>
+          <ul>
+            <li>
+              <a href="https://www.snapchat.com/add/sk_a6076?share_id=J8IglNHAVXk&locale=en-IN">Adnan</a>
+            </li>
+            <li>
+              <a href="https://github.com/Faraza11">Faraz</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="fafaheading">
+        <h5>Connect with us</h5>
+        <ul>
+          <li>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <a href=”mailto:advs5578@gmail.com”>
+              advs5578@gmail.com
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="fafa">
+        <a href="https://x.com/AdsShaik97116?t=Hu2ta0nZVeYM2PdgxmPoUA&s=09">
+          <i class="fa fa-twitter-square" aria-hidden="true"></i>
+        </a>
+        <a href="#">
+          <i class="fa fa-youtube-play" aria-hidden="true"></i>
+        </a>
+        <a href="https://www.instagram.com/_sk_adnan?igsh=a25wanJndnJsMnp5">
+          <i class="fa fa-instagram" aria-hidden="true"></i>
+        </a>
+        <a href="https://github.com/ska6076">
+          <i class="fa fa-github" aria-hidden="true"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/sk-adnan/">
+          <i class="fa fa-linkedin-square" aria-hidden="true"></i>
+        </a>
+      </div>
+      <p class="copyright">CalciGo © 2025</p>
+    </footer>
+  </div>
+
+</body>
+
+</html>

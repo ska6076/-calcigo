@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Car Loan Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="personal.css">
+  <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body>
+
+
+  <header class="header">
+    <div class="menu-toggle" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="brandp">
+      <div class="brandAp">
+        <a href="index.html" class="brandname">
+          <div class="one"><b>C</b></div>
+          <div class="two"><b>A</b></div>
+          <div class="three"><b>L</b></div>
+          <div class="four"><b>C</b></div>
+          <div class="five"><b>I</b></div>
+          <div class="six"><b>G</b></div>
+          <div class="seven"><b>O</b></div>
+        </a>
+      </div>
+    </div>
+
+
+
+  </header>
+
+
+  <div class="menu-overlay" id="menuOverlay">
+    <ul class="menu-list">
+      <li class="menu-item">
+        <a href="index.html" class="menu-link">
+          <!-- <span class="icon">🔒</span> -->
+          <span>Home</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="personal.html" class="menu-link">
+          <!-- <span class="icon">📱</span> -->
+          <span>Personal Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="gold.html" class="menu-link">
+          <!-- <span class="icon">📊</span> -->
+          <span>Gold Purchase Value</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="homeloan.html" class="menu-link">
+          <!-- <span class="icon">💌</span> -->
+          <span>Home Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="bikeloan.html" class="menu-link">
+          <!-- <span class="icon">📁</span> -->
+          <span>Bike Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="carloan.html" class="menu-link">
+          <!-- <span class="icon">⚙️</span> -->
+          <span>Car Loan</span>
+        </a>
+      </li>
+      <li class="menu-item">
+        <a href="productsloan.html" class="menu-link">
+          <!-- <span class="icon">👤</span> -->
+          <span>Products Loan</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    menuToggle.addEventListener('click', () => {
+      menuToggle.classList.toggle('active');
+      menuOverlay.classList.toggle('active');
+
+      // Reset animations when closing menu
+      if (!menuOverlay.classList.contains('active')) {
+        const menuItems = document.querySelectorAll('.menu-item');
+        menuItems.forEach(item => {
+          item.style.opacity = '0';
+          item.style.transform = 'translateX(-20px)';
+        });
+      }
+    });
+  </script>
+
+
+
+
+
+  <div class="navborder">
+
+    <div class="brand">
+      <div class="brandA">
+        <a href="index.html" class="brandname">
+          <div class="one">A</div>
+          <div class="two">B</div>
+          <div class="three">C</div>
+        </a>
+      </div>
+
+      <div class="brandB">
+        <a href="#" class="brandcontact">
+          <i class='fa fa-phone'></i>Contact US
+        </a>
+      </div>
+    </div>
+
+    <div class="navlist">
+      <section class="lists">
+        <a href="personal.html" class="listline">Personal Loan</a>
+        <a href="gold.html" class="listline">Gold Purchase Value</a>
+        <a href="homeloan.html" class="listline">Home Loan</a>
+        <!-- <select id="companyname" name="companyname">
+          <option value="select">Crypto Purchase Value</option>
+          <a href="binance.html" class="listline">
+            <option value="binance">Binance</option>
+          </a>
+          <a href="coindcx.html" class="listline">
+            <option value="coinDCX">CoinDCX</option>
+          </a>
+          <a href="coinbase.html" class="listline">
+            <option value="coinbase">Coinbase</option>
+          </a>
+        </select> -->
+        <a href="bikeloan.html" class="listline">Bike Loan</a>
+        <a href="carloan.html" class="listline active">Car Loan</a>
+        <a href="productsloan.html" class="listline">Products Loan</a>
+      </section>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="parentc">
+    <main class="container">
+      <h1>EMI Calculator for <span>Car</span> Loan</h1>
+      <form id="emiForm" class="contform" onsubmit="return false;">
+
+        <label for="principal">Principal Amount (₹)*</label><br>
+        <input type="number" min="1000" step="100" id="principal" name="principal" placeholder="Enter Principal Amount"
+          required><br>
+
+
+        <label for="annualInterest">Annual Rate of Interest (%)*</label><br>
+        <input type="number" min="0" step="0.01" id="annualInterest" name="annualInterest" placeholder="e.g., 9.5%"
+          required><br>
+
+
+        <label for="tenure">Tenure*</label>
+        <input type="checkbox" id="isMonths">
+        <label for="isMonths">Months</label>
+        <input type="number" min="1" step="1" required id="tenure" name="tenure" placeholder="default Years" /><br>
+
+
+
+        <label for="otherChargesCheck">Other Charges (₹)</label>
+        <input type="checkbox" id="otherChargesCheck" /><br>
+        <input class="" type="number" min="0" step="1" disabled id="otherChargesInput" name="otherCharges"
+          placeholder="e.g., 2000rs" required /><br>
+
+
+
+        <label for="reducingRateCheck">Reducing Rate of Interest</label>
+        <input type="checkbox" id="reducingRateCheck" />
+
+
+        <!-- default Flat Rate of Interest -->
+        <input id="calculateBtn" type="submit" value="Calculate" />
+
+
+      </form>
+    </main>
+  </div>
+
+  <section>
+    <div id="resultSection">
+      <table aria-label="Loan EMI Amortization Table">
+        <thead>
+          <tr>
+            <th>Months</th>
+            <th>Opening Principal</th>
+            <th>EMI</th>
+            <th>Principal</th>
+            <th>Monthly Interest</th>
+            <th>Closing Principal</th>
+          </tr>
+        </thead>
+        <tbody id="emiTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      // Elements
+      const principalInput = document.getElementById('principal');
+      const annualInterestInput = document.getElementById('annualInterest');
+      const tenureInput = document.getElementById('tenure');
+      const isMonthsCheckbox = document.getElementById('isMonths');
+      const otherChargesCheckbox = document.getElementById('otherChargesCheck');
+      const otherChargesInput = document.getElementById('otherChargesInput');
+      const reducingRateCheckbox = document.getElementById('reducingRateCheck');
+      const emiTableBody = document.getElementById('emiTableBody');
+      const resultSection = document.getElementById('resultSection');
+      const emiForm = document.getElementById('emiForm');
+
+      // Convert tenure years <-> months on checkbox toggle
+      isMonthsCheckbox.addEventListener('change', () => {
+        let val = Number(tenureInput.value) || 1;
+        if (isMonthsCheckbox.checked) {
+          // Convert years to months (if tenure was in years)
+          if (val < 100) {
+            tenureInput.value = val * 12;
+          }
+          tenureInput.placeholder = 'Enter tenure in months';
+          tenureInput.min = 1;
+          tenureInput.step = 1;
+        } else {
+          // Convert months to years (round to nearest 1 decimal)
+          if (val > 100) {
+            // handling accidental large numbers - just keep as months
+            tenureInput.value = 1;
+          } else {
+            tenureInput.value = (val / 12).toFixed(1);
+          }
+          tenureInput.placeholder = 'Enter tenure in years (default)';
+          tenureInput.min = 0.1;
+          tenureInput.step = 0.1;
+        }
+      });
+
+      // Enable/disable other charges input
+      otherChargesCheckbox.addEventListener('change', () => {
+        if (otherChargesCheckbox.checked) {
+          otherChargesInput.disabled = false;
+          otherChargesInput.focus();
+        } else {
+          otherChargesInput.disabled = true;
+          otherChargesInput.value = "";
+        }
+      });
+
+      // Utility to format currency INR
+      function formatINRCurrency(num) {
+        return "₹ " + num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      }
+
+      // Function to calculate EMI for flat rate
+      // principal: original loan amount (including other charges if any)
+      // annualRate: annual flat interest rate in %
+      // tenureMonths: total months
+      function calculateFlatEMI(principal, annualRate, tenureMonths) {
+        const totalInterest = (principal * annualRate * tenureMonths) / (12 * 100);
+        const totalPayable = principal + totalInterest;
+        const emi = totalPayable / tenureMonths;
+        return { emi, totalInterest, totalPayable };
+      }
+
+      // Function to generate flat rate amortization table
+      // Returns array with details for each month
+      function generateFlatAmortization(principal, annualRate, tenureMonths, emi) {
+        const monthlyInterestRate = annualRate / 12 / 100;
+        const monthlyInterestFlat = (principal * annualRate) / (12 * 100);
+        const amortization = [];
+        let outstandingBalance = principal;
+
+        for (let month = 1; month <= tenureMonths; month++) {
+          const beginningBalance = outstandingBalance;
+          // Flat rate interest is fixed on original principal
+          const monthlyInterest = monthlyInterestFlat;
+          const principalComponent = emi - monthlyInterest;
+          outstandingBalance = beginningBalance - principalComponent;
+          if (outstandingBalance < 0) outstandingBalance = 0;
+
+          amortization.push({
+            month,
+            beginningBalance,
+            emi,
+            principalComponent,
+            monthlyInterest,
+            outstandingBalance
+          });
+        }
+        return amortization;
+      }
+
+      // Function to calculate EMI using reducing rate method
+      // Formula: EMI = [P * r * (1+r)^n] / [(1+r)^n -1]
+      // P = principal, r = monthly rate, n = tenureMonths
+      function calculateReducingEMI(principal, annualRate, tenureMonths) {
+        const r = annualRate / 12 / 100;
+        const numerator = principal * r * Math.pow(1 + r, tenureMonths);
+        const denominator = Math.pow(1 + r, tenureMonths) - 1;
+        const emi = numerator / denominator;
+        return emi;
+      }
+
+      // Function to generate reducing rate amortization table
+      function generateReducingAmortization(principal, annualRate, tenureMonths, emi) {
+        const r = annualRate / 12 / 100;
+        const amortization = [];
+        let outstandingBalance = principal;
+
+        for (let month = 1; month <= tenureMonths; month++) {
+          const beginningBalance = outstandingBalance;
+          const monthlyInterest = beginningBalance * r;
+          const principalComponent = emi - monthlyInterest;
+          outstandingBalance = beginningBalance - principalComponent;
+          // Fix small floating negative values near last payment
+          if (outstandingBalance < 0) outstandingBalance = 0;
+
+          amortization.push({
+            month,
+            beginningBalance,
+            emi,
+            principalComponent,
+            monthlyInterest,
+            outstandingBalance
+          });
+        }
+        return amortization;
+      }
+
+      function clearTable() {
+        emiTableBody.innerHTML = "";
+        resultSection.classList.add('hidden');
+      }
+
+      // Main calculation handler
+      emiForm.addEventListener('submit', () => {
+        clearTable();
+
+        const principal = parseFloat(principalInput.value);
+        let tenureRaw = tenureInput.value;
+        let tenureMonths = 0;
+        const isTenureInMonths = isMonthsCheckbox.checked;
+        const annualInterest = parseFloat(annualInterestInput.value);
+        const includeOtherCharges = otherChargesCheckbox.checked;
+        const otherCharges = includeOtherCharges ? parseFloat(otherChargesInput.value) || 0 : 0;
+        const isReducingRate = reducingRateCheckbox.checked;
+
+        // Validate inputs
+        if (isNaN(principal) || principal <= 0) {
+          alert("Please enter a valid Principal Amount.");
+          return;
+        }
+        if (isNaN(annualInterest) || annualInterest < 0) {
+          alert("Please enter a valid Annual Rate of Interest.");
+          return;
+        }
+        if (isNaN(tenureRaw) || tenureRaw <= 0) {
+          alert("Please enter a valid Tenure.");
+          return;
+        }
+        if (includeOtherCharges && (isNaN(otherCharges) || otherCharges < 0)) {
+          alert("Please enter a valid value for Other Charges.");
+          return;
+        }
+
+        if (isTenureInMonths) {
+          tenureMonths = Math.floor(tenureRaw);
+        } else {
+          tenureMonths = Math.floor(tenureRaw * 12);
+        }
+        if (tenureMonths <= 0) {
+          alert("Tenure in months should be greater than zero.");
+          return;
+        }
+
+        // Adjust principal with other charges
+        const totalPrincipal = principal + otherCharges;
+
+        // Calculate EMI and amortization
+        let amortization = [];
+        let emi = 0;
+
+        if (isReducingRate) {
+          emi = calculateReducingEMI(totalPrincipal, annualInterest, tenureMonths);
+          amortization = generateReducingAmortization(totalPrincipal, annualInterest, tenureMonths, emi);
+        } else {
+          const flatResult = calculateFlatEMI(totalPrincipal, annualInterest, tenureMonths);
+          emi = flatResult.emi;
+          amortization = generateFlatAmortization(totalPrincipal, annualInterest, tenureMonths, emi);
+        }
+
+        // Round EMI to nearest integer currency unit
+        emi = Math.round(emi);
+
+        // Update the amortization table rows - with formatted currency and rounded numbers
+        emiTableBody.innerHTML = amortization.map(entry => {
+          return `
+          <tr class="odd:bg-gray-100 even:bg-gray-50">
+            <td class="p-2 border border-gray-300">${entry.month}</td>
+            <td class="p-2 border border-gray-300">${formatINRCurrency(entry.beginningBalance)}</td>
+            <td class="p-2 border border-gray-300">${formatINRCurrency(emi)}</td>
+            <td class="p-2 border border-gray-300">${formatINRCurrency(entry.principalComponent)}</td>
+            <td class="p-2 border border-gray-300">${formatINRCurrency(entry.monthlyInterest)}</td>
+            <td class="p-2 border border-gray-300">${formatINRCurrency(entry.outstandingBalance)}</td>
+          </tr>
+        `;
+        }).join('');
+
+        resultSection.classList.remove('hidden');
+        // Smooth scroll to result
+        resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  <hr class="footerhh">
+  <div class="footerc">
+    <footer>
+      <div class="containers">
+        <div class="services">
+          <h3>EMI Summaries</h3>
+          <ul>
+            <li><a href="gold.html">Gold Value</a></li>
+            <li><a href="personal.html">Personal Loan</a></li>
+            <li><a href="homeloan.html">Home Loan</a></li>
+            <li><a href="bikeloan.html">Bike Loan</a></li>
+            <li><a href="carloan.html">Car Loan</a></li>
+            <li><a href="productsloan.html">Product Loan</a></li>
+          </ul>
+        </div>
+        <div class="about">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Service</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="careers">
+          <h3>Developer</h3>
+          <ul>
+            <li>
+              <a href="https://www.snapchat.com/add/sk_a6076?share_id=J8IglNHAVXk&locale=en-IN">Adnan</a>
+            </li>
+            <li>
+              <a href="https://github.com/Faraza11">Faraz</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="fafaheading">
+        <h5>Connect with us</h5>
+        <ul>
+          <li>
+            <i class="fa fa-envelope" aria-hidden="true"></i>
+            <a href=”mailto:advs5578@gmail.com”>
+              advs5578@gmail.com
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="fafa">
+        <a href="https://x.com/AdsShaik97116?t=Hu2ta0nZVeYM2PdgxmPoUA&s=09">
+          <i class="fa fa-twitter-square" aria-hidden="true"></i>
+        </a>
+        <a href="#">
+          <i class="fa fa-youtube-play" aria-hidden="true"></i>
+        </a>
+        <a href="https://www.instagram.com/_sk_adnan?igsh=a25wanJndnJsMnp5">
+          <i class="fa fa-instagram" aria-hidden="true"></i>
+        </a>
+        <a href="https://github.com/ska6076">
+          <i class="fa fa-github" aria-hidden="true"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/sk-adnan/">
+          <i class="fa fa-linkedin-square" aria-hidden="true"></i>
+        </a>
+      </div>
+      <p class="copyright">CalciGo © 2025</p>
+    </footer>
+  </div>
+
+
+
+
+</body>
+
+</html>
