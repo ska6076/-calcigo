@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="generator" content="GitLab Pages">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Time Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="timeCalculator.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+</head>
+
+<body>
+    <!--  Mobile Nav Bar -->
+    <header class="header">
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="brandp">
+            <div class="brandAp">
+                <a href="index.html" class="brandname">
+                    <div class="one"><b>C</b></div>
+                    <div class="two"><b>A</b></div>
+                    <div class="three"><b>L</b></div>
+                    <div class="four"><b>C</b></div>
+                    <div class="five"><b>I</b></div>
+                    <div class="six"><b>G</b></div>
+                    <div class="seven"><b>O</b></div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Hamburger List -->
+    <div class="menu-overlay" id="menuOverlay">
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="index.html" class="menu-link">
+                    <!-- <span class="icon">🔒</span> -->
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="gramCalculator.html" class="menu-link">
+                    <!-- <span class="icon">🔒</span> -->
+                    <span>Grams Calculator</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="time.html" class="menu-link">
+                    <!-- <span class="icon">📱</span> -->
+                    <span>Personal Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="gold.html" class="menu-link">
+                    <!-- <span class="icon">📊</span> -->
+                    <span>Gold Purchase Value</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="homeloan.html" class="menu-link">
+                    <!-- <span class="icon">💌</span> -->
+                    <span>Home Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="bikeloan.html" class="menu-link">
+                    <!-- <span class="icon">📁</span> -->
+                    <span>Bike Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="carloan.html" class="menu-link">
+                    <!-- <span class="icon">⚙️</span> -->
+                    <span>Car Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="productsloan.html" class="menu-link">
+                    <!-- <span class="icon">👤</span> -->
+                    <span>Products Loan</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <script src="script.js"></script>
+
+    <!-- Desktop Nav Bar -->
+    <div class="navborder">
+        <div class="brand">
+            <div class="brandA">
+                <a href="index.html" class="brandname">
+                    <div class="one">A</div>
+                    <div class="two">B</div>
+                    <div class="three">C</div>
+                </a>
+            </div>
+            <div class="brandB">
+                <a href="#" class="brandcontact">
+                    <i class='fa fa-phone'></i>
+                    Contact US
+                </a>
+            </div>
+        </div>
+
+        <div class="navlist">
+            <section class="lists">
+                <a href="personal.html" class="listline">Personal Loan</a>
+                <a href="gold.html" class="listline">Gold Purchase Value</a>
+                <a href="homeloan.html" class="listline">Home Loan</a>
+                <select id="companyname" name="companyname">
+                    <option value="select">Crypto Purchase Value</option>
+                    <a href="binance.html" class="listline">
+                        <option value="binance">Binance</option>
+                    </a>
+                    <a href="coindcx.html" class="listline">
+                        <option value="coinDCX">CoinDCX</option>
+                    </a>
+                    <a href="coinbase.html" class="listline">
+                        <option value="coinbase">Coinbase</option>
+                    </a>
+                </select>
+                <a href="bikeloan.html" class="listline">Bike Loan</a>
+                <a href="carloan.html" class="listline">Car Loan</a>
+                <a href="productsloan.html" class="listline">Products Loan</a>
+            </section>
+        </div>
+    </div>
+
+    <div class="cont">
+        <h1><a href="index.html">Time</a> Calculator</h1>
+        <div class="buttons">
+            <div class="format-buttons">
+                <button id="btn12Hour" class="active">12 Hour</button>
+                <button id="btn24Hour">24 Hour</button>
+            </div>
+        </div>
+
+        <div class="ampm-buttons">
+            <div>
+                <label>Start Time :</label>
+                <button id="btnStartAM" class="active">AM</button>
+                <button id="btnStartPM">PM</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <div class="time-inputs">
+                <input type="number" id="startHour" placeholder="HH" min="1" max="12">
+                <span>:</span>
+                <input type="number" id="startMinute" placeholder="MM" min="0" max="59" value="00">
+            </div>
+        </div>
+
+        <div class="ampm-buttons">
+            <div>
+                <label>End Time :</label>
+                <button id="btnEndAM" class="active">AM</button>
+                <button id="btnEndPM">PM</button>
+            </div>
+        </div>
+        <div class="input-group">
+            <div class="time-inputs">
+                <input type="number" id="endHour" placeholder="HH" min="1" max="12">
+                <span>:</span>
+                <input type="number" id="endMinute" placeholder="MM" min="0" max="59" value="00">
+            </div>
+        </div>
+
+        <div id="result"></div>
+        <div id="error" class="error"></div>
+        <button id="calculateBtn">Calculate Difference</button>
+
+    </div>
+
+    <script src="timeCalculator.js"></script>
+
+    <!-- Mobile and Desktop Footer -->
+    <!-- <hr class="footerhh">
+    <div class="footerc">
+        <footer>
+            <div class="containers">
+                <div class="services">
+                    <h3>EMI Summaries</h3>
+                    <ul>
+                        <li><a href="gold.html">Gold Value</a></li>
+                        <li><a href="personal.html">Personal Loan</a></li>
+                        <li><a href="homeloan.html">Home Loan</a></li>
+                        <li><a href="bikeloan.html">Bike Loan</a></li>
+                        <li><a href="carloan.html">Car Loan</a></li>
+                        <li><a href="productsloan.html">Product Loan</a></li>
+                    </ul>
+                </div>
+                <div class="about">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Service</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="careers">
+                    <h3>Developer</h3>
+                    <ul>
+                        <li>
+                            <a href="https://www.snapchat.com/add/sk_a6076?share_id=J8IglNHAVXk&locale=en-IN">Adnan</a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/Faraza11">Faraz</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="fafaheading">
+                <h5>Connect with us</h5>
+                <ul>
+                    <li>
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                        <a href=”mailto:advs5578@gmail.com”>
+                            advs5578@gmail.com
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="fafa">
+                <a href="https://x.com/AdsShaik97116?t=Hu2ta0nZVeYM2PdgxmPoUA&s=09">
+                    <i class="fa fa-twitter-square" aria-hidden="true"></i>
+                </a>
+                <a href="#">
+                    <i class="fa fa-youtube-play" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.instagram.com/_sk_adnan?igsh=a25wanJndnJsMnp5">
+                    <i class="fa fa-instagram" aria-hidden="true"></i>
+                </a>
+                <a href="https://github.com/ska6076">
+                    <i class="fa fa-github" aria-hidden="true"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/sk-adnan/">
+                    <i class="fa fa-linkedin-square" aria-hidden="true"></i>
+                </a>
+            </div>
+            <p class="copyright">CalciGo © 2025</p>
+        </footer>
+    </div> -->
+</body>
+
+</html>
