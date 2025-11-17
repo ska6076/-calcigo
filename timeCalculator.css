@@ -550,7 +550,7 @@ body {
     }
 }
 
-@media(min-width: 601px) and (max-width: 1440px) {
+@media(min-width: 601px) and (max-width: 1600px) {
 
     .header,
     .menu-overlay,
