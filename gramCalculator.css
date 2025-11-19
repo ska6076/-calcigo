@@ -491,10 +491,7 @@ body {
 
 
 @media(min-width: 601px) and (max-width: 1600px) {
-  body {
-    display: none;
-  }
-
+  
   /* Header Section */
   .header {
     display: none;
@@ -790,6 +787,7 @@ body {
   .containers>.careers>ul>li>a:hover {
     color: #3E5F44;
   }
+
 
 
 
