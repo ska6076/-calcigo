@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head><!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OT Calculator</title>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <link rel="stylesheet" href="xyz.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+
+    <header class="header">
+        <div class="menu-toggle" id="menuToggle">
+           <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div class="brandp">
+            <div class="brandAp">
+                <a href="index.html" class="brandname">
+                    <div class="one"><b>C</b></div>
+                    <div class="two"><b>A</b></div>
+                    <div class="three"><b>L</b></div>
+                    <div class="four"><b>C</b></div>
+                    <div class="five"><b>I</b></div>
+                    <div class="six"><b>G</b></div>
+                    <div class="seven"><b>O</b></div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+
+    <div class="menu-overlay" id="menuOverlay">
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="index.html" class="menu-link">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="timeCalculator.html" class="menu-link">
+                    <span>Time Calculator</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="personal.html" class="menu-link">
+                    <span>Personal Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="gold.html" class="menu-link">
+                    <span>Gold Purchase Value</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="homeloan.html" class="menu-link">
+                    <span>Home Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="bikeloan.html" class="menu-link">
+                    <span>Bike Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="carloan.html" class="menu-link">
+                    <span>Car Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="productsloan.html" class="menu-link">
+                    <span class="icon">👤</span>
+                    <span>Products Loan</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            menuOverlay.classList.toggle('active');
+
+            
+            if (!menuOverlay.classList.contains('active')) {
+                const menuItems = document.querySelectorAll('.menu-item');
+                menuItems.forEach(item => {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateX(-20px)';
+                });
+            }
+        });
+    </script>
+
+
+
+
+
+    <div class="navborder">
+
+        <div class="brand">
+            <div class="brandA">
+                <a href="index.html" class="brandname">
+                    <div class="one">A</div>
+                    <div class="two">B</div>
+                    <div class="three">C</div>
+                </a>
+            </div>
+
+            <div class="brandB">
+                <a href="#" class="brandcontact">
+                    <i class='fa fa-phone'></i>Contact US
+                </a>
+            </div>
+        </div>
+
+        <div class="navlist">
+            <section class="lists">
+                <a href="personal.html" class="listline">Personal Loan</a>
+                <a href="gold.html" class="listline">Gold Purchase Value</a>
+                <a href="homeloan.html" class="listline">Home Loan</a>
+                <a href="bikeloan.html" class="listline">Bike Loan</a>
+                <a href="carloan.html" class="listline">Car Loan</a>
+                <a href="productsloan.html" class="listline active">Products Loan</a>
+            </section>
+        </div>
+    </div>
+
+
+
+    <div class="containor">
+        <div class="h1cont">
+            <h1 class="heading"><span>OT</span> Calculator</h1>
+        </div>
+
+        <div id="mode-buttons">
+            <button id="12hr-btn" class="active">12hr</button>
+            <button id="24hr-btn" class="active">24hr</button>
+        </div>
+
+        <div id="inputs">
+            <label class="shift">Total Shift Hours: </label><br>
+            <input class="shiftinput" id="shift-hours" placeholder="HH:MM" maxlength="5" type="text" inputmode="numeric"
+                pattern="[0-9]*" autocomplete="off"><br>
+
+            <label class="starting">Starting Time:
+                <span id="start-ampm" style="display:none;">
+                    <button id="start-am" class="active">AM</button>
+                    <button id="start-pm">PM</button>
+                </span>
+            </label><br>
+            <input class="startinput" id="start-time" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off"><br>
+
+            <label class="ending">Ending Time:
+                <span id="end-ampm" style="display:none;">
+                    <button id="end-am" class="active">AM</button>
+                    <button id="end-pm">PM</button>
+                </span>
+            </label><br>
+            <input class="endinput" id="end-time" placeholder="HH:MM" maxlength="5" inputmode="numeric" autocomplete="off"><br>
+
+            <!-- <hr class="dotte"> -->
+
+            <label class="otresult">OT Hours:</label>
+            <span id="ot-display">00:00</span>
+        </div>
+    </div>
+    <script src="xyz.js"></script>
+</body>
+
+</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OT Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        #mode-buttons {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+        }
+
+        button.active {
+            background: #007bff;
+            color: white;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 8px;
+            width: 100px;
+        }
+
+        #ot-display {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        #start-ampm,
+        #end-ampm {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>One-Day OT Calculator</h1>
+    <div id="mode-buttons">
+        <button id="12hr-btn">12hr</button>
+        <button id="24hr-btn" class="active">24hr</button>
+    </div>
+    <div id="inputs">
+
+        <label>Total Shift Hours: <input id="shift-hours" placeholder="HH:MM" maxlength="5"></label>
+
+        <label>Starting Time: <input id="start-time" placeholder="HH:MM" maxlength="5">
+            <span id="start-ampm" style="display:none;">
+                <button id="start-am" class="active">AM</button>
+                <button id="start-pm">PM</button>
+            </span>
+        </label>
+
+
+        <label>Ending Time: <input id="end-time" placeholder="HH:MM" maxlength="5">
+            <span id="end-ampm" style="display:none;">
+                <button id="end-am" class="active">AM</button>
+                <button id="end-pm">PM</button>
+            </span>
+        </label>
+
+
+        <label>Extra Time Worked (OT): <span id="ot-display">00:00</span></label>
+    </div>
+
+    <script>
+        let mode = '24hr';
+        let startAmpm = 'AM';
+        let endAmpm = 'AM';
+
+        document.getElementById('12hr-btn').onclick = () => {
+            mode = '12hr';
+            updateMode();
+        };
+        document.getElementById('24hr-btn').onclick = () => {
+            mode = '24hr';
+            updateMode();
+        };
+
+        function updateMode() {
+            document.getElementById('12hr-btn').classList.toggle('active', mode === '12hr');
+            document.getElementById('24hr-btn').classList.toggle('active', mode === '24hr');
+            let ampmSpans = document.querySelectorAll('#start-ampm, #end-ampm');
+            if (mode === '12hr') {
+                ampmSpans.forEach(s => s.style.display = 'inline');
+            } else {
+                ampmSpans.forEach(s => s.style.display = 'none');
+            }
+            calculateOT();
+        }
+
+        document.getElementById('start-am').onclick = () => {
+            startAmpm = 'AM';
+            updateAmpm('start');
+            calculateOT();
+        };
+        document.getElementById('start-pm').onclick = () => {
+            startAmpm = 'PM';
+            updateAmpm('start');
+            calculateOT();
+        };
+        document.getElementById('end-am').onclick = () => {
+            endAmpm = 'AM';
+            updateAmpm('end');
+            calculateOT();
+        };
+        document.getElementById('end-pm').onclick = () => {
+            endAmpm = 'PM';
+            updateAmpm('end');
+            calculateOT();
+        };
+
+        function updateAmpm(prefix) {
+            document.getElementById(prefix + '-am').classList.toggle('active', (prefix === 'start' ? startAmpm : endAmpm) === 'AM');
+            document.getElementById(prefix + '-pm').classList.toggle('active', (prefix === 'start' ? startAmpm : endAmpm) === 'PM');
+        }
+
+        function formatTimeInput(input) {
+            let value = input.value.replace(/[^0-9]/g, '');
+            if (value.length >= 3) {
+                value = value.slice(0, 2) + ':' + value.slice(2, 4);
+            } else if (value.length >= 2) {
+                value = value.slice(0, 2) + ':' + value.slice(2);
+            }
+            input.value = value;
+        }
+
+        document.getElementById('shift-hours').oninput = function () {
+            formatTimeInput(this);
+            calculateOT();
+        };
+        document.getElementById('start-time').oninput = function () {
+            formatTimeInput(this);
+            calculateOT();
+        };
+        document.getElementById('end-time').oninput = function () {
+            formatTimeInput(this);
+            calculateOT();
+        };
+
+        function parseTime(timeStr, ampm) {
+            if (!timeStr || !timeStr.includes(':')) return 0;
+            let [hh, mm] = timeStr.split(':').map(Number);
+            if (ampm === 'PM' && hh !== 12) hh += 12;
+            if (ampm === 'AM' && hh === 12) hh = 0;
+            return hh * 60 + mm;
+        }
+
+        function calculateOT() {
+            let shiftStr = document.getElementById('shift-hours').value;
+            let startStr = document.getElementById('start-time').value;
+            let endStr = document.getElementById('end-time').value;
+            if (!shiftStr || !startStr || !endStr) return;
+            let shiftMin = parseTime(shiftStr, null);
+            let startMin = parseTime(startStr, mode === '12hr' ? startAmpm : null);
+            let endMin = parseTime(endStr, mode === '12hr' ? endAmpm : null);
+            let workedMin = endMin - startMin;
+            if (workedMin < 0) workedMin += 24 * 60;
+            let otMin = workedMin - shiftMin;
+            if (otMin < 0) otMin = 0;
+            let otH = Math.floor(otMin / 60);
+            let otM = otMin % 60;
+            document.getElementById('ot-display').textContent = `${otH.toString().padStart(2, '0')}:${otM.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+
+</html>
