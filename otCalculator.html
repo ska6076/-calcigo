@@ -86,26 +86,6 @@
         </ul>
     </div>
 
-    <script>
-        const menuToggle = document.getElementById('menuToggle');
-        const menuOverlay = document.getElementById('menuOverlay');
-
-        menuToggle.addEventListener('click', () => {
-            menuToggle.classList.toggle('active');
-            menuOverlay.classList.toggle('active');
-
-            
-            if (!menuOverlay.classList.contains('active')) {
-                const menuItems = document.querySelectorAll('.menu-item');
-                menuItems.forEach(item => {
-                    item.style.opacity = '0';
-                    item.style.transform = 'translateX(-20px)';
-                });
-            }
-        });
-    </script>
-
-
 
 
 
