@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="generator" content="GitLab Pages">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grams Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="gramCalculator.css">
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <!-- <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png"> -->
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+</head>
+
+<body>
+
+
+    <header class="header">
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="brandp">
+            <div class="brandAp">
+                <a href="index.html" class="brandname">
+                    <div class="one"><b>C</b></div>
+                    <div class="two"><b>A</b></div>
+                    <div class="three"><b>L</b></div>
+                    <div class="four"><b>C</b></div>
+                    <div class="five"><b>I</b></div>
+                    <div class="six"><b>G</b></div>
+                    <div class="seven"><b>O</b></div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="index.html" class="menu-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_4418_6153)">
+                            <path
+                                d="M9.02 2.84016L3.63 7.04016C2.73 7.74016 2 9.23016 2 10.3602V17.7702C2 20.0902 3.89 21.9902 6.21 21.9902H17.79C20.11 21.9902 22 20.0902 22 17.7802V10.5002C22 9.29016 21.19 7.74016 20.2 7.05016L14.02 2.72016C12.62 1.74016 10.37 1.79016 9.02 2.84016Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path opacity="0.34" d="M12 17.9902V14.9902" stroke="#37b7c3" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_4418_6153">
+                                <rect width="30" height="30" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Hmoe</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="timeCalculator.html" class="menu-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_3261_13285)">
+                            <path
+                                d="M9.95005 18.4299L8.81005 18.6899C8.00005 18.8799 7.36005 19.5099 7.17005 20.3299L6.91005 21.4699C6.88005 21.5899 6.71005 21.5899 6.68005 21.4699L6.42005 20.3299C6.23005 19.5199 5.60005 18.8799 4.78005 18.6899L3.64005 18.4299C3.52005 18.3999 3.52005 18.2299 3.64005 18.1999L4.78005 17.9399C5.59005 17.7499 6.23005 17.1199 6.42005 16.2999L6.68005 15.1599C6.71005 15.0399 6.88005 15.0399 6.91005 15.1599L7.17005 16.2999C7.36005 17.1099 7.99005 17.7499 8.81005 17.9399L9.95005 18.1999C10.07 18.2299 10.07 18.3999 9.95005 18.4299Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" />
+                            <path
+                                d="M9.53 13.5L16.53 9.30001C16.95 9.05001 17.3 8.44001 17.3 7.94001V4.09001C17.3 3.22001 16.59 2.51001 15.72 2.51001H8.33C7.46 2.51001 6.75 3.22001 6.75 4.09001V7.94001C6.75 8.43001 7.1 9.04001 7.52 9.30001L8.86 10.11"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" />
+                            <path opacity="0.4"
+                                d="M15.1699 13.9L16.5099 14.71C16.9299 14.96 17.2799 15.57 17.2799 16.07V19.92C17.2799 20.79 16.5699 21.5 15.6999 21.5H10.6899"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_3261_13285">
+                                <rect width="30" height="30" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Time Calculator</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="personal.html" class="menu-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_3261_13242)">
+                            <path
+                                d="M7.41002 19.6101L6.42002 19.8401C5.71002 20.0001 5.16002 20.5601 4.99002 21.2701L4.76002 22.2601C4.74002 22.3601 4.58002 22.3601 4.56002 22.2601L4.33002 21.2701C4.17002 20.5601 3.61002 20.0101 2.90002 19.8401L1.91002 19.6101C1.81002 19.5901 1.81002 19.4301 1.91002 19.4101L2.90002 19.1801C3.61002 19.0201 4.16002 18.4601 4.33002 17.7501L4.56002 16.7601C4.58002 16.6601 4.74002 16.6601 4.76002 16.7601L4.99002 17.7501C5.15002 18.4601 5.71002 19.0101 6.42002 19.1801L7.41002 19.4101C7.51002 19.4301 7.51002 19.5901 7.41002 19.6101Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" />
+                            <path
+                                d="M9.16 10.87C9.06 10.86 8.94 10.86 8.83 10.87C6.45 10.79 4.56 8.84 4.56 6.44C4.56 4.04 6.54 2 9 2C11.46 2 13.44 3.99 13.44 6.44C13.43 8.84 11.54 10.79 9.16 10.87Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path opacity="0.4"
+                                d="M16.41 4C18.35 4 19.91 5.57 19.91 7.5C19.91 9.43 18.41 10.93 16.54 11C16.46 10.99 16.37 10.99 16.28 11"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M9.00002 21.81C10.87 21.84 12.75 21.38 14.17 20.43C16.59 18.81 16.59 16.17 14.17 14.56C12.76 13.62 10.87 13.16 9.00002 13.19C8.00002 13.21 7.01002 13.36 6.10002 13.65C5.72002 13.77 5.36002 13.91 5.02002 14.08"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path opacity="0.4"
+                                d="M18.34 20C19.06 19.85 19.74 19.56 20.3 19.13C21.86 17.96 21.86 16.03 20.3 14.86C19.75 14.44 19.08 14.16 18.37 14"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_3261_13242">
+                                <rect width="30" height="30" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Personal Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="gold.html" class="menu-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_4418_169575)">
+                            <path opacity="0.4"
+                                d="M18.5 12.6504V16.3504C18.5 19.4704 15.59 22.0004 12 22.0004C8.41 22.0004 5.5 19.4704 5.5 16.3504V12.6504C5.5 15.7704 8.41 18.0004 12 18.0004C15.59 18.0004 18.5 15.7704 18.5 12.6504Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M18.5 7.65C18.5 8.56 18.25 9.4 17.81 10.12C16.74 11.88 14.54 13 12 13C9.46 13 7.26 11.88 6.19 10.12C5.75 9.4 5.5 8.56 5.5 7.65C5.5 6.09 6.22999 4.68 7.39999 3.66C8.57999 2.63 10.2 2 12 2C13.8 2 15.42 2.63 16.6 3.65C17.77 4.68 18.5 6.09 18.5 7.65Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path
+                                d="M18.5 7.65V12.65C18.5 15.77 15.59 18 12 18C8.41 18 5.5 15.77 5.5 12.65V7.65C5.5 4.53 8.41 2 12 2C13.8 2 15.42 2.63 16.6 3.65C17.77 4.68 18.5 6.09 18.5 7.65Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_4418_169575">
+                                <rect width="30" height="30" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Gold Purchase Value</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="homeloan.html" class="menu-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_4418_6153)">
+                            <path
+                                d="M9.02 2.84016L3.63 7.04016C2.73 7.74016 2 9.23016 2 10.3602V17.7702C2 20.0902 3.89 21.9902 6.21 21.9902H17.79C20.11 21.9902 22 20.0902 22 17.7802V10.5002C22 9.29016 21.19 7.74016 20.2 7.05016L14.02 2.72016C12.62 1.74016 10.37 1.79016 9.02 2.84016Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            <path opacity="0.34" d="M12 17.9902V14.9902" stroke="#37b7c3" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_4418_6153">
+                                <rect width="30" height="30" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Home Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="bikeloan.html" class="menu-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_4418_6501)">
+                            <g opacity="0.4">
+                                <path
+                                    d="M11.9997 18.1496C11.2797 18.1496 10.6797 17.5596 10.6797 16.8296V7.1696C10.6797 6.4496 11.2697 5.84961 11.9997 5.84961C12.7197 5.84961 13.3197 6.4396 13.3197 7.1696V16.8296C13.3197 17.5596 12.7197 18.1496 11.9997 18.1496Z"
+                                    stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" />
+                                <path
+                                    d="M6.68001 8.92901C7.04001 8.29901 7.85002 8.08901 8.48002 8.44901L16.85 13.279C17.48 13.639 17.69 14.449 17.33 15.079C16.97 15.709 16.16 15.919 15.53 15.559L7.16002 10.729C6.53002 10.359 6.31001 9.54901 6.68001 8.92901Z"
+                                    stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" />
+                                <path
+                                    d="M6.67997 15.0692C6.31997 14.4392 6.52997 13.6292 7.15997 13.2692L15.53 8.43924C16.16 8.07924 16.97 8.28924 17.33 8.91924C17.69 9.54924 17.48 10.3592 16.85 10.7192L8.47997 15.5492C7.84997 15.9192 7.03997 15.6992 6.67997 15.0692Z"
+                                    stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" />
+                            </g>
+                            <path
+                                d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_4418_6501">
+                                <rect width="30" height="30" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Bike Loan</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="carloan.html" class="menu-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_3261_13285)">
+                            <path
+                                d="M9.95005 18.4299L8.81005 18.6899C8.00005 18.8799 7.36005 19.5099 7.17005 20.3299L6.91005 21.4699C6.88005 21.5899 6.71005 21.5899 6.68005 21.4699L6.42005 20.3299C6.23005 19.5199 5.60005 18.8799 4.78005 18.6899L3.64005 18.4299C3.52005 18.3999 3.52005 18.2299 3.64005 18.1999L4.78005 17.9399C5.59005 17.7499 6.23005 17.1199 6.42005 16.2999L6.68005 15.1599C6.71005 15.0399 6.88005 15.0399 6.91005 15.1599L7.17005 16.2999C7.36005 17.1099 7.99005 17.7499 8.81005 17.9399L9.95005 18.1999C10.07 18.2299 10.07 18.3999 9.95005 18.4299Z"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" />
+                            <path
+                                d="M9.53 13.5L16.53 9.30001C16.95 9.05001 17.3 8.44001 17.3 7.94001V4.09001C17.3 3.22001 16.59 2.51001 15.72 2.51001H8.33C7.46 2.51001 6.75 3.22001 6.75 4.09001V7.94001C6.75 8.43001 7.1 9.04001 7.52 9.30001L8.86 10.11"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" />
+                            <path opacity="0.4"
+                                d="M15.1699 13.9L16.5099 14.71C16.9299 14.96 17.2799 15.57 17.2799 16.07V19.92C17.2799 20.79 16.5699 21.5 15.6999 21.5H10.6899"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_3261_13285">
+                                <rect width="30" height="30" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Car Loan</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+
+
+
+
+
+    <div class="parentc">
+        <main class="container">
+            <h1>Grams <span>Calculator</span></h1>
+            <form id="emiForm" class="contform" onsubmit="return false;">
+
+                <label for="grams">Grams*</label><br>
+                <input type="number" id="grams" step="0.01" placeholder="e.g 3.4g" required /><br>
+
+
+                <label for="rupees">Rupees (₹)*</label><br>
+                <input type="number" id="rupees" name="annualInterest" placeholder="e.g 5rs" step="0.01" required /><br>
+
+
+                <label for="purchaseRupees">If Rupees*</label>
+                <input type="number" step="0.01" required id="purchaseRupees" placeholder="Enter purchase rupees" /><br>
+
+
+                <div id="result"></div>
+                <button id="submitCalc" onclick="calculateGrams()">Calculate</button>
+                
+
+
+            </form>
+        </main>
+    </div>
+    <script src="script.js"></script>
+
+
+
+
+
+
+    <div class="footerc">
+        <footer>
+            <div class="containers">
+                <div class="services">
+                    <h3>Product</h3>
+                    <ul>
+                        <li><a href="timeCalculator.html">Time Calculator</a></li>
+                        <li><a href="gramCalculator.html">Gram Calculator</a></li>
+                        <li><a href="personal.html">Personal Loan</a></li>
+                        <li><a href="gold.html">Gold Purchase Value</a></li>
+                        <li><a href="bikeloan.html">Bike Loan</a></li>
+                        <li><a href="carloan.html">Car Loan</a></li>
+                    </ul>
+                </div>
+                <div class="about">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#">About</a></li>
+                        <li><a href="index.html">Service's</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="hrline">
+
+            <div class="fafa">
+                <a href=”mailto:advs5578@gmail.com”>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_4418_3325)">
+                            <path d="M12 8V2L10 4" stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M12 2L14 4" stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path
+                                d="M12 22H16C20 22 21 19.76 21 17V16C21 13.79 21 12 17 12C16 12 15.72 12.21 15.2 12.6L14.18 13.68C13 14.94 11 14.94 9.81 13.68L8.8 12.6C8.28 12.21 8 12 7 12C3 12 3 13.79 3 16V17C3 19.76 3 22 8 22"
+                                stroke="#37b7c3" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M5 11.9991V9.99906C5 7.98906 5 6.32906 8 6.03906" stroke="#37b7c3"
+                                stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M19 11.9991V9.99906C19 7.98906 19 6.32906 16 6.03906" stroke="#37b7c3"
+                                stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_4418_3325">
+                                <rect width="24" height="24" fill="white" />
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <!-- <i class="fa fa-envelope" aria-hidden="true"></i></a> -->
+                    <a href="https://x.com/AdsShaik97116?t=Hu2ta0nZVeYM2PdgxmPoUA&s=09">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <g clip-path="url(#clip0_4418_6170)">
+                                <path
+                                    d="M7.40018 6.32015L15.8902 3.49015C19.7002 2.22015 21.7702 4.30015 20.5102 8.11015L17.6802 16.6002C15.7802 22.3102 12.6602 22.3102 10.7602 16.6002L9.92018 14.0802L7.40018 13.2402C1.69018 11.3402 1.69018 8.23015 7.40018 6.32015Z"
+                                    stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path opacity="0.34" d="M10.1099 13.6505L13.6899 10.0605" stroke="#37b7c3"
+                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_4418_6170">
+                                    <rect width="24" height="24" fill="white" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        <!-- <i class="fa fa-twitter-square" aria-hidden="true"></i> -->
+                    </a>
+                    <a href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="#37b7c3">
+                            <g clip-path="url(#clip0_4418_7772)">
+                                <path
+                                    d="M17 20.75H7C3.56 20.75 1.25 18.44 1.25 15V9C1.25 5.56 3.56 3.25 7 3.25H17C20.44 3.25 22.75 5.56 22.75 9V15C22.75 18.44 20.44 20.75 17 20.75ZM7 4.75C4.42 4.75 2.75 6.42 2.75 9V15C2.75 17.58 4.42 19.25 7 19.25H17C19.58 19.25 21.25 17.58 21.25 15V9C21.25 6.42 19.58 4.75 17 4.75H7Z"
+                                    fill="white" style="fill: var(--fillg);" />
+                                <path
+                                    d="M10.5901 15.5292C10.3001 15.5292 10.0201 15.4592 9.77014 15.3192C9.19014 14.9892 8.8501 14.3192 8.8501 13.4892V10.5292C8.8501 9.69924 9.18014 9.02925 9.77014 8.69925C10.3501 8.36925 11.1001 8.42923 11.8101 8.85923L14.2802 10.3392C14.9602 10.7492 15.3501 11.3593 15.3501 12.0093C15.3501 12.6593 14.9602 13.2692 14.2802 13.6792L11.8101 15.1592C11.4001 15.3992 10.9801 15.5292 10.5901 15.5292ZM10.5901 9.96924C10.5501 9.96924 10.5201 9.97923 10.5001 9.98923C10.4301 10.0292 10.3501 10.2092 10.3501 10.5192V13.4793C10.3501 13.7793 10.4301 13.9593 10.5001 14.0093C10.5801 14.0493 10.7702 14.0292 11.0302 13.8692L13.5001 12.3893C13.7501 12.2393 13.8401 12.0892 13.8401 11.9992C13.8401 11.9092 13.7501 11.7692 13.5001 11.6092L11.0302 10.1292C10.8502 10.0192 10.6901 9.96924 10.5901 9.96924Z"
+                                    fill="white" style="fill: var(--fillg);" />
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_4418_7772">
+                                    <rect width="24" height="24" fill="white" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        <!-- <i class="fa fa-youtube-play" aria-hidden="true"></i> -->
+                    </a>
+                    <a href="https://github.com/ska6076">
+                        <i class="fa fa-github" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://www.instagram.com/_sk_adnan?igsh=a25wanJndnJsMnp5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <g clip-path="url(#clip0_4418_9861)">
+                                <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
+                                    stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path
+                                    d="M12 15.5C13.933 15.5 15.5 13.933 15.5 12C15.5 10.067 13.933 8.5 12 8.5C10.067 8.5 8.5 10.067 8.5 12C8.5 13.933 10.067 15.5 12 15.5Z"
+                                    stroke="#37b7c3" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M17.6361 7H17.6477" stroke="#37b7c3" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_4418_9861">
+                                    <rect width="24" height="24" fill="white" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        <!-- <i class="fa fa-instagram" aria-hidden="true"></i> -->
+                    </a>
+                    <a href="https://www.linkedin.com/in/sk-adnan/">
+                        <i class="fa fa-linkedin" aria-hidden="true"></i>
+                    </a>
+            </div>
+            <p class="copyright">CalciGo © 2025</p>
+        </footer>
+    </div>
+
+</body>
+
+</html>
