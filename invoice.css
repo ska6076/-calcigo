@@ -1,0 +1,351 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.invoice-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px 25px 40px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.company-info h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  letter-spacing: 0.5px;
+}
+
+.company-info p {
+  margin: 2px 0;
+  font-size: 13px;
+}
+
+.invoice-meta {
+  text-align: right;
+}
+
+.invoice-meta h2 {
+  margin: 0 0 10px;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.meta-row label {
+  font-weight: 600;
+  width: 100px;
+  /* same as .field-row label min-width */
+  text-align: right;
+}
+
+.meta-row input {
+  padding: 3px 6px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  width: 115px;
+}
+
+.party-info {
+  margin-bottom: 15px;
+}
+
+.party-info .block {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  border-radius: 3px;
+}
+
+.party-info h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.field-row label {
+  min-width: 100px;
+  font-size: 13px;
+  text-align: right;
+}
+
+.field-row input {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+}
+
+.items-section {
+  margin-top: 10px;
+}
+
+#items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+  table-layout: fixed;
+}
+
+/* Column width tuning: give Description more space and balance the rest */
+#items-table th:nth-child(1),
+#items-table td:nth-child(1) {
+  width: 6%;
+  /* S. No */
+}
+
+#items-table th:nth-child(2),
+#items-table td:nth-child(2) {
+  width: 35%;
+  /* Description */
+}
+
+#items-table th:nth-child(3),
+#items-table td:nth-child(3) {
+  width: 9%;
+  /* Quantity */
+}
+
+#items-table th:nth-child(4),
+#items-table td:nth-child(4) {
+  width: 10%;
+  /* Size */
+}
+
+#items-table th:nth-child(5),
+#items-table td:nth-child(5) {
+  width: 10%;
+  /* Sqft */
+}
+
+#items-table th:nth-child(6),
+#items-table td:nth-child(6) {
+  width: 12%;
+  /* Rate / Sqft */
+}
+
+#items-table th:nth-child(7),
+#items-table td:nth-child(7) {
+  width: 12%;
+  /* Amount */
+}
+
+#items-table th:nth-child(8),
+#items-table td:nth-child(8) {
+  width: 9%;
+  /* Action (screen only; hidden in print) */
+}
+
+#items-table th,
+#items-table td {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* Center all table headings */
+#items-table th {
+  background-color: #f0f0f0;
+}
+
+#items-table input {
+  width: 100%;
+  border: none;
+  padding: 3px 4px;
+  font-size: 13px;
+}
+
+/* Right-align numeric inputs in the table */
+#items-table input[type="number"] {
+  text-align: right;
+}
+
+#items-table input:focus {
+  outline: none;
+}
+
+.remove-row-btn {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+#add-row-btn,
+#download-btn {
+  padding: 6px 12px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+#add-row-btn:hover,
+#download-btn:hover,
+.remove-row-btn:hover {
+  opacity: 0.9;
+}
+
+.totals-section {
+  margin-top: 15px;
+  max-width: 300px;
+  margin-left: auto;
+}
+
+.totals-section input {
+  width: 120px;
+  padding: 3px 4px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  text-align: right;
+}
+
+.gst-row,
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.grand-total {
+  font-weight: bold;
+  border-top: 2px solid #333;
+  padding-top: 6px;
+}
+
+.note-section {
+  margin-top: 25px;
+  font-size: 13px;
+}
+
+.actions-section {
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* ---------- Responsive layout for mobile (screen only) ---------- */
+@media screen and (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .invoice-container {
+    padding: 15px 15px 25px;
+    max-width: 100%;
+  }
+
+  .invoice-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .invoice-meta {
+    width: 100%;
+    text-align: left;
+  }
+
+  .meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .meta-row label {
+    width: auto;
+    text-align: left;
+  }
+
+  .party-info .block {
+    padding: 10px;
+  }
+
+  .field-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .field-row label {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .totals-section {
+    max-width: 100%;
+  }
+
+  /* Make the items table scroll horizontally on small screens */
+  .items-section {
+    overflow-x: auto;
+  }
+
+  #items-table {
+    min-width: 700px;
+  }
+}
+
+@media print {
+  body {
+    background-color: #ffffff;
+    padding: 0;
+  }
+
+  .invoice-container {
+    box-shadow: none;
+    border-radius: 0;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  /* Only hide interactive controls in print; keep layout same as screen */
+  #add-row-btn,
+  #download-btn,
+  .remove-row-btn {
+    display: none;
+  }
+
+  /* Hide the Action column (header + cells) when printing */
+  #items-table th:nth-child(8),
+  #items-table td:nth-child(8) {
+    display: none;
+  }
+
+  input {
+    border: none !important;
+  }
+}
