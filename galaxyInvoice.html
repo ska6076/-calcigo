@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxy Glass Designer - Invoice / Estimate</title>
+    <link rel="stylesheet" href="galaxyInvoice.css" />
+  </head>
+  <body>
+    <div class="invoice-container">
+      <header class="invoice-header">
+        <div class="company-info">
+          <h1>Galaxy Glass Designer</h1>
+          <p><b>Name:</b> Syed Faheem</p>
+          <p class="address-line"><b>Shop address:</b> <a href="https://maps.app.goo.gl/yjnPcsR6LLwCbrTK7" target="_blank">5-3-8, Beside Vishwa Karma, Darussalam road, Goshamahal, Hyd - 500012 </a></p>
+          <p><b>Phone:</b> +91 9885366886</p>
+          <p><b>Phone:</b> +91 9398948026</p>
+          <p><b>Email:</b> galaxyglassdze@gmail.com</p>
+        </div>
+        <div class="invoice-meta">
+          <h2>Quotation</h2>
+          <div class="meta-row">
+            <label for="invoice-number">Estimate No:</label>
+            <input id="invoice-number" type="text" placeholder="E-001" />
+          </div>
+          <div class="meta-row">
+            <label for="invoice-date">Date:</label>
+            <input id="invoice-date" type="date" />
+          </div>
+        </div>
+      </header>
+
+      <section class="party-info">
+        <div class="block">
+          <h3>Customer Details</h3>
+          <div class="field-row">
+            <label for="customer-name"><b>Name:</b></label>
+            <input id="customer-name" type="text" placeholder="Customer name" />
+          </div>
+          <div class="field-row">
+            <label for="site-name"><b>Site Name:</b></label>
+            <input id="site-name" type="text" placeholder="Site / Project location" />
+          </div>
+        </div>
+      </section>
+
+      <section class="items-section">
+        <table id="items-table">
+          <thead>
+            <tr>
+              <th>S. No</th>
+              <th>Description</th>
+              <th>Quantity</th>
+              <th>Size</th>
+              <th>Sqft</th>
+              <th>Rate / Sqft</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="items-body">
+            <!-- Rows will be added dynamically by JavaScript -->
+          </tbody>
+        </table>
+        <button id="add-row-btn" type="button">Add Item</button>
+      </section>
+
+      <section class="totals-section">
+        <div class="amount-row">
+          <span>Transportation Cost:</span>
+          <input id="transportation-cost" type="number" min="0" step="0.01" value="0" />
+        </div>
+        <div class="amount-row">
+          <span>Fitting Cost:</span>
+          <input id="fitting-cost" type="number" min="0" step="0.01" value="0" />
+        </div>
+        <div class="amount-row">
+          <span>Sub Total:</span>
+          <span id="sub-total">0.00</span>
+        </div>
+        <div class="gst-row">
+          <span>CGST (0%):</span>
+          <span id="cgst-amount">0.00</span>
+        </div>
+        <div class="gst-row">
+          <span>SGST (0%):</span>
+          <span id="sgst-amount">0.00</span>
+        </div>
+        <div class="amount-row">
+          <span>Advance Amount:</span>
+          <input id="advance-amount" type="number" min="0" step="0.01" value="0" />
+        </div>
+        <div class="amount-row grand-total">
+          <span>Grand Total:</span>
+          <span id="grand-total">0.00</span>
+        </div>
+      </section>
+
+      <!-- <section class="note-section">
+        <p><strong>NOTE:</strong> 50% advance is must.</p>
+      </section> -->
+
+      <section class="actions-section">
+        <button id="download-btn" type="button">Download / Print Invoice</button>
+      </section>
+    </div>
+
+    <script src="invoice.js"></script>
+  </body>
+</html>
