@@ -202,7 +202,7 @@ async function mergePdfWithForm() {
       const parts = [];
       if (ipVal) parts.push(sanitize(ipVal));
       if (patientVal) parts.push(sanitize(patientVal));
-      parts.push("APPROVED");
+      parts.push("APPROVAL");
       fileName = parts.join(" ") + ".pdf";
     }
 
@@ -242,5 +242,6 @@ async function mergePdfWithForm() {
     mergeBtn.disabled = false;
   }
 }
+
 
 mergeBtn.addEventListener("click", mergePdfWithForm);
