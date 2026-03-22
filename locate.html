@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZoneAlert - Location Alarm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet CSS (free, no API key required) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root {
+            /* Dark Theme (default) */
+            --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --bg-orb-1: #6366f1;
+            --bg-orb-2: #8b5cf6;
+            --bg-orb-3: #06b6d4;
+            --text-primary: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-hover: rgba(255, 255, 255, 0.12);
+            --accent: #6366f1;
+            --accent-light: #a5b4fc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --orb-opacity: 0.4;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: linear-gradient(135deg, #e0e5ec 0%, #d5dbe4 50%, #c8d0dc 100%);
+            --bg-orb-1: #a5b4fc;
+            --bg-orb-2: #c4b5fd;
+            --bg-orb-3: #67e8f9;
+            --text-primary: #1e293b;
+            --text-secondary: rgba(30, 41, 59, 0.7);
+            --text-muted: rgba(30, 41, 59, 0.5);
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --glass-hover: rgba(255, 255, 255, 0.8);
+            --accent: #6366f1;
+            --accent-light: #4338ca;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --orb-opacity: 0.3;
+        }
+
+            .place-details p [data-theme="light"] {
+                font-size: 12px;
+                color: rgba(0, 0, 0, 0.1);
+            }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: var(--bg-primary);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* Animated background orbs */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: var(--orb-opacity);
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bg-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--bg-orb-1);
+            top: -100px;
+            left: -100px;
+            animation: float1 15s ease-in-out infinite;
+        }
+
+        .bg-orb-2 {
+            width: 350px;
+            height: 350px;
+            background: var(--bg-orb-2);
+            bottom: -50px;
+            right: -50px;
+            animation: float2 18s ease-in-out infinite;
+        }
+
+        .bg-orb-3 {
+            width: 250px;
+            height: 250px;
+            background: var(--bg-orb-3);
+            top: 50%;
+            left: 50%;
+            animation: float3 12s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(50px, 80px) scale(1.1);
+            }
+        }
+
+        @keyframes float2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-60px, -40px) scale(1.05);
+            }
+        }
+
+        @keyframes float3 {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                transform: translate(-30%, -60%) scale(0.95);
+            }
+        }
+
+        /* Glassmorphism base */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text h1 {
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text span {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Status Card */
+        .status-card {
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .status-icon.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .status-icon.inactive {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .status-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .status-info p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .status-toggle {
+            margin-left: auto;
+        }
+
+        .toggle-switch {
+            width: 56px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            left: 29px;
+        }
+
+        /* Section Title */
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-title span {
+            font-size: 13px;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        /* Places List */
+        .places-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .place-card {
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .place-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(4px);
+        }
+
+        .place-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .place-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .place-icon.home {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+
+        .place-icon.shop {
+            background: linear-gradient(135deg, #eab308, #ca8a04);
+        }
+
+        .place-icon.office {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .place-icon.bank {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .place-icon.other {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .place-details {
+            flex: 1;
+        }
+
+        .place-details h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .place-details p {
+            font-size: 12px;
+            color: #ffffff80;
+        }
+
+        .place-radius {
+            font-size: 11px;
+            color: #a5b4fc;
+            background: rgba(99, 102, 241, 0.2);
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .place-tasks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .task-tag {
+            font-size: 11px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .task-tag.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .delete-place-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(239, 68, 68, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: #ef4444;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .delete-place-btn:hover {
+            background: rgba(239, 68, 68, 0.4);
+        }
+
+        .edit-place-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: #6366f1;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+
+        .edit-place-btn:hover {
+            background: rgba(99, 102, 241, 0.4);
+        }
+
+        .alarm-settings {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px 0;
+        }
+
+        .alarm-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .alarm-row:last-child {
+            border-bottom: none;
+        }
+
+        .alarm-row span {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .alarm-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .alarm-select option {
+            background: #1e1e3f;
+            color: #fff;
+        }
+
+        .snooze-row {
+            display: none;
+        }
+
+        .snooze-row.show {
+            display: flex;
+        }
+
+        /* Add Place FAB */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.5);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 480px;
+            max-height: 85vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px 28px 0 0;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--text-muted);
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--glass-hover);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .location-picker {
+            height: 150px;
+            background: var(--glass-bg);
+            border: 2px dashed var(--glass-border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .location-picker:hover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .location-picker i {
+            font-size: 24px;
+            color: #6366f1;
+        }
+
+        .radius-slider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+        }
+
+        .radius-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #a5b4fc;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .trigger-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .trigger-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .trigger-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: #6366f1;
+            color: #fff;
+        }
+
+        .trigger-btn i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .task-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-input-group .form-input {
+            flex: 1;
+        }
+
+        .add-task-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .added-tasks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .added-task {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .added-task i {
+            color: #ef4444;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Map container */
+        #map {
+            height: 200px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        /* Custom Leaflet popup styling */
+        .leaflet-popup-content-wrapper {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .leaflet-popup-tip {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+        }
+
+        .leaflet-popup-content {
+            margin: 12px 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .map-search-box {
+            position: relative;
+        }
+
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            margin-top: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            border: 1px solid var(--glass-border);
+        }
+
+        .search-suggestions.show {
+            display: block;
+        }
+
+        .search-suggestion {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--glass-border);
+            transition: background 0.2s;
+            color: var(--text-primary);
+        }
+
+        .search-suggestion:hover {
+            background: var(--glass-hover);
+        }
+
+        .search-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggestion i {
+            color: var(--accent);
+            margin-right: 10px;
+        }
+
+        .location-coords {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 4px;
+        }
+
+        .distance-tag {
+            font-size: 10px;
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.15);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        /* Theme Options */
+        .theme-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            flex: 1;
+            padding: 14px 8px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-btn:hover {
+            background: var(--glass-hover);
+        }
+
+        .theme-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent);
+        }
+
+        .theme-btn i {
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .theme-btn span {
+            font-size: 12px;
+        }
+
+        .map-style-btn {
+            flex: 1;
+            padding: 12px 8px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+
+        .map-style-btn:hover {
+            background: var(--glass-hover);
+        }
+
+        .map-style-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>ZoneAlert</h1>
+                    <span>Location Alarm</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" id="themeToggle" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="icon-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
+            </div>
+        </header>
+
+        <!-- Settings Modal -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal glass">
+                <div class="modal-handle"></div>
+                <div class="modal-header">
+                    <h2>Settings</h2>
+                    <button class="modal-close" id="settingsClose">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-palette" style="margin-right:8px;color:var(--accent)"></i>Theme</label>
+                    <div class="theme-options">
+                        <button class="theme-btn" data-theme="dark">
+                            <i class="fas fa-moon"></i>
+                            <span>Dark</span>
+                        </button>
+                        <button class="theme-btn" data-theme="light">
+                            <i class="fas fa-sun"></i>
+                            <span>Light</span>
+                        </button>
+                        <button class="theme-btn" data-theme="system">
+                            <i class="fas fa-desktop"></i>
+                            <span>System</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-map" style="margin-right:8px;color:var(--accent)"></i>Map Style</label>
+                    <div class="theme-options">
+                        <button class="map-style-btn active" data-mapstyle="dark">
+                            <span>Dark</span>
+                        </button>
+                        <button class="map-style-btn" data-mapstyle="light">
+                            <span>Light</span>
+                        </button>
+                        <button class="map-style-btn" data-mapstyle="satellite">
+                            <span>Satellite</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Card -->
+        <div class="status-card glass">
+            <div class="status-icon active">
+                <i class="fas fa-satellite-dish"></i>
+            </div>
+            <div class="status-info">
+                <h3>Geofencing Active</h3>
+                <p>Monitoring 4 locations</p>
+            </div>
+            <div class="status-toggle">
+                <div class="toggle-switch active" id="mainToggle"></div>
+            </div>
+        </div>
+
+        <!-- Places Section -->
+        <div class="section-title">
+            <h2>Your Places</h2>
+            <span onclick="renderPlaces()">Refresh</span>
+        </div>
+
+        <div class="places-list" id="placesList">
+            <!-- Places rendered dynamically from localStorage -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>No places added yet</h3>
+            <p>Tap the + button to add your first location</p>
+        </div>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" id="addPlaceBtn">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Add Place Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal glass">
+            <div class="modal-handle"></div>
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Place</h2>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Map with Leaflet -->
+            <div id="map"></div>
+
+            <!-- Search Location -->
+            <div class="form-group">
+                <label>Search Location</label>
+                <div class="map-search-box">
+                    <input type="text" class="form-input" placeholder="Search for a place..." id="searchInput">
+                    <div class="search-suggestions" id="searchSuggestions"></div>
+                </div>
+                <div class="location-coords" id="locationCoords">Click on map or search to set location</div>
+            </div>
+
+            <form id="placeForm">
+                <input type="hidden" id="editPlaceId">
+                <div class="form-group">
+                    <label>Place Name</label>
+                    <input type="text" class="form-input" placeholder="e.g., Home, Office, Shop" id="placeNameInput"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label>Location</label>
+                    <div class="location-picker">
+                        <i class="fas fa-crosshairs"></i>
+                        <span>Tap to set current location</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Geofence Radius</label>
+                    <div class="radius-slider">
+                        <input type="range" class="slider" min="20" max="500" value="100" id="radiusSlider">
+                        <span class="radius-value" id="radiusValue">100m</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Trigger On</label>
+                    <div class="trigger-options">
+                        <button type="button" class="trigger-btn active" data-trigger="enter">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Arrive
+                        </button>
+                        <button type="button" class="trigger-btn" data-trigger="exit">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Leave
+                        </button>
+                        <button type="button" class="trigger-btn" data-trigger="both">
+                            <i class="fas fa-exchange-alt"></i>
+                            Both
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alarm Settings -->
+                <div class="form-group">
+                    <label><i class="fas fa-bell" style="margin-right:6px;color:#f59e0b"></i>Alarm Settings</label>
+                    <div class="alarm-settings">
+                        <div class="alarm-row">
+                            <span>Alarm Sound</span>
+                            <select class="alarm-select" id="alarmSound">
+                                <option value="default">Default</option>
+                                <option value="chime">Chime</option>
+                                <option value="bell">Bell</option>
+                                <option value="beep">Beep</option>
+                                <option value="siren">Siren</option>
+                            </select>
+                        </div>
+                        <div class="alarm-row">
+                            <span>Vibration</span>
+                            <div class="toggle-switch active" id="vibrationToggle"></div>
+                        </div>
+                        <div class="alarm-row">
+                            <span>Repeat Alarm</span>
+                            <div class="toggle-switch" id="repeatToggle"></div>
+                        </div>
+                        <div class="alarm-row snooze-row">
+                            <span>Snooze Duration</span>
+                            <select class="alarm-select" id="snoozeDuration">
+                                <option value="1">1 min</option>
+                                <option value="3" selected>3 min</option>
+                                <option value="5">5 min</option>
+                                <option value="10">10 min</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Add Tasks</label>
+                    <div class="task-input-group">
+                        <input type="text" class="form-input" placeholder="e.g., Pick up medicines" id="taskInput">
+                        <button type="button" class="add-task-btn" id="addTaskItemBtn">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="added-tasks" id="addedTasks"></div>
+                </div>
+
+                <button type="submit" class="submit-btn">Save Place</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ============================================
+        // VARIABLE DECLARATIONS
+        // ============================================
+        let tasks = [];
+        let selectedTrigger = 'enter';
+        const radiusSlider = document.getElementById('radiusSlider');
+        const radiusValue = document.getElementById('radiusValue');
+        const taskInput = document.getElementById('taskInput');
+        const addTaskItemBtn = document.getElementById('addTaskItemBtn');
+        const addedTasksEl = document.getElementById('addedTasks');
+        const placeForm = document.getElementById('placeForm');
+        const triggerBtns = document.querySelectorAll('.trigger-btn');
+        const mainToggle = document.getElementById('mainToggle');
+        const addPlaceBtn = document.getElementById('addPlaceBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        let searchTimeout;
+
+        // ============================================
+        // LEAFLET MAP INTEGRATION
+        // ============================================
+
+        // Default location (Charminar, Hyderabad, India)
+        const DEFAULT_LAT = 17.3616;
+        const DEFAULT_LNG = 78.4747;
+
+        // Initialize map
+        const map = L.map('map').setView([DEFAULT_LAT, DEFAULT_LNG], 15);
+
+        // Add dark-themed tile layer (CartoDB dark matter - free)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Geofence circle layer
+        let geofenceCircle = null;
+        let currentMarker = null;
+        let selectedLocation = { lat: DEFAULT_LAT, lng: DEFAULT_LNG };
+
+        // Create geofence circle
+        function updateGeofenceCircleOnMap(lat, lng, radius) {
+            if (geofenceCircle) {
+                map.removeLayer(geofenceCircle);
+            }
+            geofenceCircle = L.circle([lat, lng], {
+                radius: parseInt(radius),
+                color: '#6366f1',
+                fillColor: '#6366f1',
+                fillOpacity: 0.2,
+                weight: 2
+            }).addTo(map);
+        }
+
+        // Create/update marker
+        function updateMarker(lat, lng) {
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+            const markerIcon = L.divIcon({
+                html: '<div style="font-size:28px;color:#ef4444;text-shadow:0 2px 8px rgba(0,0,0,0.3)"><i class="fas fa-map-marker-alt"></i></div>',
+                iconSize: [28, 28],
+                iconAnchor: [14, 28],
+                className: 'custom-marker'
+            });
+            currentMarker = L.marker([lat, lng], { icon: markerIcon }).addTo(map);
+            selectedLocation = { lat, lng };
+        }
+
+        // Initialize with default geofence
+        updateGeofenceCircleOnMap(DEFAULT_LAT, DEFAULT_LNG, 100);
+        updateMarker(DEFAULT_LAT, DEFAULT_LNG);
+
+        // Map click handler
+        map.on('click', function (e) {
+            const { lat, lng } = e.latlng;
+            updateMarker(lat, lng);
+            updateGeofenceCircleOnMap(lat, lng, radiusSlider.value);
+            updateLocationCoords(lat, lng);
+        });
+
+        // Update coordinates display
+        function updateLocationCoords(lat, lng) {
+            document.getElementById('locationCoords').textContent =
+                `Selected: ${lat.toFixed(6)}°N, ${lng.toFixed(6)}°E`;
+        }
+
+        // ============================================
+        // SEARCH FUNCTIONALITY (Nominatim - free)
+        // ============================================
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimeout);
+            const query = this.value.trim();
+
+            if (query.length < 3) {
+                searchSuggestions.classList.remove('show');
+                return;
+            }
+
+            searchTimeout = setTimeout(() => {
+                searchLocation(query);
+            }, 300);
+        });
+
+        async function searchLocation(query) {
+            try {
+                // Calculate viewbox for nearby bias (current location ± 0.5 degrees)
+                const lat = selectedLocation.lat;
+                const lng = selectedLocation.lng;
+                const viewbox = `${lng - 0.5},${lat - 0.5},${lng + 0.5},${lat + 0.5}`;
+
+                // Fetch both nearby and general results in parallel
+                const [nearbyResponse, generalResponse] = await Promise.all([
+                    fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&viewbox=${viewbox}&bounded=1`,
+                        { headers: { 'Accept': 'application/json' } }
+                    ),
+                    fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=8`,
+                        { headers: { 'Accept': 'application/json' } }
+                    )
+                ]);
+
+                const nearbyResults = await nearbyResponse.json();
+                let generalResults = await generalResponse.json();
+
+                // Remove duplicates from general results (already in nearby)
+                const nearbyIds = new Set(nearbyResults.map(r => `${r.lat}-${r.lon}`));
+                generalResults = generalResults.filter(r => !nearbyIds.has(`${r.lat}-${r.lon}`));
+
+                // Calculate distances for all results
+                const allResults = [...nearbyResults, ...generalResults].map(r => ({
+                    ...r,
+                    distance: calculateDistance(lat, lng, parseFloat(r.lat), parseFloat(r.lon))
+                }));
+
+                // Sort by distance (nearby first)
+                allResults.sort((a, b) => a.distance - b.distance);
+
+                if (allResults.length > 0) {
+                    displaySuggestions(allResults.slice(0, 8));
+                } else {
+                    searchSuggestions.innerHTML = '<div class="search-suggestion">No results found</div>';
+                    searchSuggestions.classList.add('show');
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        }
+
+        // Calculate distance between two coordinates (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function toRad(deg) {
+            return deg * (Math.PI / 180);
+        }
+
+        function displaySuggestions(results) {
+            searchSuggestions.innerHTML = results.map(r => `
+                <div class="search-suggestion" data-lat="${r.lat}" data-lon="${r.lon}" data-display="${r.display_name}">
+                    <div>
+                        <i class="fas fa-map-marker-alt"></i>${r.display_name.split(',')[0]}
+                        ${r.distance !== undefined ? `<span class="distance-tag">${formatDistance(r.distance)}</span>` : ''}
+                    </div>
+                    <div class="location-coords">${parseFloat(r.lat).toFixed(4)}°N, ${parseFloat(r.lon).toFixed(4)}°E</div>
+                </div>
+            `).join('');
+            searchSuggestions.classList.add('show');
+        }
+
+        function formatDistance(km) {
+            if (km < 1) {
+                return (km * 1000).toFixed(0) + 'm away';
+            } else if (km < 10) {
+                return km.toFixed(1) + 'km away';
+            } else {
+                return km.toFixed(0) + 'km away';
+            }
+        }
+
+        // Handle suggestion click
+        searchSuggestions.addEventListener('click', function (e) {
+            const suggestion = e.target.closest('.search-suggestion');
+            if (suggestion) {
+                const lat = parseFloat(suggestion.dataset.lat);
+                const lon = parseFloat(suggestion.dataset.lon);
+                const name = suggestion.dataset.display;
+
+                // Update map view
+                map.setView([lat, lon], 17);
+                updateMarker(lat, lon);
+                updateGeofenceCircleOnMap(lat, lon, radiusSlider.value);
+                updateLocationCoords(lat, lon);
+
+                // Update search input
+                searchInput.value = name.split(',')[0];
+                searchSuggestions.classList.remove('show');
+            }
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                searchSuggestions.classList.remove('show');
+            }
+        });
+
+        // ============================================
+        // LOCAL STORAGE
+        // ============================================
+        const STORAGE_KEY = 'georemind_places';
+
+        // Default places (sample data - Charminar area, Hyderabad)
+        const DEFAULT_PLACES = [
+            {
+                id: 'place_1',
+                name: 'Home',
+                address: 'Charminar, Hyderabad',
+                lat: 17.3616,
+                lng: 78.4747,
+                radius: 100,
+                trigger: 'enter',
+                icon: 'home',
+                tasks: [
+                    { id: 'task_1', text: 'Pick up medicines', done: true },
+                    { id: 'task_2', text: 'Water plants', done: false }
+                ]
+            },
+            {
+                id: 'place_2',
+                name: 'Lal Bazaar',
+                address: 'Lal Darwaza, Hyderabad',
+                lat: 17.3594,
+                lng: 78.4716,
+                radius: 50,
+                trigger: 'both',
+                icon: 'shop',
+                tasks: [
+                    { id: 'task_3', text: 'Buy spices', done: false },
+                    { id: 'task_4', text: 'Collect bill', done: false }
+                ]
+            },
+            {
+                id: 'place_3',
+                name: 'Charminar Metro',
+                address: 'MG Metro Station, Hyderabad',
+                lat: 17.3583,
+                lng: 78.4783,
+                radius: 150,
+                trigger: 'enter',
+                icon: 'office',
+                tasks: [
+                    { id: 'task_5', text: 'Top up metro card', done: false },
+                    { id: 'task_6', text: 'Check schedule', done: false }
+                ]
+            },
+            {
+                id: 'place_4',
+                name: 'State Bank',
+                address: 'Monda Market, Hyderabad',
+                lat: 17.3611,
+                lng: 78.4803,
+                radius: 75,
+                trigger: 'exit',
+                icon: 'bank',
+                tasks: [
+                    { id: 'task_7', text: 'Withdraw cash', done: false }
+                ]
+            }
+        ];
+
+        // Load places from localStorage
+        function loadPlaces() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            // First time: save defaults and return them
+            savePlaces(DEFAULT_PLACES);
+            return DEFAULT_PLACES;
+        }
+
+        // Save places to localStorage
+        function savePlaces(places) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(places));
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return 'place_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Add new place
+        function addPlace(placeData) {
+            const places = loadPlaces();
+            const newPlace = {
+                id: generateId(),
+                name: placeData.name,
+                address: `${placeData.location.lat.toFixed(4)}°N, ${placeData.location.lng.toFixed(4)}°E`,
+                lat: placeData.location.lat,
+                lng: placeData.location.lng,
+                radius: placeData.radius,
+                trigger: placeData.trigger,
+                icon: 'other',
+                alarm: placeData.alarm || { sound: 'default', vibration: true, repeat: false, snooze: 3 },
+                tasks: placeData.tasks.map(t => ({
+                    id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    text: t,
+                    done: false
+                }))
+            };
+            places.push(newPlace);
+            savePlaces(places);
+            renderPlaces();
+            updateStatusCount();
+            return newPlace;
+        }
+
+        // Delete place
+        function deletePlace(placeId) {
+            let places = loadPlaces();
+            places = places.filter(p => p.id !== placeId);
+            savePlaces(places);
+            renderPlaces();
+            updateStatusCount();
+        }
+
+        // Toggle task done status
+        function toggleTask(placeId, taskId) {
+            const places = loadPlaces();
+            const place = places.find(p => p.id === placeId);
+            if (place) {
+                const task = place.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.done = !task.done;
+                    savePlaces(places);
+                    renderPlaces();
+                }
+            }
+        }
+
+        // Edit place - opens modal with place data
+        function editPlace(placeId) {
+            const places = loadPlaces();
+            const place = places.find(p => p.id === placeId);
+            if (!place) return;
+
+            // Set modal to edit mode
+            document.getElementById('modalTitle').textContent = 'Edit Place';
+            document.getElementById('editPlaceId').value = placeId;
+            document.getElementById('placeNameInput').value = place.name;
+            document.getElementById('radiusSlider').value = place.radius;
+            document.getElementById('radiusValue').textContent = place.radius + 'm';
+
+            // Set trigger
+            document.querySelectorAll('.trigger-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.trigger === place.trigger);
+            });
+            selectedTrigger = place.trigger;
+
+            // Set alarm settings
+            const alarm = place.alarm || { sound: 'default', vibration: true, repeat: false, snooze: 3 };
+            document.getElementById('alarmSound').value = alarm.sound;
+            document.getElementById('vibrationToggle').classList.toggle('active', alarm.vibration);
+            document.getElementById('repeatToggle').classList.toggle('active', alarm.repeat);
+            document.querySelector('.snooze-row').classList.toggle('show', alarm.repeat);
+            document.getElementById('snoozeDuration').value = alarm.snooze;
+
+            // Set tasks
+            tasks = place.tasks.map(t => t.text);
+            renderTasks();
+
+            // Update map
+            selectedLocation = { lat: place.lat, lng: place.lng };
+            map.setView([place.lat, place.lng], 17);
+            updateMarker(place.lat, place.lng);
+            updateGeofenceCircleOnMap(place.lat, place.lng, place.radius);
+            updateLocationCoords(place.lat, place.lng);
+
+            // Show modal
+            modalOverlay.classList.add('show');
+            setTimeout(() => { map.invalidateSize(); }, 100);
+        }
+
+        // Update existing place
+        function updatePlace(placeId, placeData) {
+            let places = loadPlaces();
+            const index = places.findIndex(p => p.id === placeId);
+            if (index === -1) return;
+
+            places[index] = {
+                ...places[index],
+                name: placeData.name,
+                address: `${placeData.location.lat.toFixed(4)}°N, ${placeData.location.lng.toFixed(4)}°E`,
+                lat: placeData.location.lat,
+                lng: placeData.location.lng,
+                radius: placeData.radius,
+                trigger: placeData.trigger,
+                alarm: placeData.alarm,
+                tasks: placeData.tasks.map(t => ({
+                    id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    text: t,
+                    done: false
+                }))
+            };
+            savePlaces(places);
+            renderPlaces();
+            updateStatusCount();
+        }
+
+        // Render places list
+        function renderPlaces() {
+            const places = loadPlaces();
+            const placesList = document.getElementById('placesList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (places.length === 0) {
+                placesList.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            placesList.style.display = 'flex';
+            emptyState.style.display = 'none';
+
+            placesList.innerHTML = places.map(place => `
+                <div class="place-card glass" data-id="${place.id}">
+                    <div class="place-header">
+                        <div class="place-icon ${place.icon}">
+                            <i class="fas fa-${getIconClass(place.icon)}"></i>
+                        </div>
+                        <div class="place-details">
+                            <h3>${place.name}</h3>
+                            <p>${place.address}</p>
+                        </div>
+                        <span class="place-radius">${place.radius}m</span>
+                        <button class="edit-place-btn" onclick="event.stopPropagation(); editPlace('${place.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-place-btn" onclick="event.stopPropagation(); deletePlace('${place.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="place-tasks">
+                        ${place.tasks.map(task => `
+                            <span class="task-tag ${task.done ? 'active' : ''}"
+                                  onclick="toggleTask('${place.id}', '${task.id}')"
+                                  style="cursor:pointer">
+                                ${task.text} ${task.done ? '<i class="fas fa-check" style="margin-left:4px;color:#10b981"></i>' : ''}
+                            </span>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get icon class for place type
+        function getIconClass(icon) {
+            const icons = {
+                home: 'home',
+                shop: 'store',
+                office: 'building',
+                bank: 'university',
+                other: 'map-marker-alt'
+            };
+            return icons[icon] || 'map-marker-alt';
+        }
+
+        // Update status count
+        function updateStatusCount() {
+            const places = loadPlaces();
+            const activeCount = places.filter(p => p.tasks.some(t => !t.done)).length;
+            const statusDesc = document.querySelector('.status-info p');
+            statusDesc.textContent = `Monitoring ${places.length} location${places.length !== 1 ? 's' : ''}`;
+        }
+
+        // Make functions global
+        window.deletePlace = deletePlace;
+        window.toggleTask = toggleTask;
+        window.editPlace = editPlace;
+
+        // Toggle geofencing on/off
+        mainToggle.addEventListener('click', function () {
+            this.classList.toggle('active');
+            const statusIcon = document.querySelector('.status-icon');
+            const statusInfo = document.querySelector('.status-info h3');
+            const statusDesc = document.querySelector('.status-info p');
+
+            if (this.classList.contains('active')) {
+                statusIcon.classList.remove('inactive');
+                statusIcon.classList.add('active');
+                statusIcon.innerHTML = '<i class="fas fa-satellite-dish"></i>';
+                statusInfo.textContent = 'Geofencing Active';
+                updateStatusCount();
+            } else {
+                statusIcon.classList.remove('active');
+                statusIcon.classList.add('inactive');
+                statusIcon.innerHTML = '<i class="fas fa-satellite-dish"></i>';
+                statusInfo.textContent = 'Geofencing Paused';
+                statusDesc.textContent = 'Tap to resume monitoring';
+            }
+        });
+
+        // Open/Close Modal
+        addPlaceBtn.addEventListener('click', () => {
+            resetForm();
+            modalOverlay.classList.add('show');
+            // Invalidate map size when modal opens
+            setTimeout(() => { map.invalidateSize(); }, 100);
+        });
+
+        // Alarm toggle handlers
+        document.getElementById('vibrationToggle').addEventListener('click', function () {
+            this.classList.toggle('active');
+        });
+
+        document.getElementById('repeatToggle').addEventListener('click', function () {
+            this.classList.toggle('active');
+            document.querySelector('.snooze-row').classList.toggle('show', this.classList.contains('active'));
+        });
+
+        modalClose.addEventListener('click', () => {
+            resetForm();
+            modalOverlay.classList.remove('show');
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                resetForm();
+                modalOverlay.classList.remove('show');
+            }
+        });
+
+        // Radius Slider - update geofence circle on map
+        radiusSlider.addEventListener('input', function () {
+            radiusValue.textContent = this.value + 'm';
+            updateGeofenceCircleOnMap(selectedLocation.lat, selectedLocation.lng, this.value);
+        });
+
+        // Trigger Type Selection
+        triggerBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                triggerBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedTrigger = this.dataset.trigger;
+            });
+        });
+
+        // Add Task
+        addTaskItemBtn.addEventListener('click', addTask);
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTask();
+            }
+        });
+
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            if (taskText) {
+                tasks.push(taskText);
+                renderTasks();
+                taskInput.value = '';
+            }
+        }
+
+        function renderTasks() {
+            addedTasksEl.innerHTML = tasks.map((task, index) => `
+                <div class="added-task">
+                    <span>${task}</span>
+                    <i class="fas fa-times" onclick="removeTask(${index})"></i>
+                </div>
+            `).join('');
+        }
+
+        window.removeTask = function (index) {
+            tasks.splice(index, 1);
+            renderTasks();
+        };
+
+        // Form Submit
+        placeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('placeNameInput').value;
+            if (!name) return;
+
+            const alarmData = {
+                sound: document.getElementById('alarmSound').value,
+                vibration: document.getElementById('vibrationToggle').classList.contains('active'),
+                repeat: document.getElementById('repeatToggle').classList.contains('active'),
+                snooze: parseInt(document.getElementById('snoozeDuration').value)
+            };
+
+            const placeData = {
+                name: name,
+                location: { ...selectedLocation },
+                radius: parseInt(radiusSlider.value),
+                trigger: selectedTrigger,
+                alarm: alarmData,
+                tasks: [...tasks]
+            };
+
+            const editId = document.getElementById('editPlaceId').value;
+
+            if (editId) {
+                // Update existing place
+                updatePlace(editId, placeData);
+            } else {
+                // Add new place
+                addPlace(placeData);
+            }
+
+            // Reset form
+            resetForm();
+            modalOverlay.classList.remove('show');
+        });
+
+        // Reset form to default state
+        function resetForm() {
+            document.getElementById('modalTitle').textContent = 'Add New Place';
+            document.getElementById('editPlaceId').value = '';
+            document.getElementById('placeNameInput').value = '';
+            radiusSlider.value = 100;
+            radiusValue.textContent = '100m';
+            tasks = [];
+            renderTasks();
+            document.querySelectorAll('.trigger-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.trigger-btn[data-trigger="enter"]').classList.add('active');
+            selectedTrigger = 'enter';
+            document.getElementById('alarmSound').value = 'default';
+            document.getElementById('vibrationToggle').classList.add('active');
+            document.getElementById('repeatToggle').classList.remove('active');
+            document.querySelector('.snooze-row').classList.remove('show');
+        }
+
+        // Place card click for details (event delegation since cards are dynamic)
+        document.addEventListener('click', function (e) {
+            const card = e.target.closest('.place-card');
+            if (card && !e.target.closest('.delete-place-btn') && !e.target.closest('.edit-place-btn') && !e.target.closest('.task-tag')) {
+                editPlace(card.dataset.id);
+            }
+        });
+
+        // ============================================
+        // GET CURRENT LOCATION
+        // ============================================
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        map.setView([latitude, longitude], 17);
+                        updateMarker(latitude, longitude);
+                        updateGeofenceCircleOnMap(latitude, longitude, radiusSlider.value);
+                        updateLocationCoords(latitude, longitude);
+                    },
+                    (error) => {
+                        console.error('Geolocation error:', error);
+                        alert('Could not get your location. Please search manually.');
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+
+        // Add location picker click handler
+        document.querySelector('.location-picker').addEventListener('click', getCurrentLocation);
+
+        // ============================================
+        // THEME MANAGEMENT
+        // ============================================
+        const THEME_KEY = 'georemind_theme';
+        const MAP_STYLE_KEY = 'georemind_mapstyle';
+
+        // Map tile layers
+        const mapTiles = {
+            dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+            light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+            satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        };
+
+        let currentMapStyle = localStorage.getItem(MAP_STYLE_KEY) || 'dark';
+
+        // Apply theme on load
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if (savedTheme === 'system' || !savedTheme) {
+                applySystemTheme();
+            } else {
+                setTheme(savedTheme);
+            }
+            initMapStyle();
+        }
+
+        // Set theme
+        function setTheme(theme) {
+            if (theme === 'system') {
+                applySystemTheme();
+            } else {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+            localStorage.setItem(THEME_KEY, theme);
+            updateThemeUI(theme);
+        }
+
+        // Apply system theme
+        function applySystemTheme() {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            updateThemeUI('system');
+        }
+
+        // Update theme UI buttons
+        function updateThemeUI(theme) {
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === theme);
+            });
+
+            // Update header icon
+            const themeIcon = document.querySelector('#themeToggle i');
+            if (theme === 'light') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
+
+        // Theme button click handlers
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.addEventListener('click', () => setTheme(btn.dataset.theme));
+        });
+
+        // Theme toggle button (quick toggle)
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            setTheme(current === 'light' ? 'dark' : 'light');
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (localStorage.getItem(THEME_KEY) === 'system') {
+                document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            }
+        });
+
+        // ============================================
+        // MAP STYLE MANAGEMENT
+        // ============================================
+        function initMapStyle() {
+            currentMapStyle = localStorage.getItem(MAP_STYLE_KEY) || 'dark';
+            updateMapStyleUI();
+        }
+
+        function setMapStyle(style) {
+            currentMapStyle = style;
+            localStorage.setItem(MAP_STYLE_KEY, style);
+            updateMapTileLayer();
+            updateMapStyleUI();
+        }
+
+        function updateMapTileLayer() {
+            if (typeof map !== 'undefined' && mapTiles[currentMapStyle]) {
+                map.eachLayer(layer => {
+                    if (layer instanceof L.TileLayer) {
+                        map.removeLayer(layer);
+                    }
+                });
+                L.tileLayer(mapTiles[currentMapStyle], {
+                    attribution: currentMapStyle === 'satellite'
+                        ? '&copy; Esri'
+                        : '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(map);
+            }
+        }
+
+        function updateMapStyleUI() {
+            document.querySelectorAll('.map-style-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mapstyle === currentMapStyle);
+            });
+        }
+
+        // Map style button handlers
+        document.querySelectorAll('.map-style-btn').forEach(btn => {
+            btn.addEventListener('click', () => setMapStyle(btn.dataset.mapstyle));
+        });
+
+        // ============================================
+        // SETTINGS MODAL
+        // ============================================
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const settingsClose = document.getElementById('settingsClose');
+
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('show');
+        });
+
+        settingsClose.addEventListener('click', () => {
+            settingsModal.classList.remove('show');
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('show');
+            }
+        });
+
+        // Initialize coordinates display
+        updateLocationCoords(DEFAULT_LAT, DEFAULT_LNG);
+
+        // Initialize theme
+        initTheme();
+
+        // Render places from localStorage on page load
+        renderPlaces();
+        updateStatusCount();
+    </script>
+</body>
+
+</html>
