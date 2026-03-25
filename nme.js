@@ -26,8 +26,9 @@ function setTodayDate() {
   const year = today.getFullYear();
   const month = String(today.getMonth() + 1).padStart(2, "0");
   const day = String(today.getDate()).padStart(2, "0");
-  // Set as dd-mm-yyyy
-  dateInput.value = `${day}-${month}-${year}`;
+  const hours = String(today.getHours()).padStart(2, "0");
+  const minutes = String(today.getMinutes()).padStart(2, "0");
+  dateInput.value = `${day}-${month}-${year} ${hours}:${minutes}`;
 }
 
 function calculateTotals() {
