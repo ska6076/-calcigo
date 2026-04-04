@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentora Tutors Hub — Learn. Grow. Succeed.</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Space Grotesk', 'sans-serif'],
+            body: ['Inter', 'sans-serif'],
+            brand: ['Bricolage Grotesque', 'sans-serif'],
+          },
+          colors: {
+            cream: {
+              50: '#fffdf9', 100: '#fff8f0', 200: '#ffedd5',
+              300: '#f5dcc0', 400: '#e8c49a', 500: '#c8956a',
+              600: '#92400e', 700: '#78350f', 800: '#5c2d0a', 900: '#3d1c06',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { background: #FAFAFA; color: #171717; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+    .grain::before {
+      content: ''; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%; z-index: 40; pointer-events: none; opacity: 0.015;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='1'/%3E%3C/svg%3E");
+    }
+
+    .grid-bg {
+      background-image: linear-gradient(to right, #e5e5e5 1px, transparent 1px), linear-gradient(to bottom, #e5e5e5 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+    }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in-up { opacity: 0; animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+    .delay-150 { animation-delay: 150ms; } .delay-300 { animation-delay: 300ms; }
+    .delay-450 { animation-delay: 450ms; } .delay-600 { animation-delay: 600ms; }
+
+    @keyframes shimmer { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+    .shimmer-btn::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.35), transparent);
+      animation: shimmer 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+
+    .hero-text {
+      background: linear-gradient(to bottom, #171717, #525252, #A3A3A3);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), padding 0.3s ease; }
+    .faq-answer.open { max-height: 300px; }
+    .faq-icon { transition: transform 0.3s ease; }
+    .faq-icon.rotated { transform: rotate(45deg); }
+
+    .tab-active { background: #92400e; color: #FFFFFF; }
+    .review-tab-active { background: #fff8f0; color: #92400e; border-color: #f5dcc0; }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #FAFAFA; }
+    ::-webkit-scrollbar-thumb { background: #D4D4D4; border-radius: 3px; }
+
+    .lock-overlay { backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+
+    .toast { transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .toast.show { transform: translateX(0); }
+
+    .mobile-menu { transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .mobile-menu.open { transform: translateX(0); }
+
+    .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+    .modal-content { transform: scale(0.95) translateY(10px); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .modal-overlay.active .modal-content { transform: scale(1) translateY(0); }
+
+    .card-glow { transition: all 0.5s ease; border: 1px solid #E5E5E5; background: #FFFFFF; }
+    .card-glow:hover { border-color: rgba(146, 64, 14, 0.3); box-shadow: 0 8px 30px rgba(146, 64, 14, 0.06), 0 2px 8px rgba(0,0,0,0.04); }
+
+    .step-dot { transition: all 0.3s ease; }
+    .step-dot.active { background: #92400e; box-shadow: 0 0 10px rgba(146, 64, 14, 0.35); }
+    .step-dot.completed { background: #92400e; }
+    .step-line { transition: background 0.3s ease; }
+    .step-line.active { background: #92400e !important; }
+
+    .auth-divider { display: flex; align-items: center; gap: 12px; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #E5E5E5; }
+
+    .review-quote { position: relative; }
+    .review-quote::before {
+      content: '"'; position: absolute; top: -8px; left: -4px;
+      font-size: 48px; line-height: 1; color: #ffedd5; font-family: 'Georgia', serif;
+      pointer-events: none;
+    }
+
+    /* WhatsApp pulse ring */
+    @keyframes waPulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .wa-pulse::before {
+      content: ''; position: absolute; inset: 0;
+      border-radius: 9999px; background: #25D366;
+      animation: waPulse 2s ease-out infinite;
+    }
+
+    /* WhatsApp channel card shine */
+    .wa-card-shine { position: relative; overflow: hidden; }
+    .wa-card-shine::before {
+      content: ''; position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent 0%, rgba(37,211,102,0.08) 10%, transparent 20%);
+      animation: waRotate 6s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes waRotate { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="grain">
+
+  <!-- Toast -->
+  <div id="toast" class="toast fixed top-24 right-6 z-50 bg-white border border-cream-200 rounded-2xl p-4 flex items-center gap-3 shadow-lg max-w-sm">
+    <div class="w-8 h-8 rounded-full bg-cream-100 flex items-center justify-center flex-shrink-0"><i data-lucide="check" class="w-4 h-4 text-cream-600"></i></div>
+    <p id="toast-message" class="text-sm text-neutral-700"></p>
+  </div>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4)">
+    <div class="modal-content bg-white border border-neutral-200 rounded-3xl w-full max-w-md shadow-xl">
+      <div class="p-6 md:p-8">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-heading text-xl font-medium tracking-tight text-neutral-900">Welcome Back</h3>
+          <button onclick="closeLoginModal()" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors"><i data-lucide="x" class="w-4 h-4 text-neutral-600"></i></button>
+        </div>
+        <p class="text-sm text-neutral-400 mb-6">Log in to your Mentora Tutors Hub account</p>
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-4">
+          <div class="flex bg-cream-100 rounded-xl p-1 border border-cream-300">
+            <button type="button" onclick="setLoginRole('parent', this)" class="login-role-btn flex-1 text-sm font-medium py-2 rounded-lg transition-all bg-white shadow-sm text-cream-600">Parent</button>
+            <button type="button" onclick="setLoginRole('tutor', this)" class="login-role-btn flex-1 text-sm font-medium py-2 rounded-lg transition-all text-neutral-500">Tutor</button>
+          </div>
+          <div><label class="block text-sm text-neutral-500 mb-1.5">Email Address</label><input type="email" required placeholder="you@example.com" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+          <div>
+            <label class="block text-sm text-neutral-500 mb-1.5">Password</label>
+            <div class="relative">
+              <input id="loginPass" type="password" required placeholder="Enter your password" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 pr-11 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all">
+              <button type="button" onclick="toggleLoginPass()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"><i id="loginEyeIcon" data-lucide="eye" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="accent-cream-600 w-3.5 h-3.5"><span class="text-xs text-neutral-500">Remember me</span></label>
+            <a href="#" class="text-xs text-cream-600 hover:text-cream-700 font-medium">Forgot password?</a>
+          </div>
+          <button type="submit" class="w-full bg-cream-600 text-white font-medium py-3 rounded-xl hover:bg-cream-700 transition-colors text-sm shimmer-btn relative overflow-hidden">Log In</button>
+        </form>
+        <div class="auth-divider my-5"><span class="text-xs text-neutral-400 px-1">or continue with</span></div>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="showToast('Google sign-in coming soon!')" class="flex items-center justify-center gap-2 bg-white border border-neutral-200 rounded-xl py-2.5 text-sm text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 transition-all">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Google
+          </button>
+          <button onclick="showToast('Phone OTP login coming soon!')" class="flex items-center justify-center gap-2 bg-white border border-neutral-200 rounded-xl py-2.5 text-sm text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 transition-all"><i data-lucide="smartphone" class="w-4 h-4"></i>Phone OTP</button>
+        </div>
+        <p class="text-center text-sm text-neutral-400 mt-5">Don't have an account? <button onclick="closeLoginModal(); openModal('parent');" class="text-cream-600 hover:text-cream-700 font-medium">Sign Up</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGN UP MODAL -->
+  <div id="regModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4)">
+    <div class="modal-content bg-white border border-neutral-200 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+      <div class="p-6 md:p-8">
+        <div class="flex items-center justify-between mb-2">
+          <h3 id="modal-title" class="font-heading text-xl font-medium tracking-tight text-neutral-900">Sign Up as Parent</h3>
+          <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors"><i data-lucide="x" class="w-4 h-4 text-neutral-600"></i></button>
+        </div>
+        <p class="text-sm text-neutral-400 mb-6">Create your Mentora Tutors Hub account — it's free</p>
+        <div class="flex items-center justify-center gap-2 mb-6">
+          <div id="dot1" class="step-dot active w-3 h-3 rounded-full bg-neutral-300"></div>
+          <div id="line1" class="step-line w-12 h-0.5 bg-neutral-200"></div>
+          <div id="dot2" class="step-dot w-3 h-3 rounded-full bg-neutral-300"></div>
+          <div id="line2" class="step-line w-12 h-0.5 bg-neutral-200"></div>
+          <div id="dot3" class="step-dot w-3 h-3 rounded-full bg-neutral-300"></div>
+        </div>
+        <form id="regForm" onsubmit="handleRegSubmit(event)">
+          <div id="step1" class="space-y-4">
+            <div><label class="block text-sm text-neutral-500 mb-1.5">Full Name</label><input type="text" required placeholder="Enter your full name" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <div><label class="block text-sm text-neutral-500 mb-1.5">Email Address</label><input type="email" required placeholder="you@example.com" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <div><label class="block text-sm text-neutral-500 mb-1.5">Phone Number</label><input type="tel" required placeholder="+91 XXXXX XXXXX" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <button type="button" onclick="nextStep(2)" class="w-full bg-cream-600 text-white font-medium py-3 rounded-xl hover:bg-cream-700 transition-colors text-sm">Next Step →</button>
+          </div>
+          <div id="step2" class="space-y-4 hidden">
+            <div id="tutor-subjects" class="hidden"><label class="block text-sm text-neutral-500 mb-1.5">Subjects You Teach</label><input type="text" placeholder="e.g. Maths, Science, English" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <div id="tutor-qual" class="hidden"><label class="block text-sm text-neutral-500 mb-1.5">Qualification</label><input type="text" placeholder="e.g. B.Tech, M.Sc, B.Ed" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <div id="parent-child"><label class="block text-sm text-neutral-500 mb-1.5">Child's Name</label><input type="text" placeholder="Enter child's name" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <div id="parent-class"><label class="block text-sm text-neutral-500 mb-1.5">Class / Grade</label><select class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all appearance-none"><option value="">Select grade</option><option>Class 1-5</option><option>Class 6-8</option><option>Class 9-10</option><option>Class 11-12</option><option>College / University</option></select></div>
+            <div>
+              <label class="block text-sm text-neutral-500 mb-1.5">Preferred Mode</label>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="flex items-center gap-2 bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 cursor-pointer hover:border-cream-400 transition-colors has-[:checked]:border-cream-600 has-[:checked]:bg-cream-200"><input type="radio" name="mode" value="online" class="accent-cream-600" checked><span class="text-sm">Online</span></label>
+                <label class="flex items-center gap-2 bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 cursor-pointer hover:border-cream-400 transition-colors has-[:checked]:border-cream-600 has-[:checked]:bg-cream-200"><input type="radio" name="mode" value="home" class="accent-cream-600"><span class="text-sm">Home Tuition</span></label>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button type="button" onclick="nextStep(1)" class="flex-1 bg-neutral-100 text-neutral-700 font-medium py-3 rounded-xl hover:bg-neutral-200 transition-colors text-sm">← Back</button>
+              <button type="button" onclick="nextStep(3)" class="flex-1 bg-cream-600 text-white font-medium py-3 rounded-xl hover:bg-cream-700 transition-colors text-sm">Next Step →</button>
+            </div>
+          </div>
+          <div id="step3" class="space-y-4 hidden">
+            <div><label class="block text-sm text-neutral-500 mb-1.5">Password</label><input type="password" required placeholder="Create a strong password" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <div><label class="block text-sm text-neutral-500 mb-1.5">Confirm Password</label><input type="password" required placeholder="Confirm your password" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div>
+            <label class="flex items-start gap-2 cursor-pointer"><input type="checkbox" required class="accent-cream-600 mt-1"><span class="text-xs text-neutral-500">I agree to the <a href="#" class="text-cream-700 hover:underline font-medium">Terms & Conditions</a> and <a href="#" class="text-cream-700 hover:underline font-medium">Privacy Policy</a></span></label>
+            <div class="flex gap-3">
+              <button type="button" onclick="nextStep(2)" class="flex-1 bg-neutral-100 text-neutral-700 font-medium py-3 rounded-xl hover:bg-neutral-200 transition-colors text-sm">← Back</button>
+              <button type="submit" class="flex-1 bg-cream-600 text-white font-medium py-3 rounded-xl hover:bg-cream-700 transition-colors text-sm shimmer-btn relative overflow-hidden">Create Account ✨</button>
+            </div>
+          </div>
+        </form>
+        <div class="auth-divider my-5"><span class="text-xs text-neutral-400 px-1">or sign up with</span></div>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="showToast('Google sign-up coming soon!')" class="flex items-center justify-center gap-2 bg-white border border-neutral-200 rounded-xl py-2.5 text-sm text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 transition-all"><svg class="w-4 h-4" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Google</button>
+          <button onclick="showToast('Phone OTP sign-up coming soon!')" class="flex items-center justify-center gap-2 bg-white border border-neutral-200 rounded-xl py-2.5 text-sm text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50 transition-all"><i data-lucide="smartphone" class="w-4 h-4"></i>Phone OTP</button>
+        </div>
+        <p class="text-center text-sm text-neutral-400 mt-5">Already have an account? <button onclick="closeModal(); openLoginModal();" class="text-cream-600 hover:text-cream-700 font-medium">Log In</button></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paper Modal -->
+  <div id="paperModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4)">
+    <div class="modal-content bg-white border border-neutral-200 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+      <div class="p-6 md:p-8">
+        <div class="flex items-center justify-between mb-6"><div><h3 id="paper-title" class="font-heading text-xl font-medium tracking-tight text-neutral-900">Sample Paper</h3><p id="paper-meta" class="text-sm text-neutral-400 mt-1">Class 10 • Maths • 2024</p></div><button onclick="closePaperModal()" class="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-colors"><i data-lucide="x" class="w-4 h-4 text-neutral-600"></i></button></div>
+        <div class="bg-cream-100 rounded-2xl p-6 space-y-4 border border-cream-200">
+          <div class="flex justify-between text-sm text-neutral-500 border-b border-cream-300 pb-3"><span>Duration: 3 Hours</span><span>Max Marks: 80</span></div>
+          <div class="space-y-4 text-sm text-neutral-600">
+            <div><p class="text-cream-600 font-medium mb-2">Section A — Objective (20 Marks)</p><p class="text-neutral-400">Q1-Q20: Multiple choice questions. Each question carries 1 mark.</p></div>
+            <div><p class="text-cream-600 font-medium mb-2">Section B — Short Answer (30 Marks)</p><p class="text-neutral-400">Q21-Q30: Answer in 2-3 sentences. Each question carries 3 marks.</p></div>
+            <div><p class="text-cream-600 font-medium mb-2">Section C — Long Answer (30 Marks)</p><p class="text-neutral-400">Q31-Q36: Detailed answers with steps. Each question carries 5 marks.</p></div>
+          </div>
+          <div class="border-t border-cream-300 pt-4 flex items-center justify-between"><span class="text-xs text-neutral-400">Full paper available after registration</span><button onclick="closePaperModal(); openModal('parent');" class="bg-cream-600 text-white text-sm font-medium px-5 py-2 rounded-xl hover:bg-cream-700 transition-colors">Sign Up to Access</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="mobile-menu fixed inset-0 z-45 bg-white/98 backdrop-blur-xl flex flex-col" style="z-index:45">
+    <div class="flex items-center justify-between p-6"><a href="#" class="font-brand text-xl font-bold tracking-tight text-neutral-900">Mentora<span class="text-cream-600">.</span></a><button onclick="toggleMobileMenu()" class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center"><i data-lucide="x" class="w-5 h-5 text-neutral-700"></i></button></div>
+    <nav class="flex-1 flex flex-col items-center justify-center gap-6">
+      <a href="#register" onclick="toggleMobileMenu()" class="font-heading text-3xl font-medium tracking-tight text-neutral-900 hover:text-cream-600 transition-colors">Register</a>
+      <a href="#books" onclick="toggleMobileMenu()" class="font-heading text-3xl font-medium tracking-tight text-neutral-900 hover:text-cream-600 transition-colors">Books</a>
+      <a href="#papers" onclick="toggleMobileMenu()" class="font-heading text-3xl font-medium tracking-tight text-neutral-900 hover:text-cream-600 transition-colors">Papers</a>
+      <a href="#reviews" onclick="toggleMobileMenu()" class="font-heading text-3xl font-medium tracking-tight text-neutral-900 hover:text-cream-600 transition-colors">Reviews</a>
+      <a href="#faq" onclick="toggleMobileMenu()" class="font-heading text-3xl font-medium tracking-tight text-neutral-900 hover:text-cream-600 transition-colors">FAQs</a>
+      <a href="#contact" onclick="toggleMobileMenu()" class="font-heading text-3xl font-medium tracking-tight text-neutral-900 hover:text-cream-600 transition-colors">Contact</a>
+      <div class="mt-4 flex flex-col items-center gap-3 w-full px-12">
+        <button onclick="toggleMobileMenu(); openLoginModal();" class="w-full border-2 border-cream-300 text-cream-600 font-medium py-3 rounded-full hover:bg-cream-100 transition-colors text-sm">Log In</button>
+        <button onclick="toggleMobileMenu(); openModal('parent');" class="w-full bg-cream-600 text-white font-medium py-3 rounded-full hover:bg-cream-700 transition-colors text-sm">Sign Up</button>
+      </div>
+    </nav>
+    <div class="p-6 flex items-center justify-center gap-4">
+      <a href="#" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+      <a href="#" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+      <a href="#" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+      <a href="#" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+      <a href="https://whatsapp.com/channel/0029Vb7ZRnHBadmWa6Ey4U0I" target="_blank" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-green-400 hover:text-green-600 hover:bg-green-50 transition-all"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="fixed top-0 left-0 right-0 z-40 transition-all duration-500" id="navbar">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="#" class="font-brand text-xl font-bold tracking-tight text-neutral-900">Mentora<span class="text-cream-600">.</span></a>
+      <div class="hidden md:flex items-center gap-7">
+        <a href="#register" class="text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-body">Register</a>
+        <a href="#books" class="text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-body">Books</a>
+        <a href="#papers" class="text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-body">Papers</a>
+        <a href="#whatsapp" class="text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-body flex items-center gap-1"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i>WhatsApp</a>
+        <a href="#reviews" class="text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-body">Reviews</a>
+        <a href="#faq" class="text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-body">FAQs</a>
+        <a href="#contact" class="text-sm text-neutral-500 hover:text-neutral-900 transition-colors font-body">Contact</a>
+      </div>
+      <div class="hidden md:flex items-center gap-3">
+        <button onclick="openLoginModal()" class="flex items-center gap-1.5 text-sm font-medium text-cream-600 hover:text-cream-700 px-4 py-2.5 rounded-full border border-cream-300 hover:border-cream-400 hover:bg-cream-100 transition-all duration-300"><i data-lucide="log-in" class="w-4 h-4"></i>Log In</button>
+        <button onclick="openModal('parent')" class="bg-cream-600 text-white font-medium px-5 py-2.5 rounded-full hover:bg-cream-700 transition-colors text-sm shimmer-btn relative overflow-hidden shadow-sm flex items-center gap-1.5"><i data-lucide="user-plus" class="w-4 h-4"></i>Sign Up</button>
+      </div>
+      <button onclick="toggleMobileMenu()" class="md:hidden w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center hover:border-neutral-300 transition-colors bg-white/80"><i data-lucide="menu" class="w-5 h-5 text-neutral-700"></i></button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="min-h-screen flex flex-col justify-between relative overflow-hidden">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-[#fff8f0]/60 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute top-0 left-0 right-0 bottom-0 grid-bg pointer-events-none"></div>
+    <div class="flex-1 flex items-center">
+      <div class="max-w-6xl mx-auto px-6 pt-32 pb-16 text-center">
+        <div class="animate-fade-in-up inline-flex items-center gap-2 bg-white border border-cream-300 rounded-full px-4 py-1.5 mb-8 shadow-sm">
+          <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cream-500 opacity-75" style="animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-cream-500"></span></span>
+          <span class="text-xs font-medium text-neutral-500 tracking-widest uppercase">Now Enrolling for 2025</span>
+        </div>
+        <h1 class="animate-fade-in-up delay-150 font-heading text-5xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[0.85] hero-text mb-6">Learn. Grow.<br>Succeed.</h1>
+        <p class="animate-fade-in-up delay-300 text-neutral-500 text-base md:text-lg max-w-xl mx-auto mb-10 leading-relaxed font-body">Mentora Tutors Hub — India's trusted tutoring platform connecting students with expert tutors. Personalized learning that fits your schedule, your pace, your goals.</p>
+        <div class="animate-fade-in-up delay-450 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <button onclick="openModal('parent')" class="group bg-cream-600 text-white font-medium px-8 py-3.5 rounded-full hover:bg-cream-700 transition-all duration-300 text-sm shimmer-btn relative overflow-hidden flex items-center gap-2 shadow-lg" style="box-shadow: 0 8px 25px rgba(146,64,14,0.2)"><i data-lucide="user-plus" class="w-4 h-4"></i>Sign Up Free<i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i></button>
+          <button onclick="openLoginModal()" class="group border border-cream-300 text-cream-600 font-medium px-8 py-3.5 rounded-full hover:border-cream-400 hover:bg-cream-100 transition-all duration-300 text-sm flex items-center gap-2 bg-white/60 backdrop-blur-sm"><i data-lucide="log-in" class="w-4 h-4"></i>Log In</button>
+        </div>
+        <div class="animate-fade-in-up delay-600 mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
+          <div><div class="font-heading text-2xl md:text-3xl font-medium text-neutral-900">500<span class="text-cream-600">+</span></div><div class="text-xs text-neutral-400 mt-1">Expert Tutors</div></div>
+          <div><div class="font-heading text-2xl md:text-3xl font-medium text-neutral-900">10K<span class="text-cream-600">+</span></div><div class="text-xs text-neutral-400 mt-1">Students</div></div>
+          <div><div class="font-heading text-2xl md:text-3xl font-medium text-neutral-900">95<span class="text-cream-600">%</span></div><div class="text-xs text-neutral-400 mt-1">Satisfaction</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-center pb-8 animate-fade-in-up delay-600"><div class="w-6 h-10 rounded-full border-2 border-neutral-300 flex items-start justify-center p-1.5"><div class="w-1 h-2 bg-cream-500 rounded-full animate-bounce"></div></div></div>
+  </section>
+
+  <!-- Register Section -->
+  <section id="register" class="py-24 md:py-32 relative bg-white">
+    <div class="absolute top-0 right-0 w-[600px] h-[400px] bg-[#fff8f0]/60 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="max-w-6xl mx-auto px-6 relative">
+      <div class="text-center mb-16"><span class="text-xs font-mono tracking-widest uppercase text-cream-600 mb-4 block">Join Mentora Tutors Hub</span><h2 class="font-heading text-3xl md:text-5xl font-medium tracking-tight mb-4 text-neutral-900">How to <span class="hero-text">Register</span></h2><p class="text-neutral-500 max-w-md mx-auto text-sm md:text-base">Choose your role and get started in under 2 minutes</p></div>
+      <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div class="card-glow rounded-3xl p-8 md:p-10 relative overflow-hidden group"><div class="absolute top-0 right-0 w-40 h-40 bg-[#fff8f0] rounded-full blur-[60px] pointer-events-none group-hover:bg-[#fff0e0] transition-all duration-700"></div><div class="relative"><div class="w-14 h-14 rounded-2xl bg-cream-100 border border-cream-300 flex items-center justify-center mb-6"><i data-lucide="graduation-cap" class="w-7 h-7 text-cream-600"></i></div><h3 class="font-heading text-2xl font-medium tracking-tight mb-3 text-neutral-900">For Parents</h3><p class="text-neutral-500 text-sm leading-relaxed mb-6">Find the perfect tutor for your child. Track progress, schedule sessions, and watch them excel.</p><ol class="space-y-3 mb-8"><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">1</span><span class="text-sm text-neutral-600">Fill in your details & child's requirements</span></li><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">2</span><span class="text-sm text-neutral-600">Choose subject, class & preferred mode</span></li><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">3</span><span class="text-sm text-neutral-600">Get matched with expert tutors instantly</span></li><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">4</span><span class="text-sm text-neutral-600">Start learning & track progress</span></li></ol><button onclick="openModal('parent')" class="w-full bg-cream-600 text-white font-medium py-3 rounded-xl hover:bg-cream-700 transition-colors text-sm shadow-sm flex items-center justify-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Sign Up as Parent</button></div></div>
+        <div class="card-glow rounded-3xl p-8 md:p-10 relative overflow-hidden group"><div class="absolute top-0 right-0 w-40 h-40 bg-[#fff8f0] rounded-full blur-[60px] pointer-events-none group-hover:bg-[#fff0e0] transition-all duration-700"></div><div class="relative"><div class="w-14 h-14 rounded-2xl bg-cream-100 border border-cream-300 flex items-center justify-center mb-6"><i data-lucide="book-open" class="w-7 h-7 text-cream-600"></i></div><h3 class="font-heading text-2xl font-medium tracking-tight mb-3 text-neutral-900">For Tutors</h3><p class="text-neutral-500 text-sm leading-relaxed mb-6">Share your knowledge, earn on your terms. Join our growing community of verified educators.</p><ol class="space-y-3 mb-8"><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">1</span><span class="text-sm text-neutral-600">Sign up with your qualifications</span></li><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">2</span><span class="text-sm text-neutral-600">List subjects & set your availability</span></li><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">3</span><span class="text-sm text-neutral-600">Get verified by our team (24-48 hrs)</span></li><li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-cream-100 text-cream-600 flex items-center justify-center text-xs font-medium flex-shrink-0 mt-0.5 border border-cream-300">4</span><span class="text-sm text-neutral-600">Start teaching & earning</span></li></ol><button onclick="openModal('tutor')" class="w-full border-2 border-cream-300 text-cream-600 font-medium py-3 rounded-xl hover:bg-cream-100 hover:border-cream-400 transition-colors text-sm flex items-center justify-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Sign Up as Tutor</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Books Section -->
+  <section id="books" class="py-24 md:py-32 relative">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16"><span class="text-xs font-mono tracking-widest uppercase text-cream-600 mb-4 block">Curated Resources</span><h2 class="font-heading text-3xl md:text-5xl font-medium tracking-tight mb-4 text-neutral-900">Reference <span class="hero-text">Book Suggestions</span></h2><p class="text-neutral-500 max-w-md mx-auto text-sm md:text-base">Hand-picked books recommended by our top tutors</p></div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="card-glow rounded-3xl overflow-hidden relative group"><div class="lock-overlay absolute inset-0 z-10 bg-white/70 rounded-3xl flex flex-col items-center justify-center gap-3"><div class="w-12 h-12 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center animate-float"><i data-lucide="lock" class="w-5 h-5 text-cream-400"></i></div><span class="text-sm text-neutral-500">Log in to access</span><button onclick="openLoginModal()" class="bg-cream-600 text-white text-xs font-medium px-5 py-2 rounded-full hover:bg-cream-700 transition-colors shadow-sm">Log In</button></div><div class="h-48 bg-gradient-to-br from-[#fff8f0] to-[#ffedd5] flex items-center justify-center border-b border-neutral-100"><div class="text-6xl">📐</div></div><div class="p-6"><div class="text-xs text-cream-600 font-mono tracking-wider uppercase mb-2">Mathematics</div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900">RD Sharma — Class 10</h4><p class="text-sm text-neutral-400 leading-relaxed">Comprehensive mathematics guide with detailed solutions.</p></div></div>
+        <div class="card-glow rounded-3xl overflow-hidden relative group"><div class="lock-overlay absolute inset-0 z-10 bg-white/70 rounded-3xl flex flex-col items-center justify-center gap-3"><div class="w-12 h-12 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center animate-float" style="animation-delay:0.5s"><i data-lucide="lock" class="w-5 h-5 text-cream-400"></i></div><span class="text-sm text-neutral-500">Log in to access</span><button onclick="openLoginModal()" class="bg-cream-600 text-white text-xs font-medium px-5 py-2 rounded-full hover:bg-cream-700 transition-colors shadow-sm">Log In</button></div><div class="h-48 bg-gradient-to-br from-[#fff8f0] to-[#fef3c7] flex items-center justify-center border-b border-neutral-100"><div class="text-6xl">🔬</div></div><div class="p-6"><div class="text-xs text-cream-600 font-mono tracking-wider uppercase mb-2">Science</div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900">NCERT Exemplar — Science</h4><p class="text-sm text-neutral-400 leading-relaxed">Practice problems for strong conceptual understanding.</p></div></div>
+        <div class="card-glow rounded-3xl overflow-hidden relative group"><div class="lock-overlay absolute inset-0 z-10 bg-white/70 rounded-3xl flex flex-col items-center justify-center gap-3"><div class="w-12 h-12 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center animate-float" style="animation-delay:1s"><i data-lucide="lock" class="w-5 h-5 text-cream-400"></i></div><span class="text-sm text-neutral-500">Log in to access</span><button onclick="openLoginModal()" class="bg-cream-600 text-white text-xs font-medium px-5 py-2 rounded-full hover:bg-cream-700 transition-colors shadow-sm">Log In</button></div><div class="h-48 bg-gradient-to-br from-[#fff8f0] to-[#fce7f3] flex items-center justify-center border-b border-neutral-100"><div class="text-6xl">📖</div></div><div class="p-6"><div class="text-xs text-cream-600 font-mono tracking-wider uppercase mb-2">English</div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900">Wren & Martin — English Grammar</h4><p class="text-sm text-neutral-400 leading-relaxed">The classic reference for grammar and composition.</p></div></div>
+        <div class="card-glow rounded-3xl overflow-hidden relative group"><div class="lock-overlay absolute inset-0 z-10 bg-white/70 rounded-3xl flex flex-col items-center justify-center gap-3"><div class="w-12 h-12 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center animate-float" style="animation-delay:0.3s"><i data-lucide="lock" class="w-5 h-5 text-cream-400"></i></div><span class="text-sm text-neutral-500">Log in to access</span><button onclick="openLoginModal()" class="bg-cream-600 text-white text-xs font-medium px-5 py-2 rounded-full hover:bg-cream-700 transition-colors shadow-sm">Log In</button></div><div class="h-48 bg-gradient-to-br from-[#fff8f0] to-[#fed7aa] flex items-center justify-center border-b border-neutral-100"><div class="text-6xl">⚛️</div></div><div class="p-6"><div class="text-xs text-cream-600 font-mono tracking-wider uppercase mb-2">Physics</div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900">HC Verma — Concepts of Physics</h4><p class="text-sm text-neutral-400 leading-relaxed">Build deep physics intuition with this legendary book.</p></div></div>
+        <div class="card-glow rounded-3xl overflow-hidden relative group"><div class="lock-overlay absolute inset-0 z-10 bg-white/70 rounded-3xl flex flex-col items-center justify-center gap-3"><div class="w-12 h-12 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center animate-float" style="animation-delay:0.8s"><i data-lucide="lock" class="w-5 h-5 text-cream-400"></i></div><span class="text-sm text-neutral-500">Log in to access</span><button onclick="openLoginModal()" class="bg-cream-600 text-white text-xs font-medium px-5 py-2 rounded-full hover:bg-cream-700 transition-colors shadow-sm">Log In</button></div><div class="h-48 bg-gradient-to-br from-[#fff8f0] to-[#d1fae5] flex items-center justify-center border-b border-neutral-100"><div class="text-6xl">🧪</div></div><div class="p-6"><div class="text-xs text-cream-600 font-mono tracking-wider uppercase mb-2">Chemistry</div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900">OP Tandon — Organic Chemistry</h4><p class="text-sm text-neutral-400 leading-relaxed">Master organic chemistry reactions step by step.</p></div></div>
+        <div class="card-glow rounded-3xl overflow-hidden relative group"><div class="lock-overlay absolute inset-0 z-10 bg-white/70 rounded-3xl flex flex-col items-center justify-center gap-3"><div class="w-12 h-12 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center animate-float" style="animation-delay:1.2s"><i data-lucide="lock" class="w-5 h-5 text-cream-400"></i></div><span class="text-sm text-neutral-500">Log in to access</span><button onclick="openLoginModal()" class="bg-cream-600 text-white text-xs font-medium px-5 py-2 rounded-full hover:bg-cream-700 transition-colors shadow-sm">Log In</button></div><div class="h-48 bg-gradient-to-br from-[#fff8f0] to-[#fecaca] flex items-center justify-center border-b border-neutral-100"><div class="text-6xl">🧮</div></div><div class="p-6"><div class="text-xs text-cream-600 font-mono tracking-wider uppercase mb-2">Mathematics</div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900">Cengage Series — JEE Maths</h4><p class="text-sm text-neutral-400 leading-relaxed">Advanced level problems for competitive exams.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Papers Section -->
+  <section id="papers" class="py-24 md:py-32 relative bg-white">
+    <div class="absolute bottom-0 left-0 w-[600px] h-[400px] bg-[#fff8f0]/50 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="max-w-6xl mx-auto px-6 relative">
+      <div class="text-center mb-16"><span class="text-xs font-mono tracking-widest uppercase text-cream-600 mb-4 block">Practice Makes Perfect</span><h2 class="font-heading text-3xl md:text-5xl font-medium tracking-tight mb-4 text-neutral-900">Test Preparation <span class="hero-text">Model Papers</span></h2><p class="text-neutral-500 max-w-md mx-auto text-sm md:text-base">Previous year patterns & model papers curated by experienced educators</p></div>
+      <div class="flex flex-wrap justify-center gap-2 mb-10">
+        <button onclick="filterPapers('all', this)" class="tab-active text-xs font-medium px-5 py-2 rounded-full transition-all duration-300">All</button>
+        <button onclick="filterPapers('class10', this)" class="text-xs font-medium px-5 py-2 rounded-full bg-cream-100 text-neutral-500 border border-cream-300 hover:border-cream-400 transition-all duration-300">Class 10</button>
+        <button onclick="filterPapers('class12', this)" class="text-xs font-medium px-5 py-2 rounded-full bg-cream-100 text-neutral-500 border border-cream-300 hover:border-cream-400 transition-all duration-300">Class 12</button>
+        <button onclick="filterPapers('jee', this)" class="text-xs font-medium px-5 py-2 rounded-full bg-cream-100 text-neutral-500 border border-cream-300 hover:border-cream-400 transition-all duration-300">JEE</button>
+        <button onclick="filterPapers('neet', this)" class="text-xs font-medium px-5 py-2 rounded-full bg-cream-100 text-neutral-500 border border-cream-300 hover:border-cream-400 transition-all duration-300">NEET</button>
+      </div>
+      <div id="papersGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="paper-card card-glow rounded-3xl p-6 group cursor-pointer" data-category="class10" onclick="openPaperModal('CBSE Class 10 — Maths','Class 10 • Maths • 2024 Pattern')"><div class="flex items-center justify-between mb-4"><span class="text-xs font-mono tracking-wider text-cream-600 uppercase">Class 10</span><span class="text-xs text-neutral-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>3 hrs</span></div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900 group-hover:text-cream-600 transition-colors">CBSE Maths — Model Paper 1</h4><p class="text-sm text-neutral-400 mb-4">Based on latest CBSE 2024 pattern. 80 marks.</p><div class="flex items-center justify-between"><div class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3 text-neutral-300"></i><span class="text-xs text-neutral-400">1.2k downloads</span></div><span class="text-xs text-cream-600 flex items-center gap-1 group-hover:gap-2 transition-all font-medium">Preview <i data-lucide="arrow-right" class="w-3 h-3"></i></span></div></div>
+        <div class="paper-card card-glow rounded-3xl p-6 group cursor-pointer" data-category="class10" onclick="openPaperModal('CBSE Class 10 — Science','Class 10 • Science • 2024 Pattern')"><div class="flex items-center justify-between mb-4"><span class="text-xs font-mono tracking-wider text-cream-600 uppercase">Class 10</span><span class="text-xs text-neutral-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>3 hrs</span></div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900 group-hover:text-cream-600 transition-colors">CBSE Science — Model Paper 1</h4><p class="text-sm text-neutral-400 mb-4">Full syllabus coverage with detailed marking scheme.</p><div class="flex items-center justify-between"><div class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3 text-neutral-300"></i><span class="text-xs text-neutral-400">980 downloads</span></div><span class="text-xs text-cream-600 flex items-center gap-1 group-hover:gap-2 transition-all font-medium">Preview <i data-lucide="arrow-right" class="w-3 h-3"></i></span></div></div>
+        <div class="paper-card card-glow rounded-3xl p-6 group cursor-pointer" data-category="class12" onclick="openPaperModal('CBSE Class 12 — Physics','Class 12 • Physics • 2024 Pattern')"><div class="flex items-center justify-between mb-4"><span class="text-xs font-mono tracking-wider text-cream-600 uppercase">Class 12</span><span class="text-xs text-neutral-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>3 hrs</span></div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900 group-hover:text-cream-600 transition-colors">CBSE Physics — Model Paper 1</h4><p class="text-sm text-neutral-400 mb-4">Includes numericals & derivations from all units.</p><div class="flex items-center justify-between"><div class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3 text-neutral-300"></i><span class="text-xs text-neutral-400">750 downloads</span></div><span class="text-xs text-cream-600 flex items-center gap-1 group-hover:gap-2 transition-all font-medium">Preview <i data-lucide="arrow-right" class="w-3 h-3"></i></span></div></div>
+        <div class="paper-card card-glow rounded-3xl p-6 group cursor-pointer" data-category="jee" onclick="openPaperModal('JEE Main — Mathematics','JEE Main • Maths • 2024 Pattern')"><div class="flex items-center justify-between mb-4"><span class="text-xs font-mono tracking-wider text-cream-600 uppercase">JEE Main</span><span class="text-xs text-neutral-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>3 hrs</span></div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900 group-hover:text-cream-600 transition-colors">JEE Main — Maths Mock Test</h4><p class="text-sm text-neutral-400 mb-4">30 MCQs + 10 Numerical. NTA pattern based.</p><div class="flex items-center justify-between"><div class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3 text-neutral-300"></i><span class="text-xs text-neutral-400">2.1k downloads</span></div><span class="text-xs text-cream-600 flex items-center gap-1 group-hover:gap-2 transition-all font-medium">Preview <i data-lucide="arrow-right" class="w-3 h-3"></i></span></div></div>
+        <div class="paper-card card-glow rounded-3xl p-6 group cursor-pointer" data-category="neet" onclick="openPaperModal('NEET — Biology','NEET • Biology • 2024 Pattern')"><div class="flex items-center justify-between mb-4"><span class="text-xs font-mono tracking-wider text-cream-600 uppercase">NEET</span><span class="text-xs text-neutral-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>3.2 hrs</span></div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900 group-hover:text-cream-600 transition-colors">NEET — Biology Model Paper</h4><p class="text-sm text-neutral-400 mb-4">200 MCQs covering Botany & Zoology fully.</p><div class="flex items-center justify-between"><div class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3 text-neutral-300"></i><span class="text-xs text-neutral-400">1.8k downloads</span></div><span class="text-xs text-cream-600 flex items-center gap-1 group-hover:gap-2 transition-all font-medium">Preview <i data-lucide="arrow-right" class="w-3 h-3"></i></span></div></div>
+        <div class="paper-card card-glow rounded-3xl p-6 group cursor-pointer" data-category="class12" onclick="openPaperModal('CBSE Class 12 — Chemistry','Class 12 • Chemistry • 2024 Pattern')"><div class="flex items-center justify-between mb-4"><span class="text-xs font-mono tracking-wider text-cream-600 uppercase">Class 12</span><span class="text-xs text-neutral-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i>3 hrs</span></div><h4 class="font-heading text-lg font-medium tracking-tight mb-2 text-neutral-900 group-hover:text-cream-600 transition-colors">CBSE Chemistry — Model Paper</h4><p class="text-sm text-neutral-400 mb-4">Organic, Inorganic & Physical combined paper.</p><div class="flex items-center justify-between"><div class="flex items-center gap-1"><i data-lucide="download" class="w-3 h-3 text-neutral-300"></i><span class="text-xs text-neutral-400">620 downloads</span></div><span class="text-xs text-cream-600 flex items-center gap-1 group-hover:gap-2 transition-all font-medium">Preview <i data-lucide="arrow-right" class="w-3 h-3"></i></span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WHATSAPP CHANNEL SECTION ===== -->
+  <section id="whatsapp" class="py-24 md:py-32 relative bg-white overflow-hidden">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-green-100/50 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="max-w-6xl mx-auto px-6 relative">
+      <div class="max-w-4xl mx-auto">
+        <div class="wa-card-shine card-glow rounded-3xl p-8 md:p-12 border-green-200/50 relative">
+          <div class="grid md:grid-cols-2 gap-10 items-center">
+            <!-- Left: Content -->
+            <div>
+              <span class="text-xs font-mono tracking-widest uppercase text-green-600 mb-4 block flex items-center gap-2">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Stay Connected
+              </span>
+              <h2 class="font-heading text-3xl md:text-4xl font-medium tracking-tight mb-4 text-neutral-900">Join Our <span class="text-green-600">WhatsApp</span> Channel</h2>
+              <p class="text-neutral-500 text-sm md:text-base leading-relaxed mb-6">Get instant updates on new tutors, model papers, study tips, exam notifications, and exclusive offers — all delivered straight to your WhatsApp.</p>
+              
+              <ul class="space-y-3 mb-8">
+                <li class="flex items-start gap-3">
+                  <div class="w-6 h-6 rounded-full bg-green-50 border border-green-200 flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></div>
+                  <span class="text-sm text-neutral-600">Instant notifications for new model papers & book suggestions</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="w-6 h-6 rounded-full bg-green-50 border border-green-200 flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></div>
+                  <span class="text-sm text-neutral-600">Daily study tips & motivational content</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="w-6 h-6 rounded-full bg-green-50 border border-green-200 flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></div>
+                  <span class="text-sm text-neutral-600">Exam alerts, schedule changes & important announcements</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="w-6 h-6 rounded-full bg-green-50 border border-green-200 flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></div>
+                  <span class="text-sm text-neutral-600">Exclusive discounts & early access to new features</span>
+                </li>
+                <li class="flex items-start gap-3">
+                  <div class="w-6 h-6 rounded-full bg-green-50 border border-green-200 flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="check" class="w-3 h-3 text-green-600"></i></div>
+                  <span class="text-sm text-neutral-600">Zero spam — only quality, relevant content</span>
+                </li>
+              </ul>
+
+              <a href="https://whatsapp.com/channel/0029Vb7ZRnHBadmWa6Ey4U0I" target="_blank" class="inline-flex items-center gap-2.5 bg-[#25D366] text-white font-medium px-7 py-3.5 rounded-full hover:bg-[#1DA851] transition-all duration-300 text-sm shadow-lg hover:shadow-xl hover:scale-[1.02]" style="box-shadow: 0 8px 25px rgba(37,211,102,0.3)">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.555 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Join WhatsApp Channel
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </a>
+            </div>
+
+            <!-- Right: Visual -->
+            <div class="hidden md:flex flex-col items-center justify-center">
+              <!-- Phone mockup -->
+              <div class="relative">
+                <div class="w-64 h-[460px] bg-neutral-900 rounded-[2.5rem] p-3 shadow-2xl" style="box-shadow: 0 25px 60px rgba(0,0,0,0.3)">
+                  <div class="w-full h-full bg-[#ECE5DD] rounded-[2rem] overflow-hidden relative">
+                    <!-- Status bar -->
+                    <div class="bg-[#075E54] px-4 pt-3 pb-2">
+                      <div class="flex items-center justify-between text-white/80 text-[10px] mb-2">
+                        <span>9:41</span>
+                        <div class="flex items-center gap-1"><i data-lucide="wifi" class="w-3 h-3"></i><i data-lucide="battery-full" class="w-3 h-3"></i></div>
+                      </div>
+                      <p class="text-white text-sm font-medium">Mentora Tutors Hub</p>
+                      <p class="text-white/70 text-[11px]">Updates channel · 5,000+ followers</p>
+                    </div>
+                    <!-- Messages -->
+                    <div class="p-3 space-y-2.5 mt-2">
+                      <div class="bg-white rounded-lg rounded-tl-none p-2.5 shadow-sm max-w-[85%]">
+                        <p class="text-[11px] text-neutral-800 leading-relaxed">📚 NEW: Class 10 Maths Model Paper 2025 is now available! Download from our website.</p>
+                        <p class="text-[9px] text-neutral-400 mt-1">10:30 AM</p>
+                      </div>
+                      <div class="bg-white rounded-lg rounded-tl-none p-2.5 shadow-sm max-w-[85%]">
+                        <p class="text-[11px] text-neutral-800 leading-relaxed">💡 Study Tip: Solve at least 20 MCQs daily to build speed for JEE/NEET. Consistency beats intensity!</p>
+                        <p class="text-[9px] text-neutral-400 mt-1">Yesterday</p>
+                      </div>
+                      <div class="bg-white rounded-lg rounded-tl-none p-2.5 shadow-sm max-w-[85%]">
+                        <p class="text-[11px] text-neutral-800 leading-relaxed">🔥 Limited Offer: Sign up this week and get 2 FREE demo classes. Don't miss out!</p>
+                        <p class="text-[9px] text-neutral-400 mt-1">2 days ago</p>
+                      </div>
+                      <div class="bg-white rounded-lg rounded-tl-none p-2.5 shadow-sm max-w-[85%]">
+                        <p class="text-[11px] text-neutral-800 leading-relaxed">🎯 CBSE Board Exam dates announced! Check the full schedule on our website.</p>
+                        <p class="text-[9px] text-neutral-400 mt-1">3 days ago</p>
+                      </div>
+                    </div>
+                    <!-- Bottom bar -->
+                    <div class="absolute bottom-0 left-0 right-0 bg-[#F0F0F0] px-3 py-2 flex items-center gap-2 border-t border-neutral-200">
+                      <div class="flex-1 bg-white rounded-full px-3 py-1.5 text-[10px] text-neutral-400">Type a message</div>
+                      <div class="w-7 h-7 rounded-full bg-[#075E54] flex items-center justify-center"><i data-lucide="mic" class="w-3 h-3 text-white"></i></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Notification badge -->
+                <div class="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shadow-lg animate-float">
+                  <span class="text-white text-[10px] font-bold">5+</span>
+                </div>
+              </div>
+              <p class="text-xs text-neutral-400 mt-4 text-center">Live preview of our channel</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section id="reviews" class="py-24 md:py-32 relative">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#fff8f0]/50 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="max-w-6xl mx-auto px-6 relative">
+      <div class="text-center mb-12"><span class="text-xs font-mono tracking-widest uppercase text-cream-600 mb-4 block">Real Stories</span><h2 class="font-heading text-3xl md:text-5xl font-medium tracking-tight mb-4 text-neutral-900">What People Are <span class="hero-text">Saying</span></h2><p class="text-neutral-500 max-w-md mx-auto text-sm md:text-base">Hear from students and tutors who've experienced the Mentora Tutors Hub difference</p></div>
+      <div class="flex justify-center gap-2 mb-10">
+        <button onclick="filterReviews('all', this)" class="review-tab-active text-xs font-medium px-5 py-2 rounded-full border border-cream-300 transition-all duration-300">All Reviews</button>
+        <button onclick="filterReviews('student', this)" class="text-xs font-medium px-5 py-2 rounded-full bg-white text-neutral-500 border border-neutral-200 hover:border-neutral-300 transition-all duration-300 flex items-center gap-1.5"><i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>Students</button>
+        <button onclick="filterReviews('tutor', this)" class="text-xs font-medium px-5 py-2 rounded-full bg-white text-neutral-500 border border-neutral-200 hover:border-neutral-300 transition-all duration-300 flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i>Tutors</button>
+      </div>
+      <div id="reviewsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="review-card card-glow rounded-2xl p-6" data-type="student"><div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i></div><p class="text-sm text-neutral-600 leading-relaxed mb-5 review-quote">My daughter's maths score jumped from 62 to 91 in just 3 months! The tutor matched with us was patient and knew exactly how to explain concepts. Worth every penny.</p><div class="flex items-center gap-3 pt-4 border-t border-neutral-100"><div class="w-10 h-10 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-sm font-medium text-cream-600">PS</div><div><p class="text-sm font-medium text-neutral-900">Priya Sharma</p><p class="text-xs text-neutral-400">Parent • Mumbai</p></div><span class="ml-auto text-[10px] font-medium text-cream-600 bg-cream-100 border border-cream-300 px-2 py-0.5 rounded-full">Student</span></div></div>
+        <div class="review-card card-glow rounded-2xl p-6" data-type="tutor"><div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i></div><p class="text-sm text-neutral-600 leading-relaxed mb-5 review-quote">Mentora Tutors Hub changed my career. I went from struggling to find students to having a full schedule within 2 weeks of joining. The platform handles everything — I just teach.</p><div class="flex items-center gap-3 pt-4 border-t border-neutral-100"><div class="w-10 h-10 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-sm font-medium text-cream-600">RK</div><div><p class="text-sm font-medium text-neutral-900">Rahul Kumar</p><p class="text-xs text-neutral-400">Tutor • Delhi</p></div><span class="ml-auto text-[10px] font-medium text-white bg-cream-600 px-2 py-0.5 rounded-full">Tutor</span></div></div>
+        <div class="review-card card-glow rounded-2xl p-6" data-type="student"><div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-neutral-200"></i></div><p class="text-sm text-neutral-600 leading-relaxed mb-5 review-quote">I was preparing for JEE and the model papers were incredibly accurate. The WhatsApp channel updates were super helpful for staying on track. Cracked it in first attempt!</p><div class="flex items-center gap-3 pt-4 border-t border-neutral-100"><div class="w-10 h-10 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-sm font-medium text-cream-600">AP</div><div><p class="text-sm font-medium text-neutral-900">Arjun Patel</p><p class="text-xs text-neutral-400">Student • Ahmedabad</p></div><span class="ml-auto text-[10px] font-medium text-cream-600 bg-cream-100 border border-cream-300 px-2 py-0.5 rounded-full">Student</span></div></div>
+        <div class="review-card card-glow rounded-2xl p-6" data-type="tutor"><div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i></div><p class="text-sm text-neutral-600 leading-relaxed mb-5 review-quote">As a female tutor, safety was my top concern. Mentora Tutors Hub verifies every student's background. I've been teaching here for 8 months — love it!</p><div class="flex items-center gap-3 pt-4 border-t border-neutral-100"><div class="w-10 h-10 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-sm font-medium text-cream-600">SM</div><div><p class="text-sm font-medium text-neutral-900">Sneha Mehta</p><p class="text-xs text-neutral-400">Tutor • Pune</p></div><span class="ml-auto text-[10px] font-medium text-white bg-cream-600 px-2 py-0.5 rounded-full">Tutor</span></div></div>
+        <div class="review-card card-glow rounded-2xl p-6" data-type="student"><div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i></div><p class="text-sm text-neutral-600 leading-relaxed mb-5 review-quote">The home tuition service is fantastic. The tutor comes on time, is well prepared, and my son actually looks forward to his science classes now. That never happened before!</p><div class="flex items-center gap-3 pt-4 border-t border-neutral-100"><div class="w-10 h-10 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-sm font-medium text-cream-600">VR</div><div><p class="text-sm font-medium text-neutral-900">Vikram Reddy</p><p class="text-xs text-neutral-400">Parent • Hyderabad</p></div><span class="ml-auto text-[10px] font-medium text-cream-600 bg-cream-100 border border-cream-300 px-2 py-0.5 rounded-full">Student</span></div></div>
+        <div class="review-card card-glow rounded-2xl p-6" data-type="tutor"><div class="flex items-center gap-1 mb-4"><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-neutral-200"></i></div><p class="text-sm text-neutral-600 leading-relaxed mb-5 review-quote">I teach English part-time while doing my MBA. The payment system is smooth — I get paid on time every week. Great side income with flexible hours.</p><div class="flex items-center gap-3 pt-4 border-t border-neutral-100"><div class="w-10 h-10 rounded-full bg-cream-100 border border-cream-300 flex items-center justify-center text-sm font-medium text-cream-600">NK</div><div><p class="text-sm font-medium text-neutral-900">Neha Kapoor</p><p class="text-xs text-neutral-400">Tutor • Bangalore</p></div><span class="ml-auto text-[10px] font-medium text-white bg-cream-600 px-2 py-0.5 rounded-full">Tutor</span></div></div>
+      </div>
+      <!-- Rating Summary -->
+      <div class="mt-12 card-glow rounded-2xl p-6 md:p-8 max-w-2xl mx-auto">
+        <div class="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+          <div class="text-center"><div class="font-heading text-5xl font-medium text-neutral-900">4.9<span class="text-cream-500">/5</span></div><div class="flex items-center justify-center gap-0.5 mt-2"><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i><i data-lucide="star" class="w-4 h-4 text-cream-500 fill-cream-500"></i></div><p class="text-xs text-neutral-400 mt-1">Based on 2,400+ reviews</p></div>
+          <div class="flex-1 w-full space-y-2">
+            <div class="flex items-center gap-3"><span class="text-xs text-neutral-500 w-6">5★</span><div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden"><div class="h-full bg-cream-500 rounded-full" style="width:82%"></div></div><span class="text-xs text-neutral-400 w-8 text-right">82%</span></div>
+            <div class="flex items-center gap-3"><span class="text-xs text-neutral-500 w-6">4★</span><div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden"><div class="h-full bg-cream-400 rounded-full" style="width:12%"></div></div><span class="text-xs text-neutral-400 w-8 text-right">12%</span></div>
+            <div class="flex items-center gap-3"><span class="text-xs text-neutral-500 w-6">3★</span><div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden"><div class="h-full bg-cream-300 rounded-full" style="width:4%"></div></div><span class="text-xs text-neutral-400 w-8 text-right">4%</span></div>
+            <div class="flex items-center gap-3"><span class="text-xs text-neutral-500 w-6">2★</span><div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden"><div class="h-full bg-cream-300 rounded-full" style="width:1.5%"></div></div><span class="text-xs text-neutral-400 w-8 text-right">1.5%</span></div>
+            <div class="flex items-center gap-3"><span class="text-xs text-neutral-500 w-6">1★</span><div class="flex-1 h-2 bg-neutral-100 rounded-full overflow-hidden"><div class="h-full bg-neutral-200 rounded-full" style="width:0.5%"></div></div><span class="text-xs text-neutral-400 w-8 text-right">0.5%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQs -->
+  <section id="faq" class="py-24 md:py-32 relative bg-white">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="text-center mb-16"><span class="text-xs font-mono tracking-widest uppercase text-cream-600 mb-4 block">Got Questions?</span><h2 class="font-heading text-3xl md:text-5xl font-medium tracking-tight mb-4 text-neutral-900">Frequently Asked <span class="hero-text">Questions</span></h2></div>
+      <div class="space-y-3">
+        <div class="card-glow rounded-2xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left"><span class="font-heading text-sm md:text-base font-medium tracking-tight pr-4 text-neutral-800">How do I find the right tutor for my child?</span><i data-lucide="plus" class="faq-icon w-5 h-5 text-neutral-400 flex-shrink-0"></i></button><div class="faq-answer px-5"><p class="text-sm text-neutral-500 leading-relaxed pb-5">After registration, you can browse tutor profiles filtered by subject, class, location, and rating. Our smart matching algorithm also suggests the best tutors based on your child's specific needs. You can also request a free demo class before committing.</p></div></div>
+        <div class="card-glow rounded-2xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left"><span class="font-heading text-sm md:text-base font-medium tracking-tight pr-4 text-neutral-800">What are the fees for tutoring sessions?</span><i data-lucide="plus" class="faq-icon w-5 h-5 text-neutral-400 flex-shrink-0"></i></button><div class="faq-answer px-5"><p class="text-sm text-neutral-500 leading-relaxed pb-5">Fees vary based on the subject, tutor's experience, and mode. On average, online sessions start from ₹300/hr and home tuition from ₹500/hr. Each tutor sets their own rates, and you can filter by budget when searching.</p></div></div>
+        <div class="card-glow rounded-2xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left"><span class="font-heading text-sm md:text-base font-medium tracking-tight pr-4 text-neutral-800">How are tutors verified on Mentora Tutors Hub?</span><i data-lucide="plus" class="faq-icon w-5 h-5 text-neutral-400 flex-shrink-0"></i></button><div class="faq-answer px-5"><p class="text-sm text-neutral-500 leading-relaxed pb-5">Every tutor goes through a 3-step verification: ID verification, qualification check, and a demo teaching assessment. Only tutors who clear all three stages are listed on our platform.</p></div></div>
+        <div class="card-glow rounded-2xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left"><span class="font-heading text-sm md:text-base font-medium tracking-tight pr-4 text-neutral-800">Can I get a demo class before enrolling?</span><i data-lucide="plus" class="faq-icon w-5 h-5 text-neutral-400 flex-shrink-0"></i></button><div class="faq-answer px-5"><p class="text-sm text-neutral-500 leading-relaxed pb-5">Yes! Most of our tutors offer a free 30-minute demo class. You can request this directly from the tutor's profile page to evaluate teaching style and compatibility.</p></div></div>
+        <div class="card-glow rounded-2xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left"><span class="font-heading text-sm md:text-base font-medium tracking-tight pr-4 text-neutral-800">What subjects and classes do you cover?</span><i data-lucide="plus" class="faq-icon w-5 h-5 text-neutral-400 flex-shrink-0"></i></button><div class="faq-answer px-5"><p class="text-sm text-neutral-500 leading-relaxed pb-5">We cover all major subjects from Class 1 through 12, plus JEE, NEET, CUET, and college-level subjects. Maths, Science, English, Hindi, Social Science, Computer Science and more.</p></div></div>
+        <div class="card-glow rounded-2xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left"><span class="font-heading text-sm md:text-base font-medium tracking-tight pr-4 text-neutral-800">How do I become a tutor on Mentora Tutors Hub?</span><i data-lucide="plus" class="faq-icon w-5 h-5 text-neutral-400 flex-shrink-0"></i></button><div class="faq-answer px-5"><p class="text-sm text-neutral-500 leading-relaxed pb-5">Click "Sign Up as Tutor," fill in your qualifications and availability. Our team verifies your profile within 24-48 hours. Once approved, your profile goes live and students can start booking sessions.</p></div></div>
+        <div class="card-glow rounded-2xl overflow-hidden"><button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left"><span class="font-heading text-sm md:text-base font-medium tracking-tight pr-4 text-neutral-800">Is there a cancellation or refund policy?</span><i data-lucide="plus" class="faq-icon w-5 h-5 text-neutral-400 flex-shrink-0"></i></button><div class="faq-answer px-5"><p class="text-sm text-neutral-500 leading-relaxed pb-5">Yes, cancel or reschedule up to 4 hours before at no cost. Late cancellations may incur a small fee. If unsatisfied, reach out within 24 hours for a resolution or refund.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-24 md:py-32 relative">
+    <div class="absolute top-1/2 left-0 w-[500px] h-[400px] bg-[#fff8f0]/50 rounded-full blur-[120px] pointer-events-none -translate-y-1/2"></div>
+    <div class="max-w-6xl mx-auto px-6 relative">
+      <div class="text-center mb-16"><span class="text-xs font-mono tracking-widest uppercase text-cream-600 mb-4 block">Let's Talk</span><h2 class="font-heading text-3xl md:text-5xl font-medium tracking-tight mb-4 text-neutral-900">Get in <span class="hero-text">Touch</span></h2><p class="text-neutral-500 max-w-md mx-auto text-sm md:text-base">Have questions? We'd love to hear from you</p></div>
+      <div class="grid md:grid-cols-5 gap-8 max-w-5xl mx-auto">
+        <div class="md:col-span-2 space-y-6">
+          <div class="card-glow rounded-2xl p-6"><div class="w-10 h-10 rounded-xl bg-cream-100 border border-cream-300 flex items-center justify-center mb-3"><i data-lucide="mail" class="w-5 h-5 text-cream-600"></i></div><h4 class="font-heading text-sm font-medium mb-1 text-neutral-900">Email Us</h4><p class="text-sm text-neutral-500">hello@mentoratutorshub.com</p></div>
+          <div class="card-glow rounded-2xl p-6"><div class="w-10 h-10 rounded-xl bg-cream-100 border border-cream-300 flex items-center justify-center mb-3"><i data-lucide="phone" class="w-5 h-5 text-cream-600"></i></div><h4 class="font-heading text-sm font-medium mb-1 text-neutral-900">Call Us</h4><p class="text-sm text-neutral-500">+91 98765 43210</p></div>
+          <div class="card-glow rounded-2xl p-6"><div class="w-10 h-10 rounded-xl bg-green-50 border border-green-200 flex items-center justify-center mb-3"><i data-lucide="message-circle" class="w-5 h-5 text-green-600"></i></div><h4 class="font-heading text-sm font-medium mb-1 text-neutral-900">WhatsApp Channel</h4><p class="text-sm text-neutral-500"><a href="https://whatsapp.com/channel/0029Vb7ZRnHBadmWa6Ey4U0I" target="_blank" class="text-green-600 hover:underline font-medium">Follow us on WhatsApp →</a></p></div>
+          <div class="card-glow rounded-2xl p-6"><div class="w-10 h-10 rounded-xl bg-cream-100 border border-cream-300 flex items-center justify-center mb-3"><i data-lucide="map-pin" class="w-5 h-5 text-cream-600"></i></div><h4 class="font-heading text-sm font-medium mb-1 text-neutral-900">Location</h4><p class="text-sm text-neutral-500">Mumbai, India</p></div>
+        </div>
+        <div class="md:col-span-3">
+          <form id="contactForm" onsubmit="handleContactSubmit(event)" class="card-glow rounded-3xl p-6 md:p-8 space-y-5">
+            <div class="grid sm:grid-cols-2 gap-5"><div><label class="block text-sm text-neutral-500 mb-1.5">Your Name</label><input type="text" required placeholder="John Doe" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div><div><label class="block text-sm text-neutral-500 mb-1.5">Email</label><input type="email" required placeholder="you@example.com" class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all"></div></div>
+            <div><label class="block text-sm text-neutral-500 mb-1.5">Subject</label><select class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all appearance-none"><option value="">Select a topic</option><option>General Inquiry</option><option>Tutor Registration</option><option>Student Enrollment</option><option>Report an Issue</option><option>Partnership</option></select></div>
+            <div><label class="block text-sm text-neutral-500 mb-1.5">Message</label><textarea required rows="5" placeholder="Tell us how we can help..." class="w-full bg-cream-100 border border-cream-300 rounded-xl px-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-cream-600 focus:ring-2 focus:ring-cream-600/20 transition-all resize-none"></textarea></div>
+            <button type="submit" class="w-full bg-cream-600 text-white font-medium py-3.5 rounded-xl hover:bg-cream-700 transition-colors text-sm shimmer-btn relative overflow-hidden flex items-center justify-center gap-2 shadow-sm">Send Message <i data-lucide="send" class="w-4 h-4"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 md:py-32 relative overflow-hidden bg-white">
+    <div class="absolute inset-0 grid-bg pointer-events-none opacity-30"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#fff8f0]/70 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="max-w-3xl mx-auto px-6 text-center relative">
+      <h2 class="font-heading text-3xl md:text-5xl font-medium tracking-tight mb-6 hero-text">Ready to start your<br>learning journey?</h2>
+      <p class="text-neutral-500 max-w-md mx-auto mb-10 text-sm md:text-base">Join thousands of students and tutors already growing with Mentora Tutors Hub.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button onclick="openModal('parent')" class="group bg-cream-600 text-white font-medium px-10 py-4 rounded-full hover:bg-cream-700 transition-all duration-300 text-sm shimmer-btn relative overflow-hidden flex items-center gap-2 shadow-lg" style="box-shadow: 0 8px 25px rgba(146,64,14,0.25)"><i data-lucide="user-plus" class="w-4 h-4"></i>Sign Up Free<i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i></button>
+        <a href="https://whatsapp.com/channel/0029Vb7ZRnHBadmWa6Ey4U0I" target="_blank" class="group text-sm text-green-600 hover:text-green-700 transition-colors flex items-center gap-2 font-medium"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.555 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Or join our WhatsApp channel<i data-lucide="arrow-up-right" class="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-neutral-200 py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+        <div class="lg:col-span-1"><a href="#" class="font-brand text-xl font-bold tracking-tight inline-block mb-4 text-neutral-900">Mentora<span class="text-cream-600">.</span></a><p class="text-sm text-neutral-400 leading-relaxed mb-6">India's trusted platform connecting students with expert tutors for personalized learning.</p>
+          <div class="flex items-center gap-3">
+            <a href="https://instagram.com" target="_blank" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all duration-300"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+            <a href="https://youtube.com" target="_blank" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all duration-300"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+            <a href="https://facebook.com" target="_blank" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all duration-300"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+            <a href="https://twitter.com" target="_blank" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-cream-400 hover:text-cream-600 hover:bg-cream-100 transition-all duration-300"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+            <a href="https://whatsapp.com/channel/0029Vb7ZRnHBadmWa6Ey4U0I" target="_blank" class="w-10 h-10 rounded-full border border-neutral-200 flex items-center justify-center text-neutral-400 hover:border-green-400 hover:text-green-600 hover:bg-green-50 transition-all duration-300"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+          </div>
+        </div>
+        <div><h4 class="font-heading text-sm font-medium mb-4 text-neutral-900">Quick Links</h4><ul class="space-y-2.5"><li><a href="#register" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Register</a></li><li><a href="#books" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Book Suggestions</a></li><li><a href="#papers" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Model Papers</a></li><li><a href="#whatsapp" class="text-sm text-neutral-400 hover:text-green-600 transition-colors">WhatsApp Channel</a></li><li><a href="#reviews" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Reviews</a></li><li><a href="#faq" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">FAQs</a></li><li><a href="#contact" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Contact Us</a></li></ul></div>
+        <div><h4 class="font-heading text-sm font-medium mb-4 text-neutral-900">For Students</h4><ul class="space-y-2.5"><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Find a Tutor</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Browse Subjects</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Online Sessions</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Home Tuition</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Exam Prep</a></li></ul></div>
+        <div><h4 class="font-heading text-sm font-medium mb-4 text-neutral-900">For Tutors</h4><ul class="space-y-2.5"><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Become a Tutor</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">How It Works</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Tutor Dashboard</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Earnings</a></li><li><a href="#" class="text-sm text-neutral-400 hover:text-cream-600 transition-colors">Resources</a></li></ul></div>
+      </div>
+      <div class="border-t border-neutral-100 pt-8 flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-xs text-neutral-400">© 2025 Mentora Tutors Hub. All rights reserved.</p><div class="flex items-center gap-6"><a href="#" class="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Privacy Policy</a><a href="#" class="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Terms of Service</a><a href="#" class="text-xs text-neutral-400 hover:text-neutral-600 transition-colors">Refund Policy</a></div></div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Button -->
+  <a href="https://whatsapp.com/channel/0029Vb7ZRnHBadmWa6Ey4U0I" target="_blank" class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 hover:bg-[#1DA851]" style="box-shadow: 0 4px 20px rgba(37,211,102,0.4)">
+    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.555 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <script>
+    lucide.createIcons();
+
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) { navbar.style.background = 'rgba(250,250,250,0.85)'; navbar.style.backdropFilter = 'blur(12px)'; navbar.style.webkitBackdropFilter = 'blur(12px)'; navbar.style.borderBottom = '1px solid rgba(229,229,229,0.6)'; }
+      else { navbar.style.background = 'transparent'; navbar.style.backdropFilter = 'none'; navbar.style.webkitBackdropFilter = 'none'; navbar.style.borderBottom = 'none'; }
+    });
+
+    function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('open'); document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('open') ? 'hidden' : ''; }
+
+    function showToast(message) { const toast = document.getElementById('toast'); document.getElementById('toast-message').textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3500); }
+
+    let loginRole = 'parent';
+    function openLoginModal() { loginRole = 'parent'; setLoginRole('parent', document.querySelector('.login-role-btn')); document.getElementById('loginForm').reset(); document.getElementById('loginModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeLoginModal() { document.getElementById('loginModal').classList.remove('active'); document.body.style.overflow = ''; }
+    function setLoginRole(role, btn) { loginRole = role; document.querySelectorAll('.login-role-btn').forEach(b => { b.classList.remove('bg-white','shadow-sm','text-cream-600'); b.classList.add('text-neutral-500'); }); btn.classList.add('bg-white','shadow-sm','text-cream-600'); btn.classList.remove('text-neutral-500'); }
+    function toggleLoginPass() { const inp = document.getElementById('loginPass'); const isP = inp.type === 'password'; inp.type = isP ? 'text' : 'password'; document.getElementById('loginEyeIcon').setAttribute('data-lucide', isP ? 'eye-off' : 'eye'); lucide.createIcons(); }
+    function handleLoginSubmit(e) { e.preventDefault(); closeLoginModal(); showToast('👋 Welcome back! Logged in as ' + (loginRole === 'parent' ? 'Parent' : 'Tutor') + '.'); }
+    document.getElementById('loginModal').addEventListener('click', function(e) { if (e.target === this) closeLoginModal(); });
+
+    let regType = 'parent', currentStep = 1;
+    function openModal(type) { regType = type; currentStep = 1; document.getElementById('modal-title').textContent = 'Sign Up as ' + (type === 'parent' ? 'Parent' : 'Tutor'); document.getElementById('tutor-subjects').classList.toggle('hidden', type !== 'tutor'); document.getElementById('tutor-qual').classList.toggle('hidden', type !== 'tutor'); document.getElementById('parent-child').classList.toggle('hidden', type !== 'parent'); document.getElementById('parent-class').classList.toggle('hidden', type !== 'parent'); updateStepUI(); document.getElementById('regForm').reset(); document.getElementById('regModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeModal() { document.getElementById('regModal').classList.remove('active'); document.body.style.overflow = ''; }
+    function nextStep(step) { currentStep = step; updateStepUI(); }
+    function updateStepUI() { document.getElementById('step1').classList.add('hidden'); document.getElementById('step2').classList.add('hidden'); document.getElementById('step3').classList.add('hidden'); document.getElementById('step' + currentStep).classList.remove('hidden'); for (let i = 1; i <= 3; i++) { const d = document.getElementById('dot' + i); d.classList.remove('active','completed'); if (i === currentStep) d.classList.add('active'); if (i < currentStep) d.classList.add('completed'); } document.getElementById('line1').classList.toggle('active', currentStep > 1); document.getElementById('line2').classList.toggle('active', currentStep > 2); }
+    function handleRegSubmit(e) { e.preventDefault(); closeModal(); showToast('🎉 Account created! Welcome to Mentora Tutors Hub.'); }
+    document.getElementById('regModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+    function openPaperModal(title, meta) { document.getElementById('paper-title').textContent = title; document.getElementById('paper-meta').textContent = meta; document.getElementById('paperModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closePaperModal() { document.getElementById('paperModal').classList.remove('active'); document.body.style.overflow = ''; }
+    document.getElementById('paperModal').addEventListener('click', function(e) { if (e.target === this) closePaperModal(); });
+
+    function toggleFaq(button) { const answer = button.nextElementSibling, icon = button.querySelector('.faq-icon'); const isOpen = answer.classList.contains('open'); document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open')); document.querySelectorAll('.faq-icon').forEach(i => i.classList.remove('rotated')); if (!isOpen) { answer.classList.add('open'); icon.classList.add('rotated'); } }
+
+    function filterPapers(category, btn) { document.querySelectorAll('#papers button').forEach(b => { b.classList.remove('tab-active'); b.classList.add('bg-cream-100','text-neutral-500','border','border-cream-300'); }); btn.classList.add('tab-active'); btn.classList.remove('bg-cream-100','text-neutral-500','border','border-cream-300'); document.querySelectorAll('.paper-card').forEach(card => { if (category === 'all' || card.dataset.category === category) { card.style.display = ''; card.style.opacity = '0'; card.style.transform = 'translateY(10px)'; setTimeout(() => { card.style.transition = 'all 0.4s ease'; card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 50); } else { card.style.display = 'none'; } }); }
+
+    function filterReviews(type, btn) { document.querySelectorAll('#reviews button').forEach(b => { b.classList.remove('review-tab-active'); b.classList.add('bg-white','text-neutral-500','border','border-neutral-200'); }); btn.classList.add('review-tab-active'); btn.classList.remove('bg-white','text-neutral-500','border','border-neutral-200'); document.querySelectorAll('.review-card').forEach(card => { if (type === 'all' || card.dataset.type === type) { card.style.display = ''; card.style.opacity = '0'; card.style.transform = 'translateY(10px)'; setTimeout(() => { card.style.transition = 'all 0.4s ease'; card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 50); } else { card.style.display = 'none'; } }); }
+
+    function handleContactSubmit(e) { e.preventDefault(); e.target.reset(); showToast("✅ Message sent! We'll get back to you within 24 hours."); }
+
+    const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { entry.target.style.opacity = '1'; entry.target.style.transform = 'translateY(0)'; observer.unobserve(entry.target); } }); }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    document.querySelectorAll('section > div > .text-center, .card-glow, .paper-card, .review-card, .wa-card-shine').forEach(el => { el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; el.style.transition = 'all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1)'; observer.observe(el); });
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeLoginModal(); closePaperModal(); if (document.getElementById('mobileMenu').classList.contains('open')) toggleMobileMenu(); } });
+  </script>
+</body>
+</html>
