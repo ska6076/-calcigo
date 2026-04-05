@@ -1,4 +1,4 @@
-vv* {
+    vv* {
   box-sizing: border-box;
 }
 
@@ -324,6 +324,13 @@ input[type=number] {
   text-align: center;
 }
 
+img{
+    height: 50px;
+    /* text-align: right; */
+    justify-content: space-between;
+    display: flex;
+}
+
 /* ---------- Responsive layout for mobile (screen only) ---------- */
 @media screen and (max-width: 768px) {
   body {
@@ -418,4 +425,7 @@ input[type=number] {
   input {
     border: none !important;
   }
-}
+  .actions-section {
+    display: none;
+  }
+}   
