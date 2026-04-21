@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adnex Store — Developer Resource Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            body: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+    .animate-slide-up { animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.1s; }
+    .stagger-3 { animation-delay: 0.15s; }
+    .stagger-4 { animation-delay: 0.2s; }
+    .glass { background: rgba(2,6,5,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(52,211,153,0.06); }
+    .card-hover { transition: all 0.25s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -12px rgba(16,185,129,0.15); border-color: rgba(52,211,153,0.15); }
+    .link-card { opacity: 0; animation: fadeIn 0.5s ease-out forwards; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .tag-active { background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.35); }
+    input::placeholder { color: #4b5563; }
+    .confirm-delete { animation: slideUp 0.25s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .glow-orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+  </style>
+</head>
+<body class="bg-[#060d0a] text-gray-100 min-h-screen no-scrollbar">
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-emerald-500/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+          <span class="iconify text-emerald-400 text-lg" data-icon="lucide:box"></span>
+        </div>
+        <span class="font-display text-xl lg:text-2xl font-600 tracking-tight text-gray-100">Adnex <span class="text-emerald-400">Store</span></span>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#resources" class="text-gray-500 hover:text-emerald-300 transition-colors text-sm font-medium">Resources</a>
+        <a href="#steps" class="text-gray-500 hover:text-emerald-300 transition-colors text-sm font-medium">Steps</a>
+        <a href="#categories" class="text-gray-500 hover:text-emerald-300 transition-colors text-sm font-medium">Categories</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="openAddModal()" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+          <span class="iconify text-base" data-icon="lucide:plus"></span>
+          <span class="hidden sm:inline">Add Resource</span>
+        </button>
+        <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-500 hover:text-gray-200">
+          <span class="iconify text-xl" data-icon="lucide:menu"></span>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden border-t border-emerald-500/5 bg-[#060d0a]/95 backdrop-blur-md">
+      <div class="px-4 py-4 flex flex-col gap-3">
+        <a href="#resources" onclick="toggleMobileMenu()" class="text-gray-500 hover:text-emerald-300 py-2 text-sm font-medium">Resources</a>
+        <a href="#steps" onclick="toggleMobileMenu()" class="text-gray-500 hover:text-emerald-300 py-2 text-sm font-medium">Steps</a>
+        <a href="#categories" onclick="toggleMobileMenu()" class="text-gray-500 hover:text-emerald-300 py-2 text-sm font-medium">Categories</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="min-h-[70vh] flex items-center justify-center relative overflow-hidden pt-20">
+    <div class="glow-orb w-[500px] h-[500px] bg-emerald-500/[0.04] top-[10%] left-[15%]"></div>
+    <div class="glow-orb w-[400px] h-[400px] bg-teal-500/[0.03] bottom-[10%] right-[10%]"></div>
+    <div class="glow-orb w-[300px] h-[300px] bg-green-400/[0.02] top-[50%] left-[60%]"></div>
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-emerald-500/[0.03] rounded-full"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-emerald-500/[0.04] rounded-full"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] border border-emerald-500/[0.05] rounded-full"></div>
+    </div>
+
+    <div class="relative z-10 text-center max-w-4xl mx-auto px-4">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 mb-8 animate-fade-in">
+        <span class="iconify text-emerald-400 text-sm" data-icon="lucide:sparkles"></span>
+        <span class="text-emerald-400 text-xs font-medium tracking-wide uppercase">Developer Resource Hub</span>
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl lg:text-7xl font-500 tracking-tight leading-none mb-6 animate-fade-in stagger-1 text-gray-50">
+        All Your Dev<br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Resources</span>, One Place
+      </h1>
+      <p class="text-gray-500 text-lg lg:text-xl max-w-2xl mx-auto mb-10 animate-fade-in stagger-2">
+        Store, organize, and quickly access your favorite websites, docs, tools, and snippets — built by developers, for developers.
+      </p>
+
+      <div class="max-w-2xl mx-auto animate-fade-in stagger-3">
+        <div class="relative group">
+          <div class="absolute inset-0 rounded-xl bg-emerald-500/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="relative flex items-center bg-[#0c1612]/80 border border-gray-800/60 rounded-xl hover:border-emerald-500/20 transition-colors">
+            <span class="iconify text-gray-600 text-xl ml-4" data-icon="lucide:search"></span>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search resources by name, tag, or URL..."
+              class="w-full bg-transparent text-gray-100 px-4 py-4 lg:py-5 text-base outline-none"
+              oninput="handleSearch(this.value)"
+            >
+            <button onclick="handleSearch(document.getElementById('searchInput').value)" class="mr-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+              <span class="iconify text-base" data-icon="lucide:search"></span>
+              Search
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center justify-center gap-2 mt-4 text-gray-600 text-xs">
+          <span class="iconify text-sm" data-icon="lucide:command"></span>
+          <span>Press <kbd class="px-1.5 py-0.5 rounded bg-gray-800/80 text-gray-400 text-xs font-mono border border-gray-700/50">/</kbd> to focus search</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-8 sm:gap-12 mt-12 animate-fade-in stagger-4">
+        <div class="text-center">
+          <div id="statTotal" class="text-2xl lg:text-3xl font-500 text-gray-100">0</div>
+          <div class="text-gray-600 text-xs mt-1">Resources</div>
+        </div>
+        <div class="w-px h-10 bg-gray-800/60"></div>
+        <div class="text-center">
+          <div id="statCategories" class="text-2xl lg:text-3xl font-500 text-gray-100">0</div>
+          <div class="text-gray-600 text-xs mt-1">Categories</div>
+        </div>
+        <div class="w-px h-10 bg-gray-800/60"></div>
+        <div class="text-center">
+          <div id="statFavorites" class="text-2xl lg:text-3xl font-500 text-gray-100">0</div>
+          <div class="text-gray-600 text-xs mt-1">Favorites</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CATEGORY FILTERS ==================== -->
+  <section id="categories" class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+      <button onclick="filterByCategory('all')" data-cat="all" class="cat-btn tag-active shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-sm font-medium transition-all">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:layers"></span>All</span>
+      </button>
+      <button onclick="filterByCategory('documentation')" data-cat="documentation" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:book-open"></span>Documentation</span>
+      </button>
+      <button onclick="filterByCategory('tools')" data-cat="tools" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:wrench"></span>Tools</span>
+      </button>
+      <button onclick="filterByCategory('apis')" data-cat="apis" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:plug"></span>APIs</span>
+      </button>
+      <button onclick="filterByCategory('templates')" data-cat="templates" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:layout-template"></span>Templates</span>
+      </button>
+      <button onclick="filterByCategory('libraries')" data-cat="libraries" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:package"></span>Libraries</span>
+      </button>
+      <button onclick="filterByCategory('tutorials')" data-cat="tutorials" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:graduation-cap"></span>Tutorials</span>
+      </button>
+      <button onclick="filterByCategory('snippets')" data-cat="snippets" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:code-2"></span>Snippets</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ==================== RESOURCES GRID ==================== -->
+  <section id="resources" class="py-8 lg:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="font-display text-2xl lg:text-3xl font-500 tracking-tight text-gray-50">Your Resources</h2>
+        <p id="resultCount" class="text-gray-600 text-sm mt-1">Showing all resources</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="setView('grid')" id="viewGrid" class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors">
+          <span class="iconify text-lg" data-icon="lucide:grid-3x3"></span>
+        </button>
+        <button onclick="setView('list')" id="viewList" class="p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors">
+          <span class="iconify text-lg" data-icon="lucide:list"></span>
+        </button>
+      </div>
+    </div>
+    <div id="gridView" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"></div>
+    <div id="listView" class="hidden flex flex-col gap-3"></div>
+    <div id="emptyState" class="hidden py-20 text-center">
+      <div class="w-20 h-20 rounded-2xl bg-gray-900/50 border border-gray-800/60 flex items-center justify-center mx-auto mb-6">
+        <span class="iconify text-gray-700 text-3xl" data-icon="lucide:inbox"></span>
+      </div>
+      <h3 class="font-display text-xl font-500 mb-2 text-gray-300">No resources found</h3>
+      <p class="text-gray-600 text-sm mb-6">Try adjusting your search or add a new resource.</p>
+      <button onclick="openAddModal()" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+        <span class="iconify" data-icon="lucide:plus"></span>Add Resource
+      </button>
+    </div>
+  </section>
+
+  <!-- ==================== STEPS TO FOLLOW ==================== -->
+  <section id="steps" class="py-20 lg:py-32 px-4 sm:px-6 lg:px-8 relative">
+    <div class="glow-orb w-[400px] h-[400px] bg-emerald-500/[0.03] top-[20%] right-[5%]"></div>
+    <div class="max-w-5xl mx-auto relative z-10">
+      <div class="text-center mb-16">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 mb-6">
+          <span class="iconify text-emerald-400 text-sm" data-icon="lucide:route"></span>
+          <span class="text-emerald-400 text-xs font-medium tracking-wide uppercase">How It Works</span>
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-500 tracking-tight mb-4 text-gray-50">Steps to Follow</h2>
+        <p class="text-gray-500 text-lg max-w-2xl mx-auto">Get started in seconds — add your first resource and never lose track of a useful link again.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="relative group">
+          <div class="bg-[#0c1612]/60 border border-gray-800/50 rounded-xl p-6 card-hover h-full">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <span class="text-emerald-400 font-600 text-sm">01</span>
+              </div>
+              <div class="hidden lg:block absolute top-1/2 -right-3 z-10">
+                <span class="iconify text-gray-700 text-lg" data-icon="lucide:chevron-right"></span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg font-500 mb-2 text-gray-200">Add Resource</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Click "Add Resource" and paste the URL, name, and pick a category.</p>
+          </div>
+        </div>
+        <div class="relative group">
+          <div class="bg-[#0c1612]/60 border border-gray-800/50 rounded-xl p-6 card-hover h-full">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <span class="text-emerald-400 font-600 text-sm">02</span>
+              </div>
+              <div class="hidden lg:block absolute top-1/2 -right-3 z-10">
+                <span class="iconify text-gray-700 text-lg" data-icon="lucide:chevron-right"></span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg font-500 mb-2 text-gray-200">Add Tags</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Assign tags like React, API, CSS to make searching effortless.</p>
+          </div>
+        </div>
+        <div class="relative group">
+          <div class="bg-[#0c1612]/60 border border-gray-800/50 rounded-xl p-6 card-hover h-full">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <span class="text-emerald-400 font-600 text-sm">03</span>
+              </div>
+              <div class="hidden lg:block absolute top-1/2 -right-3 z-10">
+                <span class="iconify text-gray-700 text-lg" data-icon="lucide:chevron-right"></span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg font-500 mb-2 text-gray-200">Preview & Save</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Hit preview to verify, then save it to your collection instantly.</p>
+          </div>
+        </div>
+        <div class="relative group">
+          <div class="bg-[#0c1612]/60 border border-gray-800/50 rounded-xl p-6 card-hover h-full">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <span class="text-emerald-400 font-600 text-sm">04</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg font-500 mb-2 text-gray-200">Search & Access</h3>
+            <p class="text-gray-500 text-sm leading-relaxed">Use the search bar or category filters to find any resource in milliseconds.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="border-t border-gray-800/40 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-md bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+          <span class="iconify text-emerald-400 text-sm" data-icon="lucide:box"></span>
+        </div>
+        <span class="font-display text-lg font-500 text-gray-200">Adnex Store</span>
+      </div>
+      <p class="text-gray-600 text-sm">Built with care for developers everywhere.</p>
+      <div class="flex items-center gap-4">
+        <a href="#" class="text-gray-600 hover:text-emerald-400 transition-colors"><span class="iconify text-lg" data-icon="lucide:github"></span></a>
+        <a href="#" class="text-gray-600 hover:text-emerald-400 transition-colors"><span class="iconify text-lg" data-icon="lucide:twitter"></span></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== PREVIEW MODAL ==================== -->
+  <div id="previewModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closePreviewModal()"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="bg-[#0c1612] border border-gray-800/60 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden animate-slide-up shadow-2xl shadow-emerald-500/5">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800/50">
+          <div class="flex items-center gap-3">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-500/70"></div>
+            </div>
+            <span class="text-gray-600 text-xs font-mono truncate max-w-[300px]" id="previewUrl"></span>
+          </div>
+          <button onclick="closePreviewModal()" class="p-1.5 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
+            <span class="iconify text-lg" data-icon="lucide:x"></span>
+          </button>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[calc(85vh-130px)]">
+          <div class="flex items-start gap-4 mb-6">
+            <div id="previewIcon" class="w-14 h-14 rounded-xl bg-gray-800/50 border border-gray-700/50 flex items-center justify-center shrink-0">
+              <span class="iconify text-2xl text-gray-400" data-icon="lucide:globe"></span>
+            </div>
+            <div class="min-w-0">
+              <h3 id="previewName" class="font-display text-xl font-500 mb-1 truncate text-gray-100"></h3>
+              <p id="previewDesc" class="text-gray-500 text-sm leading-relaxed"></p>
+            </div>
+          </div>
+          <div id="previewTags" class="flex flex-wrap gap-2 mb-6"></div>
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-800/40">
+              <div class="text-gray-600 text-xs mb-1">Category</div>
+              <div id="previewCategory" class="text-gray-200 text-sm font-medium capitalize"></div>
+            </div>
+            <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-800/40">
+              <div class="text-gray-600 text-xs mb-1">Added</div>
+              <div id="previewDate" class="text-gray-200 text-sm font-medium"></div>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-gray-800/50 bg-[#060d0a] mb-6">
+            <div class="flex items-center gap-2 px-4 py-2.5 bg-gray-900/50 border-b border-gray-800/40">
+              <span class="iconify text-emerald-500/40 text-sm" data-icon="lucide:shield-check"></span>
+              <span id="previewFrameUrl" class="text-gray-600 text-xs font-mono truncate"></span>
+            </div>
+            <div class="h-48 flex items-center justify-center text-gray-600 text-sm">
+              <div class="text-center">
+                <span class="iconify text-4xl mb-2 block mx-auto text-emerald-500/20" data-icon="lucide:external-link"></span>
+                <p>Visit the link to see the full page</p>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <a id="previewVisitBtn" href="#" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] py-3 rounded-xl text-sm font-semibold transition-colors">
+              <span class="iconify" data-icon="lucide:external-link"></span>Visit Resource
+            </a>
+            <button id="previewFavBtn" class="px-4 py-3 rounded-xl border border-gray-700/50 text-gray-500 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors">
+              <span class="iconify text-lg" data-icon="lucide:heart"></span>
+            </button>
+            <button id="previewCopyBtn" class="px-4 py-3 rounded-xl border border-gray-700/50 text-gray-500 hover:text-gray-200 hover:border-gray-600 transition-colors" title="Copy URL">
+              <span class="iconify text-lg" data-icon="lucide:copy"></span>
+            </button>
+          </div>
+          <!-- Delete Section -->
+          <div class="mt-6 pt-6 border-t border-gray-800/40">
+            <div id="deleteSection">
+              <button id="deleteTriggerBtn" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-500/15 text-red-400/40 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/5 text-sm font-medium transition-all">
+                <span class="iconify" data-icon="lucide:trash-2"></span>Delete Resource
+              </button>
+            </div>
+            <div id="deleteConfirm" class="hidden confirm-delete">
+              <div class="bg-red-500/5 border border-red-500/15 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <span class="iconify text-red-400 text-lg" data-icon="lucide:alert-triangle"></span>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="text-red-300 text-sm font-medium mb-1">Are you sure?</h4>
+                    <p class="text-red-400/50 text-xs mb-4">This resource will be permanently removed from your store.</p>
+                    <div class="flex gap-2">
+                      <button onclick="cancelDelete()" class="flex-1 py-2 rounded-lg border border-gray-700/50 text-gray-400 hover:text-gray-200 text-xs font-medium transition-colors">Cancel</button>
+                      <button onclick="confirmDelete()" class="flex-1 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-white text-xs font-medium transition-colors">Yes, Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ADD RESOURCE MODAL ==================== -->
+  <div id="addModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeAddModal()"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="bg-[#0c1612] border border-gray-800/60 rounded-2xl w-full max-w-lg animate-slide-up shadow-2xl shadow-emerald-500/5">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800/50">
+          <h3 class="font-display text-lg font-500 text-gray-100">Add New Resource</h3>
+          <button onclick="closeAddModal()" class="p-1.5 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
+            <span class="iconify text-lg" data-icon="lucide:x"></span>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Resource Name *</label>
+            <input id="addName" type="text" placeholder="e.g., React Documentation" class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors">
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">URL *</label>
+            <input id="addUrl" type="url" placeholder="https://..." class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors">
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Description</label>
+            <textarea id="addDesc" rows="2" placeholder="Brief description of this resource..." class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors resize-none"></textarea>
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Category</label>
+            <select id="addCategory" class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors appearance-none cursor-pointer">
+              <option value="documentation">Documentation</option>
+              <option value="tools">Tools</option>
+              <option value="apis">APIs</option>
+              <option value="templates">Templates</option>
+              <option value="libraries">Libraries</option>
+              <option value="tutorials">Tutorials</option>
+              <option value="snippets">Snippets</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Tags (comma separated)</label>
+            <input id="addTags" type="text" placeholder="react, hooks, frontend" class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors">
+          </div>
+          <div id="addError" class="hidden text-red-400 text-sm flex items-center gap-2">
+            <span class="iconify" data-icon="lucide:alert-circle"></span><span></span>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button onclick="closeAddModal()" class="flex-1 py-3 rounded-xl border border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600 text-sm font-medium transition-colors">Cancel</button>
+            <button onclick="previewBeforeSave()" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/10 text-sm font-medium transition-colors">
+              <span class="iconify" data-icon="lucide:eye"></span>Preview
+            </button>
+            <button onclick="saveResource()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] py-3 rounded-xl text-sm font-semibold transition-colors">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST ==================== -->
+  <div id="toast" class="fixed bottom-6 right-6 z-[200] hidden">
+    <div class="bg-[#0c1612] border border-gray-700/50 rounded-xl px-5 py-3.5 shadow-2xl shadow-black/40 flex items-center gap-3 animate-slide-up">
+      <span id="toastIcon" class="iconify text-lg text-emerald-400" data-icon="lucide:check-circle-2"></span>
+      <span id="toastMsg" class="text-gray-200 text-sm font-medium"></span>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    const categoryIcons = {
+      documentation:'lucide:book-open', tools:'lucide:wrench', apis:'lucide:plug',
+      templates:'lucide:layout-template', libraries:'lucide:package',
+      tutorials:'lucide:graduation-cap', snippets:'lucide:code-2',
+    };
+    const categoryColors = {
+      documentation: { bg:'bg-sky-500/10', border:'border-sky-500/20', text:'text-sky-400' },
+      tools:         { bg:'bg-emerald-500/10', border:'border-emerald-500/20', text:'text-emerald-400' },
+      apis:          { bg:'bg-violet-500/10', border:'border-violet-500/20', text:'text-violet-400' },
+      templates:     { bg:'bg-teal-500/10', border:'border-teal-500/20', text:'text-teal-400' },
+      libraries:     { bg:'bg-cyan-500/10', border:'border-cyan-500/20', text:'text-cyan-400' },
+      tutorials:     { bg:'bg-amber-500/10', border:'border-amber-500/20', text:'text-amber-400' },
+      snippets:      { bg:'bg-rose-500/10', border:'border-rose-500/20', text:'text-rose-400' },
+    };
+
+    let resources = [
+      { id:1, name:'React Documentation', url:'https://react.dev', desc:'Official React docs with interactive examples, tutorials, and API references for building modern UIs.', category:'documentation', tags:['react','javascript','frontend'], favorite:true, date:'2025-01-10' },
+      { id:2, name:'Tailwind CSS', url:'https://tailwindcss.com', desc:'A utility-first CSS framework for rapidly building custom user interfaces.', category:'libraries', tags:['css','framework','styling'], favorite:false, date:'2025-01-12' },
+      { id:3, name:'Postman API Platform', url:'https://www.postman.com', desc:'The leading API platform for building, testing, and documenting APIs.', category:'tools', tags:['api','testing','debugging'], favorite:true, date:'2025-02-01' },
+      { id:4, name:'Vercel Templates', url:'https://vercel.com/templates', desc:'Deploy-ready starter projects for Next.js, React, and more frameworks.', category:'templates', tags:['nextjs','vercel','starter'], favorite:false, date:'2025-02-05' },
+      { id:5, name:'RESTful API Guide', url:'https://restfulapi.net', desc:'Comprehensive guide to designing and consuming RESTful APIs.', category:'apis', tags:['rest','backend','architecture'], favorite:false, date:'2025-02-10' },
+      { id:6, name:'MDN Web Docs', url:'https://developer.mozilla.org', desc:'The definitive resource for web developers — HTML, CSS, JavaScript references.', category:'documentation', tags:['html','css','javascript','reference'], favorite:true, date:'2025-02-15' },
+      { id:7, name:'Figma to Code Snippets', url:'https://www.figma.com/community', desc:'Community plugins and code snippets for converting Figma designs to code.', category:'snippets', tags:['figma','design','conversion'], favorite:false, date:'2025-03-01' },
+      { id:8, name:'freeCodeCamp', url:'https://www.freecodecamp.org', desc:'Free interactive coding lessons covering web development, data science, and more.', category:'tutorials', tags:['learning','beginner','fullstack'], favorite:true, date:'2025-03-05' },
+      { id:9, name:'ESLint', url:'https://eslint.org', desc:'Find and fix problems in your JavaScript code — the pluggable linting utility.', category:'tools', tags:['javascript','linting','code-quality'], favorite:false, date:'2025-03-10' },
+    ];
+
+    let currentFilter='all', currentView='grid', currentSearch='', nextId=10, previewingId=null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderResources(); updateStats();
+      document.addEventListener('keydown', (e) => {
+        if (e.key==='/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { e.preventDefault(); document.getElementById('searchInput').focus(); }
+        if (e.key==='Escape') { closePreviewModal(); closeAddModal(); }
+      });
+    });
+
+    function getFilteredResources() {
+      let f=[...resources];
+      if (currentFilter!=='all') f=f.filter(r=>r.category===currentFilter);
+      if (currentSearch.trim()) { const q=currentSearch.toLowerCase().trim(); f=f.filter(r=>r.name.toLowerCase().includes(q)||r.url.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q)||r.tags.some(t=>t.toLowerCase().includes(q))||r.category.toLowerCase().includes(q)); }
+      return f;
+    }
+
+    function renderResources() {
+      const filtered=getFilteredResources(), gridEl=document.getElementById('gridView'), listEl=document.getElementById('listView'), emptyEl=document.getElementById('emptyState'), countEl=document.getElementById('resultCount');
+      if (!filtered.length) { gridEl.classList.add('hidden'); listEl.classList.add('hidden'); emptyEl.classList.remove('hidden'); countEl.textContent=currentSearch?`No results for "${currentSearch}"`:'No resources in this category'; return; }
+      emptyEl.classList.add('hidden');
+      countEl.textContent=currentSearch?`Found ${filtered.length} resource${filtered.length!==1?'s':''} for "${currentSearch}"`:`Showing ${filtered.length} resource${filtered.length!==1?'s':''}`;
+
+      gridEl.innerHTML=filtered.map((r,i)=>{
+        const cc=categoryColors[r.category]||categoryColors.tools;
+        return `<div class="link-card bg-[#0c1612]/70 border border-gray-800/40 rounded-xl p-5 card-hover cursor-pointer" style="animation-delay:${i*0.05}s" onclick="openPreview(${r.id})">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-11 h-11 rounded-xl ${cc.bg} border ${cc.border} flex items-center justify-center shrink-0"><span class="iconify text-xl ${cc.text}" data-icon="${categoryIcons[r.category]||'lucide:globe'}"></span></div>
+            <button onclick="event.stopPropagation();toggleFavorite(${r.id})" class="p-1.5 rounded-lg hover:bg-gray-800/50 transition-colors ${r.favorite?'text-emerald-400':'text-gray-700 hover:text-gray-400'}"><span class="iconify text-base" data-icon="lucide:heart"></span></button>
+          </div>
+          <h3 class="font-display text-base font-500 mb-1.5 truncate text-gray-200">${r.name}</h3>
+          <p class="text-gray-600 text-xs leading-relaxed line-clamp-2 mb-4">${r.desc}</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">${r.tags.slice(0,3).map(t=>`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-500 text-[10px] font-medium">${t}</span>`).join('')}${r.tags.length>3?`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-600 text-[10px] font-medium">+${r.tags.length-3}</span>`:''}</div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-700 text-[10px] font-mono truncate max-w-[55%]">${r.url.replace(/^https?:\/\//,'')}</span>
+            <div class="flex items-center gap-2">
+              <button onclick="event.stopPropagation();copyUrl(${r.id})" class="p-1.5 rounded-lg text-gray-700 hover:text-emerald-400 hover:bg-gray-800/50 transition-colors" title="Copy URL"><span class="iconify text-sm" data-icon="lucide:copy"></span></button>
+              <button onclick="event.stopPropagation();openPreview(${r.id})" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/15 hover:bg-emerald-500/20 text-emerald-400 text-[11px] font-medium transition-colors"><span class="iconify text-xs" data-icon="lucide:eye"></span>Preview</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      listEl.innerHTML=filtered.map((r,i)=>{
+        const cc=categoryColors[r.category]||categoryColors.tools;
+        return `<div class="link-card flex items-center gap-4 bg-[#0c1612]/70 border border-gray-800/40 rounded-xl px-5 py-4 card-hover cursor-pointer" style="animation-delay:${i*0.03}s" onclick="openPreview(${r.id})">
+          <div class="w-10 h-10 rounded-lg ${cc.bg} border ${cc.border} flex items-center justify-center shrink-0"><span class="iconify text-lg ${cc.text}" data-icon="${categoryIcons[r.category]||'lucide:globe'}"></span></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2"><h3 class="font-display text-sm font-500 truncate text-gray-200">${r.name}</h3>${r.favorite?'<span class="iconify text-emerald-400 text-xs shrink-0" data-icon="lucide:heart"></span>':''}</div>
+            <p class="text-gray-700 text-xs font-mono truncate">${r.url.replace(/^https?:\/\//,'')}</p>
+          </div>
+          <div class="hidden sm:flex items-center gap-1.5">${r.tags.slice(0,2).map(t=>`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-500 text-[10px] font-medium">${t}</span>`).join('')}</div>
+          <button onclick="event.stopPropagation();openPreview(${r.id})" class="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/15 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium transition-colors"><span class="iconify text-xs" data-icon="lucide:eye"></span>Preview</button>
+        </div>`;
+      }).join('');
+
+      if (currentView==='grid') { gridEl.classList.remove('hidden'); listEl.classList.add('hidden'); } else { gridEl.classList.add('hidden'); listEl.classList.remove('hidden'); }
+    }
+
+    function updateStats() {
+      document.getElementById('statTotal').textContent=resources.length;
+      document.getElementById('statCategories').textContent=new Set(resources.map(r=>r.category)).size;
+      document.getElementById('statFavorites').textContent=resources.filter(r=>r.favorite).length;
+    }
+
+    function handleSearch(v) { currentSearch=v; renderResources(); }
+
+    function filterByCategory(cat) {
+      currentFilter=cat;
+      document.querySelectorAll('.cat-btn').forEach(b=>{b.classList.remove('tag-active');b.classList.add('text-gray-500');});
+      const a=document.querySelector(`.cat-btn[data-cat="${cat}"]`);
+      if(a){a.classList.add('tag-active');a.classList.remove('text-gray-500');}
+      renderResources();
+    }
+
+    function setView(v) {
+      currentView=v;
+      document.getElementById('viewGrid').className=v==='grid'?'p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors':'p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors';
+      document.getElementById('viewList').className=v==='list'?'p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors':'p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors';
+      renderResources();
+    }
+
+    function openPreview(id) {
+      const r=resources.find(x=>x.id===id); if(!r)return; previewingId=id;
+      const cc=categoryColors[r.category]||categoryColors.tools;
+      document.getElementById('previewName').textContent=r.name;
+      document.getElementById('previewDesc').textContent=r.desc;
+      document.getElementById('previewUrl').textContent=r.url;
+      document.getElementById('previewFrameUrl').textContent=r.url;
+      document.getElementById('previewCategory').textContent=r.category;
+      document.getElementById('previewDate').textContent=new Date(r.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      document.getElementById('previewVisitBtn').href=r.url;
+      document.getElementById('previewFavBtn').onclick=()=>{toggleFavorite(id);openPreview(id);};
+      document.getElementById('previewCopyBtn').onclick=()=>copyUrl(id);
+      document.getElementById('previewIcon').className=`w-14 h-14 rounded-xl ${cc.bg} border ${cc.border} flex items-center justify-center shrink-0`;
+      document.getElementById('previewIcon').innerHTML=`<span class="iconify text-2xl ${cc.text}" data-icon="${categoryIcons[r.category]||'lucide:globe'}"></span>`;
+      document.getElementById('previewTags').innerHTML=r.tags.map(t=>`<span class="px-2.5 py-1 rounded-lg bg-gray-800/60 border border-gray-700/40 text-gray-300 text-xs font-medium">${t}</span>`).join('');
+      document.getElementById('previewFavBtn').className=`px-4 py-3 rounded-xl border transition-colors ${r.favorite?'border-emerald-500/30 text-emerald-400':'border-gray-700/50 text-gray-500 hover:text-emerald-400 hover:border-emerald-500/30'}`;
+      document.getElementById('deleteSection').classList.remove('hidden');
+      document.getElementById('deleteConfirm').classList.add('hidden');
+      document.getElementById('previewModal').classList.remove('hidden');
+      document.body.style.overflow='hidden';
+    }
+    function closePreviewModal() { document.getElementById('previewModal').classList.add('hidden'); document.body.style.overflow=''; previewingId=null; }
+
+    document.getElementById('deleteTriggerBtn').addEventListener('click',()=>{
+      document.getElementById('deleteSection').classList.add('hidden');
+      document.getElementById('deleteConfirm').classList.remove('hidden');
+    });
+    function cancelDelete() { document.getElementById('deleteConfirm').classList.add('hidden'); document.getElementById('deleteSection').classList.remove('hidden'); }
+    function confirmDelete() { if(previewingId===null)return; resources=resources.filter(r=>r.id!==previewingId); closePreviewModal(); renderResources(); updateStats(); showToast('Resource deleted permanently','lucide:trash-2','text-red-400'); }
+
+    function openAddModal() {
+      document.getElementById('addModal').classList.remove('hidden'); document.body.style.overflow='hidden';
+      document.getElementById('addError').classList.add('hidden');
+      ['addName','addUrl','addDesc','addTags'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('addCategory').value='documentation';
+      setTimeout(()=>document.getElementById('addName').focus(),100);
+    }
+    function closeAddModal() { document.getElementById('addModal').classList.add('hidden'); document.body.style.overflow=''; }
+    function showError(msg) { const el=document.getElementById('addError'); el.classList.remove('hidden'); el.querySelector('span:last-child').textContent=msg; setTimeout(()=>el.classList.add('hidden'),4000); }
+    function previewBeforeSave() {
+      const n=document.getElementById('addName').value.trim(),u=document.getElementById('addUrl').value.trim(),d=document.getElementById('addDesc').value.trim(),c=document.getElementById('addCategory').value,t=document.getElementById('addTags').value.split(',').map(x=>x.trim()).filter(Boolean);
+      if(!n||!u){showError('Name and URL are required.');return;} if(!/^https?:\/\/.+/.test(u)){showError('Please enter a valid URL starting with http:// or https://');return;}
+      resources.push({id:-1,name:n,url:u,desc:d||'No description provided.',category:c,tags:t.length?t:['general'],favorite:false,date:new Date().toISOString().split('T')[0]});
+      closeAddModal(); openPreview(-1); resources.pop();
+    }
+    function saveResource() {
+      const n=document.getElementById('addName').value.trim(),u=document.getElementById('addUrl').value.trim(),d=document.getElementById('addDesc').value.trim(),c=document.getElementById('addCategory').value,t=document.getElementById('addTags').value.split(',').map(x=>x.trim()).filter(Boolean);
+      if(!n||!u){showError('Name and URL are required.');return;} if(!/^https?:\/\/.+/.test(u)){showError('Please enter a valid URL starting with http:// or https://');return;}
+      resources.push({id:nextId++,name:n,url:u,desc:d||'No description provided.',category:c,tags:t.length?t:['general'],favorite:false,date:new Date().toISOString().split('T')[0]});
+      closeAddModal(); renderResources(); updateStats(); showToast('Resource saved successfully!','lucide:check-circle-2','text-emerald-400');
+    }
+    function toggleFavorite(id) { const r=resources.find(x=>x.id===id); if(r){r.favorite=!r.favorite;renderResources();updateStats();showToast(r.favorite?'Added to favorites':'Removed from favorites','lucide:heart',r.favorite?'text-emerald-400':'text-gray-400');} }
+    function copyUrl(id) { const r=resources.find(x=>x.id===id); if(r) navigator.clipboard.writeText(r.url).then(()=>showToast('URL copied to clipboard!','lucide:clipboard-check','text-emerald-400')); }
+    function showToast(msg,icon,colorClass) { const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; const ic=document.getElementById('toastIcon'); ic.setAttribute('data-icon',icon); ic.className=`iconify text-lg ${colorClass}`; t.classList.remove('hidden'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.add('hidden'),2500); }
+    function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+  </script>
+</body>
+</html>
