@@ -462,19 +462,45 @@
       snippets:      { bg:'bg-rose-500/10', border:'border-rose-500/20', text:'text-rose-400' },
     };
 
-    let resources = [
-      { id:1, name:'React Documentation', url:'https://react.dev', desc:'Official React docs with interactive examples, tutorials, and API references for building modern UIs.', category:'documentation', tags:['react','javascript','frontend'], favorite:true, date:'2025-01-10' },
-      { id:2, name:'Tailwind CSS', url:'https://tailwindcss.com', desc:'A utility-first CSS framework for rapidly building custom user interfaces.', category:'libraries', tags:['css','framework','styling'], favorite:false, date:'2025-01-12' },
-      { id:3, name:'Postman API Platform', url:'https://www.postman.com', desc:'The leading API platform for building, testing, and documenting APIs.', category:'tools', tags:['api','testing','debugging'], favorite:true, date:'2025-02-01' },
-      { id:4, name:'Vercel Templates', url:'https://vercel.com/templates', desc:'Deploy-ready starter projects for Next.js, React, and more frameworks.', category:'templates', tags:['nextjs','vercel','starter'], favorite:false, date:'2025-02-05' },
-      { id:5, name:'RESTful API Guide', url:'https://restfulapi.net', desc:'Comprehensive guide to designing and consuming RESTful APIs.', category:'apis', tags:['rest','backend','architecture'], favorite:false, date:'2025-02-10' },
-      { id:6, name:'MDN Web Docs', url:'https://developer.mozilla.org', desc:'The definitive resource for web developers — HTML, CSS, JavaScript references.', category:'documentation', tags:['html','css','javascript','reference'], favorite:true, date:'2025-02-15' },
-      { id:7, name:'Figma to Code Snippets', url:'https://www.figma.com/community', desc:'Community plugins and code snippets for converting Figma designs to code.', category:'snippets', tags:['figma','design','conversion'], favorite:false, date:'2025-03-01' },
-      { id:8, name:'freeCodeCamp', url:'https://www.freecodecamp.org', desc:'Free interactive coding lessons covering web development, data science, and more.', category:'tutorials', tags:['learning','beginner','fullstack'], favorite:true, date:'2025-03-05' },
-      { id:9, name:'ESLint', url:'https://eslint.org', desc:'Find and fix problems in your JavaScript code — the pluggable linting utility.', category:'tools', tags:['javascript','linting','code-quality'], favorite:false, date:'2025-03-10' },
-    ];
+let resources = loadResourcesFromLocalStorage();
+let currentFilter='all', currentView='grid', currentSearch='', previewingId=null;
 
-    let currentFilter='all', currentView='grid', currentSearch='', nextId=10, previewingId=null;
+// Initialize nextId based on the highest ID in resources
+let nextId = 1;
+if (resources.length > 0) {
+  nextId = Math.max(...resources.map(r => r.id)) + 1;
+}
+
+function loadResourcesFromLocalStorage() {
+  const saved = localStorage.getItem('adnexResources');
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse resources from localStorage', e);
+    }
+  }
+  // Default resources if none saved or error
+  return [
+    { id:1, name:'React Documentation', url:'https://react.dev', desc:'Official React docs with interactive examples, tutorials, and API references for building modern UIs.', category:'documentation', tags:['react','javascript','frontend'], favorite:true, date:'2025-01-10' },
+    { id:2, name:'Tailwind CSS', url:'https://tailwindcss.com', desc:'A utility-first CSS framework for rapidly building custom user interfaces.', category:'libraries', tags:['css','framework','styling'], favorite:false, date:'2025-01-12' },
+    { id:3, name:'Postman API Platform', url:'https://www.postman.com', desc:'The leading API platform for building, testing, and documenting APIs.', category:'tools', tags:['api','testing','debugging'], favorite:true, date:'2025-02-01' },
+    { id:4, name:'Vercel Templates', url:'https://vercel.com/templates', desc:'Deploy-ready starter projects for Next.js, React, and more frameworks.', category:'templates', tags:['nextjs','vercel','starter'], favorite:false, date:'2025-02-05' },
+    { id:5, name:'RESTful API Guide', url:'https://restfulapi.net', desc:'Comprehensive guide to designing and consuming RESTful APIs.', category:'apis', tags:['rest','backend','architecture'], favorite:false, date:'2025-02-10' },
+    { id:6, name:'MDN Web Docs', url:'https://developer.mozilla.org', desc:'The definitive resource for web developers — HTML, CSS, JavaScript references.', category:'documentation', tags:['html','css','javascript','reference'], favorite:true, date:'2025-02-15' },
+    { id:7, name:'Figma to Code Snippets', url:'https://www.figma.com/community', desc:'Community plugins and code snippets for converting Figma designs to code.', category:'snippets', tags:['figma','design','conversion'], favorite:false, date:'2025-03-01' },
+    { id:8, name:'freeCodeCamp', url:'https://www.freecodecamp.org', desc:'Free interactive coding lessons covering web development, data science, and more.', category:'tutorials', tags:['learning','beginner','fullstack'], favorite:true, date:'2025-03-05' },
+    { id:9, name:'ESLint', url:'https://eslint.org', desc:'Find and fix problems in your JavaScript code — the pluggable linting utility.', category:'tools', tags:['javascript','linting','code-quality'], favorite:false, date:'2025-03-10' },
+  ];
+}
+
+function saveResourcesToLocalStorage() {
+  try {
+    localStorage.setItem('adnexResources', JSON.stringify(resources));
+  } catch (e) {
+    console.error('Failed to save resources to localStorage', e);
+  }
+}
 
     document.addEventListener('DOMContentLoaded', () => {
       renderResources(); updateStats();
@@ -584,7 +610,7 @@
       document.getElementById('deleteConfirm').classList.remove('hidden');
     });
     function cancelDelete() { document.getElementById('deleteConfirm').classList.add('hidden'); document.getElementById('deleteSection').classList.remove('hidden'); }
-    function confirmDelete() { if(previewingId===null)return; resources=resources.filter(r=>r.id!==previewingId); closePreviewModal(); renderResources(); updateStats(); showToast('Resource deleted permanently','lucide:trash-2','text-red-400'); }
+    function confirmDelete() { if(previewingId===null)return; resources=resources.filter(r=>r.id!==previewingId); saveResourcesToLocalStorage(); closePreviewModal(); renderResources(); updateStats(); showToast('Resource deleted permanently','lucide:trash-2','text-red-400'); }
 
     function openAddModal() {
       document.getElementById('addModal').classList.remove('hidden'); document.body.style.overflow='hidden';
@@ -601,13 +627,14 @@
       resources.push({id:-1,name:n,url:u,desc:d||'No description provided.',category:c,tags:t.length?t:['general'],favorite:false,date:new Date().toISOString().split('T')[0]});
       closeAddModal(); openPreview(-1); resources.pop();
     }
-    function saveResource() {
-      const n=document.getElementById('addName').value.trim(),u=document.getElementById('addUrl').value.trim(),d=document.getElementById('addDesc').value.trim(),c=document.getElementById('addCategory').value,t=document.getElementById('addTags').value.split(',').map(x=>x.trim()).filter(Boolean);
-      if(!n||!u){showError('Name and URL are required.');return;} if(!/^https?:\/\/.+/.test(u)){showError('Please enter a valid URL starting with http:// or https://');return;}
-      resources.push({id:nextId++,name:n,url:u,desc:d||'No description provided.',category:c,tags:t.length?t:['general'],favorite:false,date:new Date().toISOString().split('T')[0]});
-      closeAddModal(); renderResources(); updateStats(); showToast('Resource saved successfully!','lucide:check-circle-2','text-emerald-400');
-    }
-    function toggleFavorite(id) { const r=resources.find(x=>x.id===id); if(r){r.favorite=!r.favorite;renderResources();updateStats();showToast(r.favorite?'Added to favorites':'Removed from favorites','lucide:heart',r.favorite?'text-emerald-400':'text-gray-400');} }
+function saveResource() {
+  const n=document.getElementById('addName').value.trim(),u=document.getElementById('addUrl').value.trim(),d=document.getElementById('addDesc').value.trim(),c=document.getElementById('addCategory').value,t=document.getElementById('addTags').value.split(',').map(x=>x.trim()).filter(Boolean);
+  if(!n||!u){showError('Name and URL are required.');return;} if(!/^https?:\/\/.+/.test(u)){showError('Please enter a valid URL starting with http:// or https://');return;}
+  resources.push({id:nextId++,name:n,url:u,desc:d||'No description provided.',category:c,tags:t.length?t:['general'],favorite:false,date:new Date().toISOString().split('T')[0]});
+  saveResourcesToLocalStorage();
+  closeAddModal(); renderResources(); updateStats(); showToast('Resource saved successfully!','lucide:check-circle-2','text-emerald-400');
+}
+    function toggleFavorite(id) { const r=resources.find(x=>x.id===id); if(r){r.favorite=!r.favorite;saveResourcesToLocalStorage();renderResources();updateStats();showToast(r.favorite?'Added to favorites':'Removed from favorites','lucide:heart',r.favorite?'text-emerald-400':'text-gray-400');} }
     function copyUrl(id) { const r=resources.find(x=>x.id===id); if(r) navigator.clipboard.writeText(r.url).then(()=>showToast('URL copied to clipboard!','lucide:clipboard-check','text-emerald-400')); }
     function showToast(msg,icon,colorClass) { const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; const ic=document.getElementById('toastIcon'); ic.setAttribute('data-icon',icon); ic.className=`iconify text-lg ${colorClass}`; t.classList.remove('hidden'); clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.add('hidden'),2500); }
     function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
