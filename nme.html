@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="nme.css" />
     <link rel="icon" type="image/png" sizes="32x32" href="KIMS_IC.png">
     <link rel="manifest" href="/site.webmanifest">
+<base target="_blank">
 </head>
 
 <body>
@@ -179,7 +180,7 @@
                 <div>IP Billing HOD</div>
             </div>
             <div class="signature">
-                <div>GM Sign</div>
+                <div>DGM Sign</div>
                 <div>COO Sign</div>
             </div>
 
@@ -190,6 +191,21 @@
                 <button type="button" id="downloadFormBtn">Download Form</button>
             </div>
         </form>
+    </div>
+
+    <!-- Footer Authentication Section -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <h3>User Authentication</h3>
+            <input type="text" id="loginUserId" placeholder="User ID" autocomplete="off" />
+            <input type="password" id="loginPassword" placeholder="Password" autocomplete="off" />
+            <button type="button" id="loginBtn">Login</button>
+            <p id="loginError" class="login-error"></p>
+        </div>
+    </div>
+
+    <div class="app-footer" id="appFooter">
+        <button type="button" id="logoutBtn">Logout</button>
     </div>
 
     <!-- Libraries for capturing HTML and merging PDFs -->
@@ -203,5 +219,3 @@
 
 
 </html>
-
-
