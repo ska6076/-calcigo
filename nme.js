@@ -8,6 +8,9 @@ const advanceAmountInput = document.getElementById("advanceAmount");
 const totalAmountInput = document.getElementById("totalAmount");
 const amountToCollectInput = document.getElementById("amountToCollect");
 const amountToRefundInput = document.getElementById("amountToRefund");
+const copaymentAmountInput = document.getElementById("copaymentAmount");
+const differenceAmountInput = document.getElementById("differenceAmount");
+const nmeAmountInput = document.getElementById("nmeAmount");
 const mergeBtn = document.getElementById("mergeBtn");
 const downloadFormBtn = document.getElementById("downloadFormBtn");
 const pdfFileInput = document.getElementById("pdfFile");
@@ -44,6 +47,13 @@ function calculateTotals() {
   let total = bill - approved - discount - td;
   if (total < 0) total = 0;
   totalAmountInput.value = total.toFixed(2);
+
+  // NME Amount = Total Amount - Co-payment Amount - Difference Amount
+  const copay = parseFloat(copaymentAmountInput.value) || 0;
+  const diff = parseFloat(differenceAmountInput.value) || 0;
+  let nme = total - copay - diff;
+  if (nme < 0) nme = 0;
+  if (nmeAmountInput) nmeAmountInput.value = nme.toFixed(2);
 
   // Step 2: Net after Advance
   let net = total - advance;
@@ -101,6 +111,12 @@ approvedAmountInput.addEventListener("input", calculateTotals);
 hospitalDiscountInput.addEventListener("input", calculateTotals);
 tdInput.addEventListener("input", calculateTotals);
 advanceAmountInput.addEventListener("input", calculateTotals);
+if (copaymentAmountInput) {
+  copaymentAmountInput.addEventListener("input", calculateTotals);
+}
+if (differenceAmountInput) {
+  differenceAmountInput.addEventListener("input", calculateTotals);
+}
 if (tdEnableInput) {
   tdEnableInput.addEventListener("change", () => {
     if (tdInput) {
