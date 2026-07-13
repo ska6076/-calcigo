@@ -81,20 +81,6 @@ body {
   border-bottom: 1px solid #000;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .clearance-table input {
   width: 98%;
   box-sizing: border-box;
@@ -106,7 +92,6 @@ body {
 .clearance-table input[readonly] {
   font-weight: bold;
 }
-
 
 .section-separator td {
   border-top-width: 2px;
@@ -124,7 +109,6 @@ body {
 .date-block-top td {
   border-top-width: 2px;
 }
-
 
 .hospital-discount-cell {
   width: 25%;
@@ -289,7 +273,6 @@ button {
   border-radius: 40px;
 }
 
-
 #mergeBtn {
   background-color: #1e74ad;
   color: white;
@@ -386,5 +369,109 @@ button[type="reset"] {
   .remarks-block textarea {
     border: none !important;
     outline: none !important;
+  }
+}
+
+/* ── Footer Authentication Styles (NEW) ── */
+.login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(240, 245, 250, 0.98);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.login-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.login-box {
+  border: 2px solid #005c99;
+  padding: 35px 45px;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.login-box h3 {
+  margin: 0 0 25px 0;
+  color: #005c99;
+  font-size: 22px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.login-box input {
+  display: block;
+  width: 240px;
+  margin: 12px auto;
+  padding: 10px 14px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  outline: none;
+}
+
+.login-box input:focus {
+  border-color: #005c99;
+  background-color: #f0f7fc;
+}
+
+#loginBtn {
+  background-color: #005c99;
+  color: white;
+  border: none;
+  padding: 10px 32px;
+  margin-top: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+}
+
+#loginBtn:hover {
+  background-color: #004a7a;
+}
+
+.login-error {
+  color: #c62828;
+  font-size: 13px;
+  margin-top: 12px;
+  min-height: 18px;
+  font-family: Arial, sans-serif;
+}
+
+/* Footer logout button */
+.app-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#logoutBtn {
+  background-color: #c62828;
+  color: white;
+  border-color: #c62828;
+  font-family: Arial, sans-serif;
+}
+
+#logoutBtn:hover {
+  background-color: #a31818;
+}
+
+/* Hide login overlay and footer in print – does NOT affect existing print rules above */
+@media print {
+  #loginOverlay,
+  .app-footer {
+    display: none !important;
   }
 }
