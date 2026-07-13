@@ -23,6 +23,80 @@ const ipNoInput = document.getElementById("ipNo");
 const patientNameInput = document.getElementById("patientName");
 const tpaInput = document.getElementById("tpaName");
 
+/* ════════════════════════════════════════════════════════
+   Footer Authentication – Credentials stored in JS file
+   ════════════════════════════════════════════════════════ */
+const VALID_USER_ID = "20004833";
+const VALID_PASSWORD = "20004833"; // numbers & alphabet
+const AUTH_KEY = "nme_auth_session";
+
+const loginOverlay = document.getElementById("loginOverlay");
+const loginBtn = document.getElementById("loginBtn");
+const loginUserId = document.getElementById("loginUserId");
+const loginPassword = document.getElementById("loginPassword");
+const loginError = document.getElementById("loginError");
+const logoutBtn = document.getElementById("logoutBtn");
+const appFooter = document.getElementById("appFooter");
+
+function showLogin() {
+  if (loginOverlay) loginOverlay.classList.remove("hidden");
+  if (appFooter) appFooter.style.display = "none";
+  if (loginUserId) {
+    loginUserId.value = "";
+    loginUserId.focus();
+  }
+  if (loginPassword) loginPassword.value = "";
+  if (loginError) loginError.textContent = "";
+}
+
+function showApp() {
+  if (loginOverlay) loginOverlay.classList.add("hidden");
+  if (appFooter) appFooter.style.display = "block";
+}
+
+function authenticateUser() {
+  const uid = loginUserId ? loginUserId.value.trim() : "";
+  const pwd = loginPassword ? loginPassword.value : "";
+  if (uid === VALID_USER_ID && pwd === VALID_PASSWORD) {
+    localStorage.setItem(AUTH_KEY, "1");
+    showApp();
+    if (loginError) loginError.textContent = "";
+    if (patientNameInput) patientNameInput.focus();
+  } else {
+    if (loginError) loginError.textContent = "Invalid User ID or Password.";
+    if (loginPassword) loginPassword.value = "";
+  }
+}
+
+function logoutUser() {
+  localStorage.removeItem(AUTH_KEY);
+  showLogin();
+}
+
+if (loginBtn) {
+  loginBtn.addEventListener("click", authenticateUser);
+}
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", logoutUser);
+}
+if (loginUserId) {
+  loginUserId.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (loginPassword) loginPassword.focus();
+    }
+  });
+}
+if (loginPassword) {
+  loginPassword.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      authenticateUser();
+    }
+  });
+}
+/* ════════════════════════════════════════════════════════ */
+
 function setTodayDate() {
   if (!dateInput) return;
   const today = new Date();
@@ -78,7 +152,7 @@ function parseAmountString(str) {
 }
 
 function extractAmount(text, labelPattern) {
-  var re = new RegExp(labelPattern + "\\s*[:\\-]?\\s*([0-9,.]+)", "i");
+  var re = new RegExp(labelPattern + "\s*[:\-]?\s*([0-9,.]+)", "i");
   var match = text.match(re);
   if (!match) return null;
   return parseAmountString(match[1]);
@@ -86,6 +160,14 @@ function extractAmount(text, labelPattern) {
 
 // Auto-set date on page load
 window.addEventListener("load", () => {
+  // Check auth state – stay logged in across refreshes until logout is clicked
+  const isAuth = localStorage.getItem(AUTH_KEY) === "1";
+  if (isAuth) {
+    showApp();
+  } else {
+    showLogin();
+  }
+
   setTodayDate();
   calculateTotals();
 
@@ -220,7 +302,7 @@ async function downloadFormOnly() {
     // Filename: "ipNo patientName FORM.pdf" if available
     const ipValForm = ((ipNoInput && ipNoInput.value) ? ipNoInput.value : "").trim();
     const patientValForm = ((patientNameInput && patientNameInput.value) ? patientNameInput.value : "").trim();
-    const sanitizeForm = function (str) { return str.replace(/[\\/:*?"<>|]/g, "_"); };
+    const sanitizeForm = function (str) { return str.replace(/[\/:*?"<>|]/g, "_"); };
 
     let fileNameForm = "insurance-clearance-form.pdf";
     if (ipValForm || patientValForm) {
@@ -482,7 +564,7 @@ async function mergePdfWithForm() {
     // Build filename: "ipNo patientName APPROVED.pdf"
     const ipVal = ((ipNoInput && ipNoInput.value) ? ipNoInput.value : "").trim();
     const patientVal = ((patientNameInput && patientNameInput.value) ? patientNameInput.value : "").trim();
-    const sanitize = function (str) { return str.replace(/[\\/:*?"<>|]/g, "_"); };
+    const sanitize = function (str) { return str.replace(/[\/:*?"<>|]/g, "_"); };
 
     let fileName = "insurance-clearance-merged.pdf";
     if (ipVal || patientVal) {
