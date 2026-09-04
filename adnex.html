@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adnex Store — Developer Resource Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    const categoryIcons = {
+      documentation:'lucide:book-open', tools:'lucide:wrench', apis:'lucide:plug',
+      templates:'lucide:layout-template', libraries:'lucide:package',
+      tutorials:'lucide:graduation-cap', snippets:'lucide:code-2',
+    };
+    const categoryColors = {
+      documentation: { bg:'bg-sky-500/10', border:'border-sky-500/20', text:'text-sky-400' },
+      tools:         { bg:'bg-emerald-500/10', border:'border-emerald-500/20', text:'text-emerald-400' },
+      apis:          { bg:'bg-violet-500/10', border:'border-violet-500/20', text:'text-violet-400' },
+      templates:     { bg:'bg-teal-500/10', border:'border-teal-500/20', text:'text-teal-400' },
+      libraries:     { bg:'bg-cyan-500/10', border:'border-cyan-500/20', text:'text-cyan-400' },
+      tutorials:     { bg:'bg-amber-500/10', border:'border-amber-500/20', text:'text-amber-400' },
+      snippets:      { bg:'bg-rose-500/10', border:'border-rose-500/20', text:'text-rose-400' },
+    };
+
+    let resources = loadResourcesFromLocalStorage();
+    let currentFilter='all', currentView='grid', currentSearch='', previewingId=null;
+    let resourceFileReady = false;
+    let metadataCache = {};
+
+    function getDomain(url) {
+      try { return new URL(url).hostname.replace(/^www\./, ''); } catch(e) { return url; }
+    }
+
+    function escapeHtml(value = '') {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getFallbackMetadata(url) {
+      const domain = getDomain(url);
+      const base = domain.replace(/^www\./, '').split('.')[0].toLowerCase();
+      const suggestions = {
+        iconscout: {
+          title: 'Iconscout',
+          category: 'Tools',
+          tags: 'icons, design, ui, assets',
+          description: 'Design resource marketplace for icons, illustrations, and digital assets.'
+        },
+        github: {
+          title: 'GitHub Repository',
+          category: 'Tools',
+          tags: 'git, code, repository',
+          description: 'Source code repository and version control platform.'
+        },
+        stackoverflow: {
+          title: 'Stack Overflow',
+          category: 'Reference',
+          tags: 'qa, community, debugging',
+          description: 'Developer question and answer community.'
+        },
+        mdn: {
+          title: 'MDN Web Docs',
+          category: 'Documentation',
+          tags: 'web, reference, mozilla',
+          description: 'Mozilla Developer Network documentation resources.'
+        },
+        npm: {
+          title: 'NPM Registry',
+          category: 'Library',
+          tags: 'nodejs, package, javascript',
+          description: 'Node Package Manager registry for JavaScript packages.'
+        },
+        react: {
+          title: 'React Documentation',
+          category: 'Framework',
+          tags: 'frontend, ui, javascript',
+          description: 'React JavaScript library for building user interfaces.'
+        }
+      };
+
+      const match = suggestions[base] || null;
+      const fallbackTitle = match ? match.title : (domain || 'Web Resource').split('.').shift().replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const fallbackDesc = match ? match.description : `Resource page for ${domain}.`;
+
+      return {
+        title: fallbackTitle,
+        description: fallbackDesc,
+        category: match?.category || 'Reference',
+        tags: match?.tags || 'web, resource',
+        image: '',
+        logo: `https://logo.clearbit.com/${domain}`,
+        domain: domain
+      };
+    }
+
+    async function fetchSiteMetadata(url) {
+      const domain = getDomain(url);
+      if (metadataCache[domain]) return metadataCache[domain];
+      try {
+        const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=true`);
+        const data = await res.json();
+        if (data.status === 'success' && data.data) {
+          const meta = {
+            title: data.data.title || '',
+            description: data.data.description || '',
+            image: data.data.screenshot?.url || data.data.image?.url || '',
+            logo: data.data.logo?.url || `https://logo.clearbit.com/${domain}`,
+            domain: domain
+          };
+          metadataCache[domain] = meta;
+          return meta;
+        }
+      } catch(e) { console.log('Microlink failed, using fallback'); }
+
+      const fallbackMeta = getFallbackMetadata(url);
+      metadataCache[domain] = fallbackMeta;
+      return fallbackMeta;
+    }
+
+    function getResourceImage(r) {
+      if (r.image) return r.image;
+      return '';
+    }
+
+    function getResourceLogo(r) {
+      if (r.logo) return r.logo;
+      return `https://logo.clearbit.com/${getDomain(r.url)}`;
+    }
+
+    function applyCardPreviewFallbacks() {
+      document.querySelectorAll('.link-card img').forEach((img) => {
+        if (img.dataset.previewFallbackApplied === 'true') return;
+        img.dataset.previewFallbackApplied = 'true';
+
+        const previewContainer = img.parentElement;
+        if (!previewContainer) return;
+
+        const fallback = document.createElement('div');
+        fallback.className = 'preview-placeholder absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900 via-[#0c1612] to-gray-800 hidden';
+        fallback.innerHTML = `
+          <div class="text-center px-6">
+            <div class="w-10 h-10 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 flex items-center justify-center mx-auto mb-3">
+              <span class="iconify text-xl text-emerald-400" data-icon="lucide:image-off"></span>
+            </div>
+            <p class="text-gray-400 text-[10px] font-mono uppercase tracking-[0.25em]">Preview</p>
+          </div>`;
+        previewContainer.appendChild(fallback);
+
+        img.onerror = () => {
+          img.style.display = 'none';
+          const placeholder = previewContainer.querySelector('.preview-placeholder');
+          if (placeholder) placeholder.classList.remove('hidden');
+        };
+
+        if (!img.getAttribute('src')) {
+          img.style.display = 'none';
+          fallback.classList.remove('hidden');
+        }
+      });
+    }
+
+    const previewFallbackObserver = new MutationObserver(() => applyCardPreviewFallbacks());
+    if (document.body) {
+      previewFallbackObserver.observe(document.body, { childList: true, subtree: true });
+    }
+    applyCardPreviewFallbacks();
+
+    function getNextId() {
+      return resources.reduce((max, r) => Math.max(max, r.id), 0) + 1;
+    }
+
+    function loadResourcesFromLocalStorage() {
+      try {
+        const saved = localStorage.getItem('adnexResources');
+        if (saved) {
+          try {
+            return JSON.parse(saved);
+          } catch (e) {
+            console.error('Failed to parse resources from localStorage', e);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to access localStorage', e);
+      }
+      return [];
+    }
+
+    function saveResourcesToLocalStorage() {
+      try {
+        localStorage.setItem('adnexResources', JSON.stringify(resources));
+      } catch (e) {
+        console.error('Failed to save resources to localStorage', e);
+        showToast('Failed to save changes. Storage may be full or disabled.', 'lucide:alert-circle', 'text-red-400');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderResources(); updateStats();
+      document.addEventListener('keydown', (e) => {
+        if (e.key==='/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { e.preventDefault(); document.getElementById('searchInput').focus(); }
+        if (e.key==='Escape') { closePreviewModal(); closeAddModal(); }
+      });
+    });
+
+    function getFilteredResources() {
+      let f=[...resources];
+      if (currentFilter!=='all') f=f.filter(r=>r.category===currentFilter);
+      if (currentSearch.trim()) { const q=currentSearch.toLowerCase().trim(); f=f.filter(r=>r.name.toLowerCase().includes(q)||r.url.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q)||r.tags.some(t=>t.toLowerCase().includes(q))||r.category.toLowerCase().includes(q)); }
+      return f;
+    }
+
+    function renderResources() {
+      const filtered=getFilteredResources(), gridEl=document.getElementById('gridView'), listEl=document.getElementById('listView'), emptyEl=document.getElementById('emptyState'), countEl=document.getElementById('resultCount');
+      if (!filtered.length) { gridEl.classList.add('hidden'); listEl.classList.add('hidden'); emptyEl.classList.remove('hidden'); 
+        if (currentSearch) {
+          countEl.textContent = `No results for "${currentSearch}"`;
+        } else if (currentFilter === 'all') {
+          countEl.textContent = 'No resources yet — add your first one!';
+        } else {
+          countEl.textContent = 'No resources in this category';
+        }
+        return; 
+      }
+      emptyEl.classList.add('hidden');
+      countEl.textContent=currentSearch?`Found ${filtered.length} resource${filtered.length!==1?'s':''} for "${currentSearch}"`:`Showing ${filtered.length} resource${filtered.length!==1?'s':''}`;
+
+      gridEl.innerHTML=filtered.map((r,i)=>{
+        const cc=categoryColors[r.category]||categoryColors.tools;
+        const screenshotUrl = getResourceImage(r);
+        const logoUrl = getResourceLogo(r);
+        return `<div class="link-card bg-[#0c1612]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer group" style="animation-delay:${i*0.05}s" onclick="openPreview(${r.id})">
+          <div class="relative aspect-[16/10] bg-gray-900/40 overflow-hidden">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="absolute inset-0 items-center justify-center bg-gray-900/40 hidden">
+              <span class="iconify text-3xl text-gray-700" data-icon="lucide:image-off"></span>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c1612] via-transparent to-transparent"></div>
+            <div class="absolute top-3 left-3">
+              <div class="w-9 h-9 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center overflow-hidden">
+                <img src="${logoUrl}" alt="" class="w-5 h-5 object-contain" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'iconify text-lg ${cc.text}\' data-icon=\'${categoryIcons[r.category]||'lucide:globe'}\'></span>'">
+              </div>
+            </div>
+            <button onclick="event.stopPropagation();toggleFavorite(${r.id})" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-black/30 backdrop-blur-md border border-white/5 flex items-center justify-center transition-colors ${r.favorite?'text-emerald-400':'text-gray-500 hover:text-gray-300'}">
+              <span class="iconify text-sm" data-icon="lucide:heart"></span>
+            </button>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="text-gray-400 text-[10px] font-mono bg-black/40 backdrop-blur-sm px-2 py-1 rounded-md border border-white/5">${getDomain(r.url)}</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-base font-medium mb-1.5 truncate text-gray-200">${r.name}</h3>
+            <p class="text-gray-600 text-xs leading-relaxed line-clamp-2 mb-4">${r.desc}</p>
+            <div class="flex flex-wrap gap-1.5 mb-4">${r.tags.slice(0,3).map(t=>`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-500 text-[10px] font-medium">${t}</span>`).join('')}${r.tags.length>3?`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-600 text-[10px] font-medium">+${r.tags.length-3}</span>`:''}</div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-700 text-[10px] font-mono truncate max-w-[55%]">${r.url.replace(/^https?:\/\//,'')}</span>
+              <div class="flex items-center gap-2">
+                <button onclick="event.stopPropagation();copyUrl(${r.id})" class="p-1.5 rounded-lg text-gray-700 hover:text-emerald-400 hover:bg-gray-800/50 transition-colors" title="Copy URL"><span class="iconify text-sm" data-icon="lucide:copy"></span></button>
+                <button onclick="event.stopPropagation();openPreview(${r.id})" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/15 hover:bg-emerald-500/20 text-emerald-400 text-[11px] font-medium transition-colors"><span class="iconify text-xs" data-icon="lucide:eye"></span>Preview</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      listEl.innerHTML=filtered.map((r,i)=>{
+        const cc=categoryColors[r.category]||categoryColors.tools;
+        const screenshotUrl = getResourceImage(r);
+        const logoUrl = getResourceLogo(r);
+        return `<div class="link-card flex items-center bg-[#0c1612]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer" style="animation-delay:${i*0.03}s" onclick="openPreview(${r.id})">
+          <div class="w-32 h-20 shrink-0 relative overflow-hidden hidden sm:block bg-gray-900/40">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-40 hover:opacity-70 transition-opacity duration-300" onerror="this.style.display='none'; this.parentElement.style.display='none'">
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent to-[#0c1612]/50"></div>
+          </div>
+          <div class="flex items-center gap-4 p-4 flex-1 min-w-0">
+            <div class="w-10 h-10 rounded-lg bg-black/30 border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
+              <img src="${logoUrl}" alt="" class="w-6 h-6 object-contain" onerror="this.style.display='none'; this.parentElement.className='w-10 h-10 rounded-lg ${cc.bg} border ${cc.border} flex items-center justify-center shrink-0'; this.parentElement.innerHTML='<span class=\'iconify text-lg ${cc.text}\' data-icon=\'${categoryIcons[r.category]||'lucide:globe'}\'></span>'">
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><h3 class="font-display text-sm font-medium truncate text-gray-200">${r.name}</h3>${r.favorite?'<span class="iconify text-emerald-400 text-xs shrink-0" data-icon="lucide:heart"></span>':''}</div>
+              <p class="text-gray-700 text-xs font-mono truncate">${r.url.replace(/^https?:\/\//,'')}</p>
+            </div>
+            <div class="hidden sm:flex items-center gap-1.5">${r.tags.slice(0,2).map(t=>`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-500 text-[10px] font-medium">${t}</span>`).join('')}</div>
+            <button onclick="event.stopPropagation();openPreview(${r.id})" class="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/15 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium transition-colors"><span class="iconify text-xs" data-icon="lucide:eye"></span>Preview</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      if (currentView==='grid') { gridEl.classList.remove('hidden'); listEl.classList.add('hidden'); } else { gridEl.classList.add('hidden'); listEl.classList.remove('hidden'); }
+    }
+
+    function updateStats() {
+      document.getElementById('statTotal').textContent=resources.length;
+      document.getElementById('statCategories').textContent=new Set(resources.map(r=>r.category)).size;
+      document.getElementById('statFavorites').textContent=resources.filter(r=>r.favorite).length;
+    }
+
+    function handleSearch(v) { currentSearch=v; renderResources(); }
+
+    function filterByCategory(cat) {
+      currentFilter=cat;
+      document.querySelectorAll('.cat-btn').forEach(b=>{b.classList.remove('tag-active');b.classList.add('text-gray-500');});
+      const a=document.querySelector(`.cat-btn[data-cat="${cat}"]`);
+      if(a){a.classList.add('tag-active');a.classList.remove('text-gray-500');}
+      renderResources();
+    }
+
+    function setView(v) {
+      currentView=v;
+      document.getElementById('viewGrid').className=v==='grid'?'p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors':'p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors';
+      document.getElementById('viewList').className=v==='list'?'p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors':'p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors';
+      renderResources();
+    }
+
+    function openPreview(idOrResource) {
+      let r;
+      if (typeof idOrResource === 'object' && idOrResource !== null) {
+        r = idOrResource;
+        previewingId = null;
+      } else {
+        r = resources.find(x => x.id === idOrResource);
+        if (!r) return;
+        previewingId = idOrResource;
+      }
+
+      const cc = categoryColors[r.category] || categoryColors.tools;
+      document.getElementById('previewName').textContent = r.name;
+      document.getElementById('previewDesc').textContent = r.desc;
+      document.getElementById('previewUrl').textContent = r.url;
+      document.getElementById('previewFrameUrl').textContent = r.url;
+      document.getElementById('previewCategory').textContent = r.category;
+      document.getElementById('previewDate').textContent = new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('previewVisitBtn').href = r.url;
+
+      const frame = document.getElementById('previewFrame');
+      const screenshot = document.getElementById('previewScreenshot');
+      const fallback = document.getElementById('previewScreenshotFallback');
+      frame.classList.add('hidden');
+      screenshot.classList.add('hidden');
+      fallback.classList.remove('hidden');
+      fallback.innerHTML = `
+        <div class="w-full h-full flex flex-col bg-[#060d0a]">
+          <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-800/50 bg-gray-900/60">
+            <div class="flex gap-1.5">
+              <div class="w-2.5 h-2.5 rounded-full bg-red-500/70"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/70"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/70"></div>
+            </div>
+            <span class="text-[11px] text-gray-500 font-mono truncate">${getDomain(r.url)}</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center">
+            <div class="w-14 h-14 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 flex items-center justify-center mb-4">
+              <span class="iconify text-2xl text-emerald-400" data-icon="lucide:globe"></span>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-100 mb-2">${r.name}</h4>
+            <p class="text-sm text-gray-500 max-w-md mb-4">${r.desc || 'Open this resource to see the full page in a new tab.'}</p>
+            <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-400">
+              <span class="iconify text-sm" data-icon="lucide:external-link"></span>
+              Open resource
+            </a>
+          </div>
+        </div>`;
+
+      const showPreviewFallback = () => {
+        frame.classList.add('hidden');
+        screenshot.classList.add('hidden');
+        fallback.classList.remove('hidden');
+      };
+
+      if (getResourceImage(r)) {
+        screenshot.src = getResourceImage(r);
+        screenshot.classList.remove('hidden');
+        fallback.classList.add('hidden');
+        screenshot.onerror = showPreviewFallback;
+      }
+
+      if (!/^https?:\/\//i.test(r.url)) {
+        showPreviewFallback();
+      } else {
+        frame.src = r.url;
+        frame.onload = () => {
+          try {
+            const doc = frame.contentDocument || frame.contentWindow?.document;
+            const hasBodyContent = !!(doc?.body && (doc.body.innerText?.trim() || doc.body.children.length));
+            if (hasBodyContent) {
+              frame.classList.remove('hidden');
+              screenshot.classList.add('hidden');
+              fallback.classList.add('hidden');
+            } else {
+              showPreviewFallback();
+            }
+          } catch (e) {
+            showPreviewFallback();
+          }
+        };
+        frame.onerror = showPreviewFallback;
+        setTimeout(() => {
+          try {
+            const doc = frame.contentDocument || frame.contentWindow?.document;
+            const hasBodyContent = !!(doc?.body && (doc.body.innerText?.trim() || doc.body.children.length));
+            if (!hasBodyContent) {
+              showPreviewFallback();
+            }
+          } catch (e) {
+            showPreviewFallback();
+          }
+        }, 1800);
+      }
+
+      const logoUrl = getResourceLogo(r);
+      document.getElementById('previewIcon').innerHTML = `<img src="${logoUrl}" alt="" class="w-8 h-8 object-contain" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'iconify text-2xl text-gray-400\' data-icon=\'lucide:globe\'></span>'">`;
+
+      const favBtn = document.getElementById('previewFavBtn');
+      const deleteSection = document.getElementById('deleteSection');
+      const deleteConfirm = document.getElementById('deleteConfirm');
+
+      if (previewingId === null) {
+        favBtn.style.display = 'none';
+        deleteSection.style.display = 'none';
+        deleteConfirm.classList.add('hidden');
+        document.getElementById('previewCopyBtn').onclick = () => copyUrl(r.url);
+      } else {
+        favBtn.style.display = '';
+        deleteSection.style.display = '';
+        favBtn.onclick = () => { toggleFavorite(previewingId); openPreview(previewingId); };
+        document.getElementById('previewCopyBtn').onclick = () => copyUrl(previewingId);
+        favBtn.className = `px-4 py-3 rounded-xl border transition-colors ${r.favorite ? 'border-emerald-500/30 text-emerald-400' : 'border-gray-700/50 text-gray-500 hover:text-emerald-400 hover:border-emerald-500/30'}`;
+      }
+
+      document.getElementById('previewTags').innerHTML = r.tags.map(t => `<span class="px-2.5 py-1 rounded-lg bg-gray-800/60 border border-gray-700/40 text-gray-300 text-xs font-medium">${t}</span>`).join('');
+
+      document.getElementById('previewModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
+      if (document.getElementById('addModal').classList.contains('hidden')) {
+        document.body.style.overflow = '';
+      }
+      previewingId = null;
+    }
+
+    function cancelDelete() {
+      document.getElementById('deleteConfirm').classList.add('hidden');
+      document.getElementById('deleteSection').classList.remove('hidden');
+    }
+
+    function confirmDelete() {
+      if (previewingId === null) return;
+      resources = resources.filter(r => r.id !== previewingId);
+      saveResourcesToLocalStorage();
+      closePreviewModal();
+      renderResources();
+      updateStats();
+      showToast('Resource deleted permanently', 'lucide:trash-2', 'text-red-400');
+    }
+
+    function openAddModal() {
+      if (!resourceFileReady) {
+        const createNewFile = window.confirm('No resource sheet is loaded. Create a new file to add resources?');
+        if (!createNewFile) return;
+        resourceFileReady = true;
+        showToast('New resource file created', 'lucide:file-plus-2', 'text-emerald-400');
+      }
+      document.getElementById('addModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('addError').classList.add('hidden');
+      ['addName','addUrl','addDesc','addTags'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('addCategory').value = 'documentation';
+      setTimeout(() => document.getElementById('addName').focus(), 100);
+    }
+
+    function closeAddModal() {
+      document.getElementById('addModal').classList.add('hidden');
+      if (document.getElementById('previewModal').classList.contains('hidden')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('addError');
+      el.classList.remove('hidden');
+      el.querySelector('span:last-child').textContent = msg;
+      setTimeout(() => el.classList.add('hidden'), 4000);
+    }
+
+    async function fetchAndFillMetadata() {
+      const u = document.getElementById('addUrl').value.trim();
+      if (!u || !/^https?:\/\/.+/.test(u)) return;
+      const btn = document.getElementById('fetchMetaBtn');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="iconify animate-spin" data-icon="lucide:loader-2"></span> Fetching...'; }
+      const meta = await fetchSiteMetadata(u);
+      if (meta) {
+        if (meta.title && !document.getElementById('addName').value.trim()) {
+          document.getElementById('addName').value = meta.title;
+        }
+        if (meta.description && !document.getElementById('addDesc').value.trim()) {
+          document.getElementById('addDesc').value = meta.description;
+        }
+      }
+      if (btn) { btn.disabled = false; btn.innerHTML = '<span class="iconify" data-icon="lucide:sparkles"></span> Auto-fill'; }
+    }
+
+    function previewBeforeSave() {
+      const n = document.getElementById('addName').value.trim();
+      const u = document.getElementById('addUrl').value.trim();
+      const d = document.getElementById('addDesc').value.trim();
+      const c = document.getElementById('addCategory').value;
+      const t = document.getElementById('addTags').value.split(',').map(x => x.trim()).filter(Boolean);
+
+      if (!n || !u) { showError('Name and URL are required.'); return; }
+      if (!/^https?:\/\/.+/.test(u)) { showError('Please enter a valid URL starting with http:// or https://'); return; }
+
+      const tempResource = {
+        id: -1,
+        name: n,
+        url: u,
+        desc: d || 'No description provided.',
+        category: c,
+        tags: t.length ? t : ['general'],
+        favorite: false,
+        date: new Date().toISOString().split('T')[0]
+      };
+
+      openPreview(tempResource);
+    }
+
+    async function saveResource() {
+      const n = document.getElementById('addName').value.trim();
+      const u = document.getElementById('addUrl').value.trim();
+      const d = document.getElementById('addDesc').value.trim();
+      const c = document.getElementById('addCategory').value;
+      const t = document.getElementById('addTags').value.split(',').map(x => x.trim()).filter(Boolean);
+
+      if (!n || !u) { showError('Name and URL are required.'); return; }
+      if (!/^https?:\/\/.+/.test(u)) { showError('Please enter a valid URL starting with http:// or https://'); return; }
+
+      const meta = await fetchSiteMetadata(u);
+      resources.push({
+        id: getNextId(),
+        name: n,
+        url: u,
+        desc: d || meta?.description || 'No description provided.',
+        category: c,
+        tags: t.length ? t : ['general'],
+        favorite: false,
+        date: new Date().toISOString().split('T')[0],
+        image: meta?.image || '',
+        logo: meta?.logo || ''
+      });
+      saveResourcesToLocalStorage();
+      closeAddModal();
+      renderResources();
+      updateStats();
+      showToast('Resource saved successfully!', 'lucide:check-circle-2', 'text-emerald-400');
+    }
+
+    function toggleFavorite(id) {
+      const r = resources.find(x => x.id === id);
+      if (r) {
+        r.favorite = !r.favorite;
+        saveResourcesToLocalStorage();
+        renderResources();
+        updateStats();
+        showToast(r.favorite ? 'Added to favorites' : 'Removed from favorites', 'lucide:heart', r.favorite ? 'text-emerald-400' : 'text-gray-400');
+      }
+    }
+
+    function copyUrl(idOrUrl) {
+      let url;
+      if (typeof idOrUrl === 'number') {
+        const r = resources.find(x => x.id === idOrUrl);
+        if (!r) return;
+        url = r.url;
+      } else {
+        url = idOrUrl;
+      }
+
+      if (!navigator.clipboard) {
+        showToast('Clipboard not available', 'lucide:alert-circle', 'text-red-400');
+        return;
+      }
+
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('URL copied to clipboard!', 'lucide:clipboard-check', 'text-emerald-400');
+      }).catch(() => {
+        showToast('Failed to copy URL', 'lucide:alert-circle', 'text-red-400');
+      });
+    }
+
+    function showToast(msg, icon, colorClass) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      const ic = document.getElementById('toastIcon');
+      ic.setAttribute('data-icon', icon);
+      ic.className = `iconify text-lg ${colorClass}`;
+      t.classList.remove('hidden');
+      clearTimeout(window._tt);
+      window._tt = setTimeout(() => t.classList.add('hidden'), 2500);
+    }
+
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            body: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+    .animate-slide-up { animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .stagger-1 { animation-delay: 0.05s; }
+    .stagger-2 { animation-delay: 0.1s; }
+    .stagger-3 { animation-delay: 0.15s; }
+    .stagger-4 { animation-delay: 0.2s; }
+    .glass { background: rgba(2,6,5,0.6); backdrop-filter: blur(12px); border: 1px solid rgba(52,211,153,0.06); }
+    .card-hover { transition: all 0.25s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -12px rgba(16,185,129,0.15); border-color: rgba(52,211,153,0.15); }
+    .link-card { opacity: 0; animation: fadeIn 0.5s ease-out forwards; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .tag-active { background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.35); }
+    input::placeholder { color: #4b5563; }
+    .confirm-delete { animation: slideUp 0.25s cubic-bezier(0.16,1,0.3,1) forwards; }
+    .glow-orb { position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none; }
+  </style>
+<base target="_blank">
+</head>
+<body class="bg-[#060d0a] text-gray-100 min-h-screen no-scrollbar">
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-emerald-500/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+          <span class="iconify text-emerald-400 text-lg" data-icon="lucide:box"></span>
+        </div>
+        <span class="font-display text-xl lg:text-2xl font-semibold tracking-tight text-gray-100">Adnex <span class="text-emerald-400">Store</span></span>
+      </div>
+      <div class="hidden md:flex items-center gap-8">
+        <a href="#resources" class="text-gray-500 hover:text-emerald-300 transition-colors text-sm font-medium">Resources</a>
+        <a href="#steps" class="text-gray-500 hover:text-emerald-300 transition-colors text-sm font-medium">Steps</a>
+        <a href="#categories" class="text-gray-500 hover:text-emerald-300 transition-colors text-sm font-medium">Categories</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="fileSessionIndicator" class="hidden flex items-center gap-2 rounded-lg border border-red-500/30 px-3 py-2 text-xs font-medium text-red-400" title="Imported file is active">
+          <span id="fileSessionDot" class="h-2 w-2 rounded-full bg-emerald-400"></span>
+          <span id="fileSessionText">Logged out</span>
+        </div>
+        <button onclick="openAddModal()" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+          <span class="iconify text-base" data-icon="lucide:plus"></span>
+          <span class="hidden sm:inline">Add Resource</span>
+        </button>
+        <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-gray-500 hover:text-gray-200">
+          <span class="iconify text-xl" data-icon="lucide:menu"></span>
+        </button>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden border-t border-emerald-500/5 bg-[#060d0a]/95 backdrop-blur-md">
+      <div class="px-4 py-4 flex flex-col gap-3">
+        <a href="#resources" onclick="toggleMobileMenu()" class="text-gray-500 hover:text-emerald-300 py-2 text-sm font-medium">Resources</a>
+        <a href="#steps" onclick="toggleMobileMenu()" class="text-gray-500 hover:text-emerald-300 py-2 text-sm font-medium">Steps</a>
+        <a href="#categories" onclick="toggleMobileMenu()" class="text-gray-500 hover:text-emerald-300 py-2 text-sm font-medium">Categories</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="min-h-[70vh] flex items-center justify-center relative overflow-hidden pt-20">
+    <div class="glow-orb w-[500px] h-[500px] bg-emerald-500/[0.04] top-[10%] left-[15%]"></div>
+    <div class="glow-orb w-[400px] h-[400px] bg-teal-500/[0.03] bottom-[10%] right-[10%]"></div>
+    <div class="glow-orb w-[300px] h-[300px] bg-green-400/[0.02] top-[50%] left-[60%]"></div>
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-emerald-500/[0.03] rounded-full"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-emerald-500/[0.04] rounded-full"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] border border-emerald-500/[0.05] rounded-full"></div>
+    </div>
+
+    <div class="relative z-10 text-center max-w-4xl mx-auto px-4">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/5 mb-8 animate-fade-in">
+        <span class="iconify text-emerald-400 text-sm" data-icon="lucide:sparkles"></span>
+        <span class="text-emerald-400 text-xs font-medium tracking-wide uppercase">Developer Resource Hub</span>
+      </div>
+      <h1 class="font-display text-4xl sm:text-5xl lg:text-7xl font-medium tracking-tight leading-none mb-6 animate-fade-in stagger-1 text-gray-50">
+        All Your Dev<br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">Resources</span>, One Place
+      </h1>
+      <p class="text-gray-500 text-lg lg:text-xl max-w-2xl mx-auto mb-10 animate-fade-in stagger-2">
+        Store, organize, and quickly access your favorite websites, docs, tools, and snippets — built by developers, for developers.
+      </p>
+
+      <div class="max-w-2xl mx-auto animate-fade-in stagger-3">
+        <div class="relative group">
+          <div class="absolute inset-0 rounded-xl bg-emerald-500/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="relative flex items-center bg-[#0c1612]/80 border border-gray-800/60 rounded-xl hover:border-emerald-500/20 transition-colors">
+            <span class="iconify text-gray-600 text-xl ml-4" data-icon="lucide:search"></span>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search resources by name, tag, or URL..."
+              class="w-full bg-transparent text-gray-100 px-4 py-4 lg:py-5 text-base outline-none"
+              oninput="handleSearch(this.value)"
+            >
+            <button onclick="handleSearch(document.getElementById('searchInput').value)" class="mr-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+              <span class="iconify text-base" data-icon="lucide:search"></span>
+              Search
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center justify-center gap-2 mt-4 text-gray-600 text-xs">
+          <span class="iconify text-sm" data-icon="lucide:command"></span>
+          <span>Press <kbd class="px-1.5 py-0.5 rounded bg-gray-800/80 text-gray-400 text-xs font-mono border border-gray-700/50">/</kbd> to focus search</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-8 sm:gap-12 mt-12 animate-fade-in stagger-4">
+        <div class="text-center">
+          <div id="statTotal" class="text-2xl lg:text-3xl font-medium text-gray-100">0</div>
+          <div class="text-gray-600 text-xs mt-1">Resources</div>
+        </div>
+        <div class="w-px h-10 bg-gray-800/60"></div>
+        <div class="text-center">
+          <div id="statCategories" class="text-2xl lg:text-3xl font-medium text-gray-100">0</div>
+          <div class="text-gray-600 text-xs mt-1">Categories</div>
+        </div>
+        <div class="w-px h-10 bg-gray-800/60"></div>
+        <div class="text-center">
+          <div id="statFavorites" class="text-2xl lg:text-3xl font-medium text-gray-100">0</div>
+          <div class="text-gray-600 text-xs mt-1">Favorites</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CATEGORY FILTERS ==================== -->
+  <section id="categories" class="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+      <button onclick="filterByCategory('all')" data-cat="all" class="cat-btn tag-active shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-sm font-medium transition-all">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:layers"></span>All</span>
+      </button>
+      <button onclick="filterByCategory('documentation')" data-cat="documentation" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:book-open"></span>Documentation</span>
+      </button>
+      <button onclick="filterByCategory('tools')" data-cat="tools" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:wrench"></span>Tools</span>
+      </button>
+      <button onclick="filterByCategory('apis')" data-cat="apis" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:plug"></span>APIs</span>
+      </button>
+      <button onclick="filterByCategory('templates')" data-cat="templates" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:layout-template"></span>Templates</span>
+      </button>
+      <button onclick="filterByCategory('libraries')" data-cat="libraries" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:package"></span>Libraries</span>
+      </button>
+      <button onclick="filterByCategory('tutorials')" data-cat="tutorials" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:graduation-cap"></span>Tutorials</span>
+      </button>
+      <button onclick="filterByCategory('snippets')" data-cat="snippets" class="cat-btn shrink-0 px-4 py-2 rounded-full border border-gray-800/60 text-gray-500 text-sm font-medium transition-all hover:border-gray-700 hover:text-gray-300">
+        <span class="flex items-center gap-1.5"><span class="iconify text-sm" data-icon="lucide:code-2"></span>Snippets</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ==================== RESOURCES GRID ==================== -->
+  <section id="resources" class="py-8 lg:py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="font-display text-2xl lg:text-3xl font-medium tracking-tight text-gray-50">Your Resources</h2>
+        <p id="resultCount" class="text-gray-600 text-sm mt-1">Showing all resources</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="setView('grid')" id="viewGrid" class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors">
+          <span class="iconify text-lg" data-icon="lucide:grid-3x3"></span>
+        </button>
+        <button onclick="setView('list')" id="viewList" class="p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors">
+          <span class="iconify text-lg" data-icon="lucide:list"></span>
+        </button>
+      </div>
+    </div>
+    <div id="gridView" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"></div>
+    <div id="listView" class="hidden flex flex-col gap-3"></div>
+    <div id="emptyState" class="hidden py-20 text-center">
+      <div class="w-20 h-20 rounded-2xl bg-gray-900/50 border border-gray-800/60 flex items-center justify-center mx-auto mb-6">
+        <span class="iconify text-gray-700 text-3xl" data-icon="lucide:inbox"></span>
+      </div>
+      <h3 class="font-display text-xl font-medium mb-2 text-gray-300">No resources found</h3>
+      <p class="text-gray-600 text-sm mb-6">Try adjusting your search or add a new resource.</p>
+      <button onclick="openAddModal()" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors">
+        <span class="iconify" data-icon="lucide:plus"></span>Add Resource
+      </button>
+    </div>
+  </section>  
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="border-t border-gray-800/40 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Google Sheets Import / Export Section -->
+      <div class="mb-10 bg-[#0c1612]/70 border border-gray-800/50 rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+            <span class="iconify text-emerald-400 text-2xl" data-icon="lucide:sheet"></span>
+          </div>
+          <div>
+            <h3 class="font-display text-lg font-medium text-gray-100 mb-1">Google Sheets / Microsoft Excel Import / Export</h3>
+            <p class="text-gray-500 text-sm leading-relaxed max-w-lg">Keep your library in sync with a spreadsheet — import rows from any shared Google Sheet or Microsoft Excel sheet, or export everything as a CSV that opens in either application.</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+          <button id="gsImportControl" onclick="openGsModal()" class="flex items-center gap-2 px-5 py-3 rounded-xl border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/10 text-sm font-semibold transition-colors">
+            <span class="iconify text-base" data-icon="lucide:download"></span>Import from Sheet
+          </button>
+          <button onclick="exportToGoogleSheets()" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] px-5 py-3 rounded-xl text-sm font-semibold transition-colors">
+            <span class="iconify text-base" data-icon="lucide:upload"></span>Export to Sheet
+          </button>
+          <button id="gsRemoveControl" onclick="removeImportedSheet()" class="hidden items-center gap-2 px-5 py-3 rounded-xl border border-red-500/25 text-red-400 hover:bg-red-500/10 text-sm font-semibold transition-colors">
+            <span class="iconify text-base" data-icon="lucide:trash-2"></span>Remove Imported File
+          </button>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-md bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+            <span class="iconify text-emerald-400 text-sm" data-icon="lucide:box"></span>
+          </div>
+          <span class="font-display text-lg font-medium text-gray-200">Adnex Store</span>
+        </div>
+        <p class="text-gray-600 text-sm">Built with care for developers everywhere.</p>
+        <div class="flex items-center gap-4">
+          <a href="#" class="text-gray-600 hover:text-emerald-400 transition-colors"><span class="iconify text-lg" data-icon="lucide:github"></span></a>
+          <a href="#" class="text-gray-600 hover:text-emerald-400 transition-colors"><span class="iconify text-lg" data-icon="lucide:twitter"></span></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== PREVIEW MODAL ==================== -->
+  <div id="previewModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closePreviewModal()"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="bg-[#0c1612] border border-gray-800/60 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden animate-slide-up shadow-2xl shadow-emerald-500/5">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800/50">
+          <div class="flex items-center gap-3">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-500/70"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500/70"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-500/70"></div>
+            </div>
+            <span class="text-gray-600 text-xs font-mono truncate max-w-[300px]" id="previewUrl"></span>
+          </div>
+          <button onclick="closePreviewModal()" class="p-1.5 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
+            <span class="iconify text-lg" data-icon="lucide:x"></span>
+          </button>
+        </div>
+        <div class="p-6 overflow-y-auto max-h-[calc(85vh-130px)]">
+          <div class="flex items-start gap-4 mb-6">
+            <div id="previewIcon" class="w-14 h-14 rounded-xl bg-gray-800/50 border border-gray-700/50 flex items-center justify-center shrink-0 overflow-hidden">
+              <span class="iconify text-2xl text-gray-400" data-icon="lucide:globe"></span>
+            </div>
+            <div class="min-w-0">
+              <h3 id="previewName" class="font-display text-xl font-medium mb-1 truncate text-gray-100"></h3>
+              <p id="previewDesc" class="text-gray-500 text-sm leading-relaxed"></p>
+            </div>
+          </div>
+          <div id="previewTags" class="flex flex-wrap gap-2 mb-6"></div>
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-800/40">
+              <div class="text-gray-600 text-xs mb-1">Category</div>
+              <div id="previewCategory" class="text-gray-200 text-sm font-medium capitalize"></div>
+            </div>
+            <div class="bg-gray-900/50 rounded-lg p-4 border border-gray-800/40">
+              <div class="text-gray-600 text-xs mb-1">Added</div>
+              <div id="previewDate" class="text-gray-200 text-sm font-medium"></div>
+            </div>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-gray-800/50 bg-[#060d0a] mb-6">
+            <div class="flex items-center gap-2 px-4 py-2.5 bg-gray-900/50 border-b border-gray-800/40">
+              <span class="iconify text-emerald-500/40 text-sm" data-icon="lucide:shield-check"></span>
+              <span id="previewFrameUrl" class="text-gray-600 text-xs font-mono truncate"></span>
+            </div>
+            <div class="relative aspect-[16/10] bg-gray-900/30 overflow-hidden">
+              <iframe
+                id="previewFrame"
+                title="Resource preview"
+                class="absolute inset-0 h-full w-full bg-white hidden"
+                loading="lazy"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+                referrerpolicy="strict-origin-when-cross-origin"
+              ></iframe>
+              <img id="previewScreenshot" src="" alt="" class="w-full h-full object-cover opacity-60 hidden" onerror="this.classList.add('hidden'); document.getElementById('previewScreenshotFallback').classList.remove('hidden')">
+              <div id="previewScreenshotFallback" class="absolute inset-0 items-center justify-center bg-gray-900/30 hidden">
+                <div class="text-center">
+                  <span class="iconify text-4xl mb-2 block mx-auto text-emerald-500/20" data-icon="lucide:external-link"></span>
+                  <p class="text-gray-600 text-sm">Preview is unavailable for this site, but the link is ready to open.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="flex gap-3">
+            <a id="previewVisitBtn" href="#" target="_blank" class="flex-1 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] py-3 rounded-xl text-sm font-semibold transition-colors">
+              <span class="iconify" data-icon="lucide:external-link"></span>Visit Resource
+            </a>
+            <button id="previewFavBtn" class="px-4 py-3 rounded-xl border border-gray-700/50 text-gray-500 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors">
+              <span class="iconify text-lg" data-icon="lucide:heart"></span>
+            </button>
+            <button id="previewCopyBtn" class="px-4 py-3 rounded-xl border border-gray-700/50 text-gray-500 hover:text-gray-200 hover:border-gray-600 transition-colors" title="Copy URL">
+              <span class="iconify text-lg" data-icon="lucide:copy"></span>
+            </button>
+          </div>
+          <!-- Delete Section -->
+          <div class="mt-6 pt-6 border-t border-gray-800/40">
+            <div id="deleteSection">
+              <button id="deleteTriggerBtn" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-500/15 text-red-400/40 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/5 text-sm font-medium transition-all">
+                <span class="iconify" data-icon="lucide:trash-2"></span>Delete Resource
+              </button>
+            </div>
+            <div id="deleteConfirm" class="hidden confirm-delete">
+              <div class="bg-red-500/5 border border-red-500/15 rounded-xl p-4">
+                <div class="flex items-start gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-red-500/10 border border-red-500/15 flex items-center justify-center shrink-0 mt-0.5">
+                    <span class="iconify text-red-400 text-lg" data-icon="lucide:alert-triangle"></span>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="text-red-300 text-sm font-medium mb-1">Are you sure?</h4>
+                    <p class="text-red-400/50 text-xs mb-4">This resource will be permanently removed from your store.</p>
+                    <div class="flex gap-2">
+                      <button onclick="cancelDelete()" class="flex-1 py-2 rounded-lg border border-gray-700/50 text-gray-400 hover:text-gray-200 text-xs font-medium transition-colors">Cancel</button>
+                      <button onclick="confirmDelete()" class="flex-1 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-white text-xs font-medium transition-colors">Yes, Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ADD RESOURCE MODAL ==================== -->
+  <div id="addModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeAddModal()"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="bg-[#0c1612] border border-gray-800/60 rounded-2xl w-full max-w-lg animate-slide-up shadow-2xl shadow-emerald-500/5">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800/50">
+          <h3 class="font-display text-lg font-medium text-gray-100">Add New Resource</h3>
+          <button onclick="closeAddModal()" class="p-1.5 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
+            <span class="iconify text-lg" data-icon="lucide:x"></span>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Resource Name *</label>
+            <input id="addName" type="text" placeholder="e.g., React Documentation" class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors">
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">URL *</label>
+            <div class="flex gap-2">
+              <input id="addUrl" type="url" placeholder="https://..." class="flex-1 bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors">
+              <button id="fetchMetaBtn" onclick="fetchAndFillMetadata()" type="button" class="shrink-0 flex items-center gap-2 px-4 py-3 rounded-lg border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10 text-sm font-medium transition-colors">
+                <span class="iconify" data-icon="lucide:sparkles"></span> Auto-fill
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Description</label>
+            <textarea id="addDesc" rows="2" placeholder="Brief description of this resource..." class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors resize-none"></textarea>
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Category</label>
+            <select id="addCategory" class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors appearance-none cursor-pointer">
+              <option value="documentation">Documentation</option>
+              <option value="tools">Tools</option>
+              <option value="apis">APIs</option>
+              <option value="templates">Templates</option>
+              <option value="libraries">Libraries</option>
+              <option value="tutorials">Tutorials</option>
+              <option value="snippets">Snippets</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Tags (comma separated)</label>
+            <input id="addTags" type="text" placeholder="react, hooks, frontend" class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors">
+          </div>
+          <div id="addError" class="hidden text-red-400 text-sm flex items-center gap-2">
+            <span class="iconify" data-icon="lucide:alert-circle"></span><span></span>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button onclick="closeAddModal()" class="flex-1 py-3 rounded-xl border border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600 text-sm font-medium transition-colors">Cancel</button>
+            <button onclick="previewBeforeSave()" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-emerald-500/25 text-emerald-400 hover:bg-emerald-500/10 text-sm font-medium transition-colors">
+              <span class="iconify" data-icon="lucide:eye"></span>Preview
+            </button>
+            <button onclick="saveResource()" class="flex-1 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] py-3 rounded-xl text-sm font-semibold transition-colors">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== GOOGLE SHEET IMPORT MODAL ==================== -->
+  <div id="gsModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeGsModal()"></div>
+    <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+      <div class="bg-[#0c1612] border border-gray-800/60 rounded-2xl w-full max-w-lg animate-slide-up shadow-2xl shadow-emerald-500/5">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-800/50">
+          <h3 class="font-display text-lg font-medium text-gray-100">Import from Google Sheets or Microsoft Excel</h3>
+          <button onclick="closeGsModal()" class="p-1.5 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-gray-800/50 transition-colors">
+            <span class="iconify text-lg" data-icon="lucide:x"></span>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="text-gray-400 text-sm font-medium mb-1.5 block">Google Sheet or Microsoft Excel file</label>
+            <input id="gsFile" type="file" accept=".csv,.xlsx,.xls,.xlsm,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" class="w-full bg-gray-900/50 border border-gray-800/60 rounded-lg px-4 py-3 text-sm text-gray-100 outline-none focus:border-emerald-500/40 transition-colors" onchange="showSelectedSheetFile(this)">
+            <p id="gsFileStatus" class="hidden mt-2 text-xs text-emerald-400 flex items-center gap-2"><span class="iconify" data-icon="lucide:file-check-2"></span><span></span></p>
+          </div>
+          <div class="bg-gray-900/50 border border-gray-800/50 rounded-xl p-4 space-y-2.5">
+            <p class="text-gray-400 text-xs font-medium flex items-center gap-2"><span class="iconify text-emerald-400" data-icon="lucide:info"></span>Before importing</p>
+            <ul class="text-gray-600 text-xs space-y-1.5 leading-relaxed">
+              <li class="flex gap-2"><span class="text-emerald-500/60 shrink-0">1.</span><span>Share the sheet as <span class="text-gray-400">"Anyone with the link — Viewer"</span> (or File → Share → Publish to web).</span></li>
+              <li class="flex gap-2"><span class="text-emerald-500/60 shrink-0">2.</span><span>Use a header row: <span class="text-gray-400 font-mono text-[11px]">Name, URL, Description, Category, Tags, Favorite, Date</span></span></li>
+              <li class="flex gap-2"><span class="text-emerald-500/60 shrink-0">3.</span><span>Rows whose URL is already in your library are skipped.</span></li>
+            </ul>
+          </div>
+          <div id="gsStatus" class="hidden text-sm"></div>
+          <div class="flex gap-3 pt-2">
+            <button onclick="downloadGsTemplate()" title="Download a sample CSV with the expected format" class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600 text-sm font-medium transition-colors">
+              <span class="iconify" data-icon="lucide:file-down"></span>Template
+            </button>
+            <button onclick="closeGsModal()" class="flex-1 py-3 rounded-xl border border-gray-700/50 text-gray-400 hover:text-gray-200 hover:border-gray-600 text-sm font-medium transition-colors">Cancel</button>
+            <button id="gsImportBtn" onclick="importFromGoogleSheet()" class="flex-1 flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#060d0a] py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <span class="iconify" data-icon="lucide:download"></span>Import
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST ==================== -->
+  <div id="toast" class="fixed bottom-6 right-6 z-[200] hidden">
+    <div class="bg-[#0c1612] border border-gray-700/50 rounded-xl px-5 py-3.5 shadow-2xl shadow-black/40 flex items-center gap-3 animate-slide-up">
+      <span id="toastIcon" class="iconify text-lg text-emerald-400" data-icon="lucide:check-circle-2"></span>
+      <span id="toastMsg" class="text-gray-200 text-sm font-medium"></span>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>/*
+    const categoryIcons = {
+      documentation:'lucide:book-open', tools:'lucide:wrench', apis:'lucide:plug',
+      templates:'lucide:layout-template', libraries:'lucide:package',
+      tutorials:'lucide:graduation-cap', snippets:'lucide:code-2',
+    };
+    const categoryColors = {
+      documentation: { bg:'bg-sky-500/10', border:'border-sky-500/20', text:'text-sky-400' },
+      tools:         { bg:'bg-emerald-500/10', border:'border-emerald-500/20', text:'text-emerald-400' },
+      apis:          { bg:'bg-violet-500/10', border:'border-violet-500/20', text:'text-violet-400' },
+      templates:     { bg:'bg-teal-500/10', border:'border-teal-500/20', text:'text-teal-400' },
+      libraries:     { bg:'bg-cyan-500/10', border:'border-cyan-500/20', text:'text-cyan-400' },
+      tutorials:     { bg:'bg-amber-500/10', border:'border-amber-500/20', text:'text-amber-400' },
+      snippets:      { bg:'bg-rose-500/10', border:'border-rose-500/20', text:'text-rose-400' },
+    };
+
+    let resources = loadResourcesFromLocalStorage();
+    let currentFilter='all', currentView='grid', currentSearch='', previewingId=null;
+    let metadataCache = {};
+
+    function getDomain(url) {
+      try { return new URL(url).hostname.replace(/^www\./, ''); } catch(e) { return url; }
+    }
+
+    async function fetchSiteMetadata(url) {
+      const domain = getDomain(url);
+      if (metadataCache[domain]) return metadataCache[domain];
+
+      // Try Microlink first
+      try {
+        const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=true&embed=screenshot.url`);
+        const data = await res.json();
+        if (data.status === 'success' && data.data) {
+          const meta = {
+            title: data.data.title || '',
+            description: data.data.description || '',
+            image: data.data.screenshot?.url || data.data.image?.url || '',
+            logo: data.data.logo?.url || `https://logo.clearbit.com/${domain}`,
+            domain: domain
+          };
+          metadataCache[domain] = meta;
+          return meta;
+        }
+      } catch(e) { console.log('Microlink failed, using fallback'); }
+
+      // Fallback with common domain suggestions
+      const fallbackMeta = getFallbackMetadata(url);
+      metadataCache[domain] = fallbackMeta;
+      return meta;
+    }
+
+    function getResourceImage(r) {
+      if (r.image) return r.image;
+      const label = (r.name || getDomain(r.url) || 'Resource').replace(/<[^>]*>/g, '').slice(0, 24);
+      const category = (r.category || 'tools').toLowerCase();
+      const palette = {
+        documentation: ['#0f172a', '#38bdf8'],
+        tools: ['#052e16', '#34d399'],
+        apis: ['#2e1065', '#a78bfa'],
+        templates: ['#042f2e', '#2dd4bf'],
+        libraries: ['#082f49', '#22d3ee'],
+        tutorials: ['#431407', '#fbbf24'],
+        snippets: ['#4c0519', '#fb7185']
+      };
+      const [bg, accent] = palette[category] || palette.tools;
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+        <rect width="1200" height="800" rx="48" fill="${bg}"/>
+        <rect x="72" y="72" width="1056" height="656" rx="32" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+        <circle cx="900" cy="220" r="220" fill="${accent}" opacity="0.2"/>
+        <rect x="180" y="220" width="320" height="24" rx="12" fill="rgba(255,255,255,0.16)"/>
+        <rect x="180" y="276" width="460" height="20" rx="10" fill="rgba(255,255,255,0.1)"/>
+        <rect x="180" y="320" width="392" height="20" rx="10" fill="rgba(255,255,255,0.1)"/>
+        <rect x="180" y="388" width="228" height="20" rx="10" fill="rgba(255,255,255,0.1)"/>
+        <path d="M796 224h118c28 0 50 22 50 50v236c0 28-22 50-50 50H796c-28 0-50-22-50-50V274c0-28 22-50 50-50Zm0 60v176h118V284H796Z" fill="${accent}" opacity="0.95"/>
+        <text x="180" y="620" font-family="Inter, Arial, sans-serif" font-size="56" font-weight="600" fill="rgba(255,255,255,0.95)">${escapeHtml(label)}</text>
+      </svg>`;
+      return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+    }
+
+    function getResourceLogo(r) {
+      if (r.logo) return r.logo;
+      return `https://logo.clearbit.com/${getDomain(r.url)}`;
+    }
+
+document.addEventListener('DOMContentLoaded', () => {
+      applyCardPreviewFallbacks();
+    });
+
+    function getNextId() {
+      return resources.reduce((max, r) => Math.max(max, r.id), 0) + 1;
+    }
+
+    function loadResourcesFromLocalStorage() {
+      try {
+        const saved = localStorage.getItem('adnexResources');
+        if (saved) {
+          try {
+            const starterUrls = new Set([
+              'https://react.dev', 'https://tailwindcss.com', 'https://www.postman.com',
+              'https://vercel.com/templates', 'https://restfulapi.net', 'https://developer.mozilla.org',
+              'https://www.figma.com/community', 'https://www.freecodecamp.org', 'https://eslint.org'
+            ]);
+            const cleanedResources = JSON.parse(saved).filter(resource => !starterUrls.has(resource.url));
+            localStorage.setItem('adnexResources', JSON.stringify(cleanedResources));
+            return cleanedResources;
+          } catch (e) {
+            console.error('Failed to parse resources from localStorage', e);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to access localStorage', e);
+      }
+      // Default resources if none saved, error, or localStorage unavailable
+      return [];
+    }
+
+    function saveResourcesToLocalStorage() {
+      try {
+        localStorage.setItem('adnexResources', JSON.stringify(resources));
+      } catch (e) {
+        console.error('Failed to save resources to localStorage', e);
+        showToast('Failed to save changes. Storage may be full or disabled.', 'lucide:alert-circle', 'text-red-400');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderResources(); updateStats();
+      document.addEventListener('keydown', (e) => {
+        if (e.key==='/' && !['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) { e.preventDefault(); document.getElementById('searchInput').focus(); }
+        if (e.key==='Escape') { closePreviewModal(); closeAddModal(); }
+      });
+    });
+
+    function getFilteredResources() {
+      let f=[...resources];
+      if (currentFilter!=='all') f=f.filter(r=>r.category===currentFilter);
+      if (currentSearch.trim()) { const q=currentSearch.toLowerCase().trim(); f=f.filter(r=>r.name.toLowerCase().includes(q)||r.url.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q)||r.tags.some(t=>t.toLowerCase().includes(q))||r.category.toLowerCase().includes(q)); }
+      return f;
+    }
+
+    function renderResources() {
+      const filtered=getFilteredResources(), gridEl=document.getElementById('gridView'), listEl=document.getElementById('listView'), emptyEl=document.getElementById('emptyState'), countEl=document.getElementById('resultCount');
+      if (!filtered.length) { gridEl.classList.add('hidden'); listEl.classList.add('hidden'); emptyEl.classList.remove('hidden'); 
+        if (currentSearch) {
+          countEl.textContent = `No results for "${currentSearch}"`;
+        } else if (currentFilter === 'all') {
+          countEl.textContent = 'No resources yet — add your first one!';
+        } else {
+          countEl.textContent = 'No resources in this category';
+        }
+        return; 
+      }
+      emptyEl.classList.add('hidden');
+      countEl.textContent=currentSearch?`Found ${filtered.length} resource${filtered.length!==1?'s':''} for "${currentSearch}"`:`Showing ${filtered.length} resource${filtered.length!==1?'s':''}`;
+
+      gridEl.innerHTML=filtered.map((r,i)=>{
+        const cc=categoryColors[r.category]||categoryColors.tools;
+        const screenshotUrl = getResourceImage(r);
+        const logoUrl = getResourceLogo(r);
+        return `<div class="link-card bg-[#0c1612]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer group" style="animation-delay:${i*0.05}s" onclick="openPreview(${r.id})">
+          <div class="relative aspect-[16/10] bg-gray-900/40 overflow-hidden">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="absolute inset-0 items-center justify-center bg-gray-900/40 hidden">
+              <span class="iconify text-3xl text-gray-700" data-icon="lucide:image-off"></span>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0c1612] via-transparent to-transparent"></div>
+            <div class="absolute top-3 left-3">
+              <div class="w-9 h-9 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center overflow-hidden">
+                <img src="${logoUrl}" alt="" class="w-5 h-5 object-contain" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'iconify text-lg ${cc.text}\' data-icon=\'${categoryIcons[r.category]||'lucide:globe'}\'></span>'">
+              </div>
+            </div>
+            <button onclick="event.stopPropagation();toggleFavorite(${r.id})" class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-black/30 backdrop-blur-md border border-white/5 flex items-center justify-center transition-colors ${r.favorite?'text-emerald-400':'text-gray-500 hover:text-gray-300'}">
+              <span class="iconify text-sm" data-icon="lucide:heart"></span>
+            </button>
+            <div class="absolute bottom-3 left-3 right-3">
+              <span class="text-gray-400 text-[10px] font-mono bg-black/40 backdrop-blur-sm px-2 py-1 rounded-md border border-white/5">${getDomain(r.url)}</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="font-display text-base font-medium mb-1.5 truncate text-gray-200">${r.name}</h3>
+            <p class="text-gray-600 text-xs leading-relaxed line-clamp-2 mb-4">${r.desc}</p>
+            <div class="flex flex-wrap gap-1.5 mb-4">${r.tags.slice(0,3).map(t=>`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-500 text-[10px] font-medium">${t}</span>`).join('')}${r.tags.length>3?`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-600 text-[10px] font-medium">+${r.tags.length-3}</span>`:''}</div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-700 text-[10px] font-mono truncate max-w-[55%]">${r.url.replace(/^https?:\/\//,'')}</span>
+              <div class="flex items-center gap-2">
+                <button onclick="event.stopPropagation();copyUrl(${r.id})" class="p-1.5 rounded-lg text-gray-700 hover:text-emerald-400 hover:bg-gray-800/50 transition-colors" title="Copy URL"><span class="iconify text-sm" data-icon="lucide:copy"></span></button>
+                <button onclick="event.stopPropagation();openPreview(${r.id})" class="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/15 hover:bg-emerald-500/20 text-emerald-400 text-[11px] font-medium transition-colors"><span class="iconify text-xs" data-icon="lucide:eye"></span>Preview</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      listEl.innerHTML=filtered.map((r,i)=>{
+        const cc=categoryColors[r.category]||categoryColors.tools;
+        const screenshotUrl = getResourceImage(r);
+        const logoUrl = getResourceLogo(r);
+        return `<div class="link-card flex items-center bg-[#0c1612]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer" style="animation-delay:${i*0.03}s" onclick="openPreview(${r.id})">
+          <div class="w-32 h-20 shrink-0 relative overflow-hidden hidden sm:block bg-gray-900/40">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-40 hover:opacity-70 transition-opacity duration-300" onerror="this.style.display='none'; this.parentElement.style.display='none'">
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent to-[#0c1612]/50"></div>
+          </div>
+          <div class="flex items-center gap-4 p-4 flex-1 min-w-0">
+            <div class="w-10 h-10 rounded-lg bg-black/30 border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
+              <img src="${logoUrl}" alt="" class="w-6 h-6 object-contain" onerror="this.style.display='none'; this.parentElement.className='w-10 h-10 rounded-lg ${cc.bg} border ${cc.border} flex items-center justify-center shrink-0'; this.parentElement.innerHTML='<span class=\'iconify text-lg ${cc.text}\' data-icon=\'${categoryIcons[r.category]||'lucide:globe'}\'></span>'">
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2"><h3 class="font-display text-sm font-medium truncate text-gray-200">${r.name}</h3>${r.favorite?'<span class="iconify text-emerald-400 text-xs shrink-0" data-icon="lucide:heart"></span>':''}</div>
+              <p class="text-gray-700 text-xs font-mono truncate">${r.url.replace(/^https?:\/\//,'')}</p>
+            </div>
+            <div class="hidden sm:flex items-center gap-1.5">${r.tags.slice(0,2).map(t=>`<span class="px-2 py-0.5 rounded-md bg-gray-800/60 text-gray-500 text-[10px] font-medium">${t}</span>`).join('')}</div>
+            <button onclick="event.stopPropagation();openPreview(${r.id})" class="shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/15 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium transition-colors"><span class="iconify text-xs" data-icon="lucide:eye"></span>Preview</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      if (currentView==='grid') { gridEl.classList.remove('hidden'); listEl.classList.add('hidden'); } else { gridEl.classList.add('hidden'); listEl.classList.remove('hidden'); }
+    }
+
+    function updateStats() {
+      document.getElementById('statTotal').textContent=resources.length;
+      document.getElementById('statCategories').textContent=new Set(resources.map(r=>r.category)).size;
+      document.getElementById('statFavorites').textContent=resources.filter(r=>r.favorite).length;
+    }
+
+    function handleSearch(v) { currentSearch=v; renderResources(); }
+
+    function filterByCategory(cat) {
+      currentFilter=cat;
+      document.querySelectorAll('.cat-btn').forEach(b=>{b.classList.remove('tag-active');b.classList.add('text-gray-500');});
+      const a=document.querySelector(`.cat-btn[data-cat="${cat}"]`);
+      if(a){a.classList.add('tag-active');a.classList.remove('text-gray-500');}
+      renderResources();
+    }
+
+    function setView(v) {
+      currentView=v;
+      document.getElementById('viewGrid').className=v==='grid'?'p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors':'p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors';
+      document.getElementById('viewList').className=v==='list'?'p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 transition-colors':'p-2 rounded-lg text-gray-600 hover:text-gray-300 hover:bg-gray-800/50 transition-colors';
+      renderResources();
+    }
+
+    function openPreview(idOrResource) {
+      let r;
+      if (typeof idOrResource === 'object' && idOrResource !== null) {
+        r = idOrResource;
+        previewingId = null;
+      } else {
+        r = resources.find(x => x.id === idOrResource);
+        if (!r) return;
+        previewingId = idOrResource;
+      }
+      
+      const cc = categoryColors[r.category] || categoryColors.tools;
+      document.getElementById('previewName').textContent = r.name;
+      document.getElementById('previewDesc').textContent = r.desc;
+      document.getElementById('previewUrl').textContent = r.url;
+      document.getElementById('previewFrameUrl').textContent = r.url;
+      document.getElementById('previewCategory').textContent = r.category;
+      document.getElementById('previewDate').textContent = new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('previewVisitBtn').href = r.url;
+
+      const frame = document.getElementById('previewFrame');
+      const screenshot = document.getElementById('previewScreenshot');
+      const fallback = document.getElementById('previewScreenshotFallback');
+      frame.classList.add('hidden');
+      screenshot.classList.add('hidden');
+      fallback.classList.remove('hidden');
+      fallback.innerHTML = `
+        <div class="w-full h-full flex flex-col bg-[#060d0a]">
+          <div class="flex items-center gap-2 px-4 py-2.5 border-b border-gray-800/50 bg-gray-900/60">
+            <div class="flex gap-1.5">
+              <div class="w-2.5 h-2.5 rounded-full bg-red-500/70"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/70"></div>
+              <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/70"></div>
+            </div>
+            <span class="text-[11px] text-gray-500 font-mono truncate">${getDomain(r.url)}</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center justify-center px-6 py-8 text-center">
+            <div class="w-14 h-14 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 flex items-center justify-center mb-4">
+              <span class="iconify text-2xl text-emerald-400" data-icon="lucide:globe"></span>
+            </div>
+            <h4 class="text-lg font-semibold text-gray-100 mb-2">${r.name}</h4>
+            <p class="text-sm text-gray-500 max-w-md mb-4">${r.desc || 'Open this resource to see the full page in a new tab.'}</p>
+            <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-400">
+              <span class="iconify text-sm" data-icon="lucide:external-link"></span>
+              Open resource
+            </a>
+          </div>
+        </div>`;
+
+      const showPreviewFallback = () => {
+        frame.classList.add('hidden');
+        screenshot.classList.add('hidden');
+        fallback.classList.remove('hidden');
+      };
+
+      if (getResourceImage(r)) {
+        screenshot.src = getResourceImage(r);
+        screenshot.classList.remove('hidden');
+        fallback.classList.add('hidden');
+        screenshot.onerror = showPreviewFallback;
+      }
+
+      if (!/^https?:\/\//i.test(r.url)) {
+        showPreviewFallback();
+      } else {
+        frame.src = r.url;
+        frame.onload = () => {
+          try {
+            const doc = frame.contentDocument || frame.contentWindow?.document;
+            const hasBodyContent = !!(doc?.body && (doc.body.innerText?.trim() || doc.body.children.length));
+            if (hasBodyContent) {
+              frame.classList.remove('hidden');
+              screenshot.classList.add('hidden');
+              fallback.classList.add('hidden');
+            } else {
+              showPreviewFallback();
+            }
+          } catch (e) {
+            showPreviewFallback();
+          }
+        };
+        frame.onerror = showPreviewFallback;
+        setTimeout(() => {
+          try {
+            const doc = frame.contentDocument || frame.contentWindow?.document;
+            const hasBodyContent = !!(doc?.body && (doc.body.innerText?.trim() || doc.body.children.length));
+            if (!hasBodyContent) {
+              showPreviewFallback();
+            }
+          } catch (e) {
+            showPreviewFallback();
+          }
+        }, 1800);
+      }
+
+      // Set logo
+      const logoUrl = getResourceLogo(r);
+      document.getElementById('previewIcon').innerHTML = `<img src="${logoUrl}" alt="" class="w-8 h-8 object-contain" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'iconify text-2xl text-gray-400\' data-icon=\'lucide:globe\'></span>'">`;
+      
+      const favBtn = document.getElementById('previewFavBtn');
+      const deleteSection = document.getElementById('deleteSection');
+      const deleteConfirm = document.getElementById('deleteConfirm');
+      
+      if (previewingId === null) {
+        favBtn.style.display = 'none';
+        deleteSection.style.display = 'none';
+        deleteConfirm.classList.add('hidden');
+        document.getElementById('previewCopyBtn').onclick = () => copyUrl(r.url);
+      } else {
+        favBtn.style.display = '';
+        deleteSection.style.display = '';
+        favBtn.onclick = () => { toggleFavorite(previewingId); openPreview(previewingId); };
+        document.getElementById('previewCopyBtn').onclick = () => copyUrl(previewingId);
+        favBtn.className = `px-4 py-3 rounded-xl border transition-colors ${r.favorite ? 'border-emerald-500/30 text-emerald-400' : 'border-gray-700/50 text-gray-500 hover:text-emerald-400 hover:border-emerald-500/30'}`;
+      }
+      
+      document.getElementById('previewIcon').className = `w-14 h-14 rounded-xl ${cc.bg} border ${cc.border} flex items-center justify-center shrink-0`;
+      document.getElementById('previewIcon').innerHTML = `<span class="iconify text-2xl ${cc.text}" data-icon="${categoryIcons[r.category] || 'lucide:globe'}"></span>`;
+      document.getElementById('previewTags').innerHTML = r.tags.map(t => `<span class="px-2.5 py-1 rounded-lg bg-gray-800/60 border border-gray-700/40 text-gray-300 text-xs font-medium">${t}</span>`).join('');
+      
+      document.getElementById('previewModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
+      if (document.getElementById('addModal').classList.contains('hidden')) {
+        document.body.style.overflow = '';
+      }
+      previewingId = null;
+    }
+
+    function cancelDelete() {
+      document.getElementById('deleteConfirm').classList.add('hidden');
+      document.getElementById('deleteSection').classList.remove('hidden');
+    }
+    
+    function confirmDelete() {
+      if (previewingId === null) return;
+      resources = resources.filter(r => r.id !== previewingId);
+      saveResourcesToLocalStorage();
+      closePreviewModal();
+      renderResources();
+      updateStats();
+      showToast('Resource deleted permanently', 'lucide:trash-2', 'text-red-400');
+    }
+
+    function copyUrl(idOrUrl) {
+      let url;
+      if (typeof idOrUrl === 'number') {
+        const r = resources.find(x => x.id === idOrUrl);
+        if (!r) return;
+        url = r.url;
+      } else {
+        url = idOrUrl;
+      }
+      
+      if (!navigator.clipboard) {
+        showToast('Clipboard not available', 'lucide:alert-circle', 'text-red-400');
+        return;
+      }
+      
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('URL copied to clipboard!', 'lucide:clipboard-check', 'text-emerald-400');
+      }).catch(() => {
+        showToast('Failed to copy URL', 'lucide:alert-circle', 'text-red-400');
+      });
+    }
+    
+    function showToast(msg, icon, colorClass) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      const ic = document.getElementById('toastIcon');
+      ic.setAttribute('data-icon', icon);
+      ic.className = `iconify text-lg ${colorClass}`;
+      t.classList.remove('hidden');
+      clearTimeout(window._tt);
+      window._tt = setTimeout(() => t.classList.add('hidden'), 2500);
+    }
+    
+    function toggleMobileMenu() {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    }
+  */</script>
+
+  <!-- ==================== GOOGLE SHEETS IMPORT / EXPORT ==================== -->
+  <script>
+    const GS_CSV_HEADERS = ['Name', 'URL', 'Description', 'Category', 'Tags', 'Favorite', 'Date'];
+    let importedSheetBackup = null;
+
+    function setSheetImportControls(imported) {
+      document.getElementById('gsImportControl').classList.toggle('hidden', imported);
+      document.getElementById('gsRemoveControl').classList.toggle('hidden', !imported);
+      document.getElementById('gsRemoveControl').classList.toggle('flex', imported);
+      const indicator = document.getElementById('fileSessionIndicator');
+      const dot = document.getElementById('fileSessionDot');
+      const text = document.getElementById('fileSessionText');
+      if (indicator && dot && text) {
+        indicator.classList.toggle('hidden', !imported);
+        text.textContent = imported ? 'Logged in' : 'Logged out';
+        indicator.title = imported ? 'Imported file is active' : 'No imported file is active';
+        dot.classList.toggle('bg-red-400', imported);
+        dot.classList.toggle('bg-emerald-400', !imported);
+        indicator.classList.toggle('text-red-400', imported);
+        indicator.classList.toggle('text-emerald-400', !imported);
+        indicator.classList.toggle('border-red-500/30', imported);
+        indicator.classList.toggle('border-emerald-500/30', !imported);
+      }
+    }
+
+    function removeImportedSheet() {
+      importedSheetBackup = null;
+      resourceFileReady = false;
+      localStorage.removeItem('adnexResourcesBeforeImport');
+      localStorage.removeItem('adnexImportedFileActive');
+      setSheetImportControls(false);
+      showToast('Imported file disconnected; resources kept', 'lucide:unlink', 'text-emerald-400');
+    }
+
+    function openGsModal() {
+      document.getElementById('gsModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      setGsStatus('', 'info');
+      document.getElementById('gsFile').value = '';
+      showSelectedSheetFile(document.getElementById('gsFile'));
+      setTimeout(() => document.getElementById('gsFile').focus(), 100);
+    }
+
+    function showSelectedSheetFile(input) {
+      const status = document.getElementById('gsFileStatus');
+      if (!status) return;
+      const name = input.files[0]?.name;
+      status.querySelector('span:last-child').textContent = name ? `File selected: ${name}` : '';
+      status.classList.toggle('hidden', !name);
+    }
+
+    function closeGsModal() {
+      const m = document.getElementById('gsModal');
+      if (m.classList.contains('hidden')) return;
+      m.classList.add('hidden');
+      if (document.getElementById('previewModal').classList.contains('hidden') &&
+          document.getElementById('addModal').classList.contains('hidden')) {
+        document.body.style.overflow = '';
+      }
+    }
+
+    function setGsStatus(msg, type) {
+      const el = document.getElementById('gsStatus');
+      if (!msg) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+      const styles = {
+        info:  { icon: 'lucide:loader-2',       cls: 'text-gray-400',    spin: true  },
+        error: { icon: 'lucide:alert-circle',   cls: 'text-red-400',     spin: false },
+        ok:    { icon: 'lucide:check-circle-2', cls: 'text-emerald-400', spin: false },
+      };
+      const s = styles[type] || styles.info;
+      el.className = `text-sm flex items-start gap-2 ${s.cls}`;
+      el.innerHTML = `<span class="iconify mt-0.5 shrink-0 ${s.spin ? 'animate-spin' : ''}" data-icon="${s.icon}"></span><span class="flex-1">${msg}</span>`;
+      el.classList.remove('hidden');
+    }
+
+    function csvEscape(v) {
+      v = (v === null || v === undefined) ? '' : String(v);
+      return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }
+
+    function resourcesToCsv(list) {
+      const lines = [GS_CSV_HEADERS.join(',')];
+      list.forEach(r => {
+        lines.push([
+          csvEscape(r.name),
+          csvEscape(r.url),
+          csvEscape(r.desc),
+          csvEscape(r.category),
+          csvEscape((r.tags || []).join(' | ')),
+          r.favorite ? 'yes' : 'no',
+          csvEscape(r.date),
+        ].join(','));
+      });
+      return lines.join('\r\n');
+    }
+
+    function downloadCsvFile(csv, filename) {
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.target = '_self';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    async function exportToGoogleSheets() {
+      if (!resources.length) {
+        showToast('Nothing to export — add a resource first', 'lucide:alert-circle', 'text-red-400');
+        return;
+      }
+      if (!window.showSaveFilePicker) {
+        showToast('Your browser cannot overwrite files directly — use Chrome or Edge.', 'lucide:alert-circle', 'text-red-400');
+        return;
+      }
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: 'adnex-resources.xlsx',
+          types: [{
+            description: 'Spreadsheet file',
+            accept: {
+              'text/csv': ['.csv'],
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+              'application/vnd.ms-excel': ['.xls', '.xlsm'],
+            },
+          }],
+        });
+        const filename = handle.name.toLowerCase();
+        if (filename.endsWith('.xls')) throw new Error('legacy-excel');
+        let content;
+        if (filename.endsWith('.csv')) {
+          content = '\ufeff' + resourcesToCsv(resources);
+        } else {
+          if (typeof XLSX === 'undefined') throw new Error('excel-parser');
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.aoa_to_sheet([GS_CSV_HEADERS, ...resources.map(resource => [
+            resource.name, resource.url, resource.desc, resource.category,
+            (resource.tags || []).join(' | '), resource.favorite ? 'yes' : 'no', resource.date,
+          ])]);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Resources');
+          content = XLSX.write(workbook, { bookType: filename.endsWith('.xlsm') ? 'xlsm' : 'xlsx', type: 'array' });
+        }
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        showToast(`Saved ${resources.length} resource${resources.length !== 1 ? 's' : ''} to ${handle.name}`, 'lucide:check-circle-2', 'text-emerald-400');
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        console.error('Sheet export failed:', e);
+        const message = e.message === 'legacy-excel'
+          ? 'Old .xls files cannot be overwritten here — save it as .xlsx first.'
+          : e.message === 'permission-denied' || e.name === 'NotAllowedError'
+            ? 'Write permission was denied for that file.'
+            : e.name === 'SecurityError'
+              ? 'Open this page from Chrome or Edge on localhost to overwrite files.'
+              : 'Couldn\'t save the existing spreadsheet file.';
+        showToast(message, 'lucide:alert-circle', 'text-red-400');
+      }
+    }
+
+    function downloadGsTemplate() {
+      const rows = [
+        GS_CSV_HEADERS.join(','),
+        ['React Documentation', 'https://react.dev', 'Official React docs with examples and API references', 'documentation', 'react | javascript | frontend', 'yes', '2025-01-10'].map(csvEscape).join(','),
+        ['Postman API Platform', 'https://www.postman.com', 'API platform for building, testing, and documenting APIs', 'tools', 'api | testing', 'no', '2025-02-01'].map(csvEscape).join(','),
+      ];
+      downloadCsvFile(rows.join('\r\n'), 'adnex-import-template.csv');
+      showToast('Template downloaded — fill it in, then upload it to Google Sheets', 'lucide:file-down', 'text-emerald-400');
+    }
+
+    function extractSheetCsvUrl(input) {
+      input = (input || '').trim();
+      if (!input) return null;
+      if (/output=csv/i.test(input) || /tqx=out:csv/i.test(input)) return input;
+      const m = input.match(/\/spreadsheets\/d\/(e\/)?([a-zA-Z0-9-_]{20,})/);
+      if (!m) return null;
+      const gidMatch = input.match(/[#&?]gid=(\d+)/);
+      const gid = gidMatch ? gidMatch[1] : '0';
+      if (m[1]) return `https://docs.google.com/spreadsheets/d/e/${m[2]}/pub?gid=${gid}&single=true&output=csv`;
+      return `https://docs.google.com/spreadsheets/d/${m[2]}/gviz/tq?tqx=out:csv&gid=${gid}`;
+    }
+
+    function extractSheetImportUrl(input) {
+      input = (input || '').trim();
+      if (!input) return null;
+      const csvUrl = extractSheetCsvUrl(input);
+      if (csvUrl) return { url: csvUrl, type: 'csv' };
+      if (!/^https?:\/\//i.test(input)) return null;
+      try {
+        const url = new URL(input);
+        const isExcel = /\.(xlsx?|xlsm)(?:$|[?#])/i.test(url.pathname) ||
+          /(?:onedrive\.live\.com|1drv\.ms|sharepoint\.com)$/i.test(url.hostname);
+        if (!isExcel) return null;
+        if (/^(?:onedrive\.live\.com|1drv\.ms|sharepoint\.com)$/i.test(url.hostname) && !url.searchParams.has('download')) {
+          url.searchParams.set('download', '1');
+        }
+        return { url: url.toString(), type: 'excel' };
+      } catch (e) { return null; }
+    }
+
+    function parseCsvText(text) {
+      const rows = [];
+      let row = [], field = '', inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"') {
+            if (text[i + 1] === '"') { field += '"'; i++; }
+            else inQuotes = false;
+          } else field += c;
+        } else {
+          if (c === '"') inQuotes = true;
+          else if (c === ',') { row.push(field); field = ''; }
+          else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+          else if (c !== '\r') field += c;
+        }
+      }
+      if (field !== '' || row.length) { row.push(field); rows.push(row); }
+      return rows.filter(r => r.some(cell => cell.trim() !== ''));
+    }
+
+    function rowsToResources(rows, replaceExisting = false) {
+      const header = rows[0].map(h => h.trim().toLowerCase());
+      const findCol = (...names) => header.findIndex(h => names.includes(h));
+      const idx = {
+        name:     findCol('name', 'title'),
+        url:      findCol('url', 'link'),
+        desc:     findCol('description', 'desc'),
+        category: findCol('category', 'type'),
+        tags:     findCol('tags', 'tag'),
+        favorite: findCol('favorite', 'fav'),
+        date:     findCol('date', 'added'),
+      };
+      const hasHeader = idx.name !== -1 || idx.url !== -1;
+      const dataRows = hasHeader ? rows.slice(1) : rows;
+      const col = (r, i, fallbackIdx) => {
+        const c = i !== -1 ? i : fallbackIdx;
+        return c < r.length ? (r[c] || '').trim() : '';
+      };
+      const existingUrls = replaceExisting
+        ? new Set()
+        : new Set(resources.map(r => r.url.replace(/\/+$/, '').toLowerCase()));
+      const items = [];
+      let dupes = 0, invalid = 0;
+      dataRows.forEach(r => {
+        const name = col(r, idx.name, 0);
+        let url = col(r, idx.url, 1);
+        if (!name && !url) return;
+        if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+        if (!/^https?:\/\/.+\..+/.test(url)) { invalid++; return; }
+        const key = url.replace(/\/+$/, '').toLowerCase();
+        if (existingUrls.has(key)) { dupes++; return; }
+        existingUrls.add(key);
+        const rawTags = col(r, idx.tags, 4);
+        const tags = rawTags ? rawTags.split(/[|;,]/).map(t => t.trim()).filter(Boolean) : [];
+        const favRaw = col(r, idx.favorite, 5).toLowerCase();
+        let date = col(r, idx.date, 6);
+        const parsed = new Date(date);
+        date = date && !isNaN(parsed) ? parsed.toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        items.push({
+          id: 0,
+          name: name || getDomain(url),
+          url,
+          desc: col(r, idx.desc, 2) || 'Imported from Google Sheets.',
+          category: (col(r, idx.category, 3) || 'tools').toLowerCase(),
+          tags: tags.length ? tags : ['general'],
+          favorite: ['yes', 'true', '1', 'y'].includes(favRaw),
+          date,
+          image: '',
+          logo: '',
+        });
+      });
+      return { items, dupes, invalid };
+    }
+
+    async function importFromGoogleSheet() {
+      const file = document.getElementById('gsFile').files[0];
+      if (!file) {
+        setGsStatus('Choose a Google Sheets CSV export or Microsoft Excel file to import.', 'error');
+        return;
+      }
+      const isExcel = /\.(xlsx?|xlsm)$/i.test(file.name) || /excel|spreadsheetml/i.test(file.type);
+      const btn = document.getElementById('gsImportBtn');
+      btn.disabled = true;
+      setGsStatus('Reading your sheet…', 'info');
+      try {
+        let rows;
+        if (isExcel) {
+          if (typeof XLSX === 'undefined') throw new Error('excel-parser');
+          const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+        } else {
+          rows = parseCsvText(await file.text());
+        }
+        if (!rows.length) throw new Error('empty');
+        const { items, dupes, invalid } = rowsToResources(rows);
+        let duplicateNote = '';
+        if (dupes) {
+          const removeDuplicates = window.confirm(
+            `Found ${dupes} duplicate resource${dupes !== 1 ? 's' : ''} in ${file.name}. Remove duplicate rows from the import?\n\nSelect Cancel to leave the existing resources unchanged.`
+          );
+          duplicateNote = removeDuplicates
+            ? `, removed ${dupes} duplicate${dupes !== 1 ? 's' : ''} from import`
+            : `, left ${dupes} duplicate${dupes !== 1 ? 's' : ''} unchanged`;
+        }
+        const skippedNote = `${duplicateNote}${invalid ? `, ${invalid} invalid row${invalid !== 1 ? 's' : ''}` : ''}`;
+        if (!items.length) {
+          setGsStatus(
+            dupes
+              ? `Nothing new to import${skippedNote}.`
+              : 'No importable rows found — check the sheet against the template format.',
+            dupes ? 'ok' : 'error'
+          );
+          btn.disabled = false;
+          return;
+        }
+        let nextId = getNextId();
+        items.forEach(r => { r.id = nextId++; });
+        importedSheetBackup = resources;
+        localStorage.setItem('adnexResourcesBeforeImport', JSON.stringify(resources));
+        resources = [...resources, ...items];
+        resourceFileReady = true;
+        localStorage.setItem('adnexImportedFileActive', 'true');
+        saveResourcesToLocalStorage();
+        renderResources();
+        updateStats();
+        setSheetImportControls(true);
+        setGsStatus(`Loaded ${file.name}: imported ${items.length} resource${items.length !== 1 ? 's' : ''}${skippedNote}.`, 'ok');
+        showToast(`Loaded ${file.name} — imported ${items.length} resource${items.length !== 1 ? 's' : ''}`, 'lucide:check-circle-2', 'text-emerald-400');
+        setTimeout(closeGsModal, 1400);
+      } catch (e) {
+        console.error('Sheet import failed:', e);
+        setGsStatus(
+          e.message === 'excel-parser'
+              ? 'Excel import is unavailable because the spreadsheet parser could not be loaded. Check your connection and try again.'
+            : 'Couldn\'t read that file. Check that it is a CSV or Excel spreadsheet, then try again.',
+          'error'
+        );
+      }
+      btn.disabled = false;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Fix delete-confirm trigger: the head script runs before the body exists, so its binding never attached.
+      const dtb = document.getElementById('deleteTriggerBtn');
+      if (dtb && !dtb.dataset.bound) {
+        dtb.dataset.bound = '1';
+        dtb.addEventListener('click', () => {
+          document.getElementById('deleteSection').classList.add('hidden');
+          document.getElementById('deleteConfirm').classList.remove('hidden');
+        });
+      }
+      resourceFileReady = localStorage.getItem('adnexImportedFileActive') === 'true';
+      setSheetImportControls(resourceFileReady);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeGsModal(); });
+    });
+  </script>
+</body>
+</html>
