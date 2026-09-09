@@ -298,6 +298,8 @@
       document.getElementById('statTotal').textContent=resources.length;
       document.getElementById('statCategories').textContent=new Set(resources.map(r=>r.category)).size;
       document.getElementById('statFavorites').textContent=resources.filter(r=>r.favorite).length;
+      const delAllBtn = document.getElementById('deleteAllBtn');
+      if (delAllBtn) delAllBtn.classList.toggle('hidden', !resources.length);
     }
 
     function handleSearch(v) { currentSearch=v; renderResources(); }
