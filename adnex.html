@@ -660,10 +660,12 @@
   <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-[#ACC8A2]/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 lg:h-20 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-[#ACC8A2]/15 border border-[#ACC8A2]/25 flex items-center justify-center">
-          <span class="iconify text-[#ACC8A2] text-lg" data-icon="lucide:box"></span>
-        </div>
-        <span class="font-display text-xl lg:text-2xl font-semibold tracking-tight text-gray-100">Adnex <span class="text-[#ACC8A2]">Store</span></span>
+        <a href="adnex.html" class="flex items-center gap-3" title="Home">
+          <div class="w-9 h-9 rounded-lg bg-[#ACC8A2]/15 border border-[#ACC8A2]/25 flex items-center justify-center">
+            <span class="iconify text-[#ACC8A2] text-lg" data-icon="lucide:box"></span>
+          </div>
+          <span class="font-display text-xl lg:text-2xl font-semibold tracking-tight text-gray-100">Adnex <span class="text-[#ACC8A2]">Store</span></span>
+        </a>
       </div>
       
       <div class="flex items-center gap-3">
@@ -671,6 +673,18 @@
           <span id="fileSessionDot" class="h-2 w-2 rounded-full bg-[#ACC8A2]"></span>
           <span id="fileSessionText">Logged out</span>
         </div>
+        <button id="gsImportControl" onclick="openGsModal()" class="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#ACC8A2]/25 text-[#ACC8A2] hover:bg-[#ACC8A2]/10 text-sm font-semibold transition-colors" title="Import from Sheet">
+          <span class="iconify text-base" data-icon="lucide:download"></span>
+          <span class="hidden lg:inline">Import</span>
+        </button>
+        <button onclick="exportToGoogleSheets()" class="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#ACC8A2]/25 text-[#ACC8A2] hover:bg-[#ACC8A2]/10 text-sm font-semibold transition-colors" title="Export to Sheet">
+          <span class="iconify text-base" data-icon="lucide:upload"></span>
+          <span class="hidden lg:inline">Export</span>
+        </button>
+        <button id="gsRemoveControl" onclick="removeImportedSheet()" class="hidden items-center gap-2 px-3 py-2 rounded-lg border border-red-500/25 text-red-400 hover:bg-red-500/10 text-sm font-semibold transition-colors" title="Remove Imported File">
+          <span class="iconify text-base" data-icon="lucide:trash-2"></span>
+          <span class="hidden lg:inline">Remove</span>
+        </button>
         <button onclick="openAddModal()" class="flex items-center gap-2 bg-[#ACC8A2] hover:bg-[#ACC8A2] text-[#1A2517] px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
           <span class="iconify text-base" data-icon="lucide:plus"></span>
           <span class="hidden sm:inline">Add Resource</span>
@@ -812,40 +826,18 @@
   <!-- ==================== FOOTER ==================== -->
   <footer class="border-t border-gray-800/40 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto">
-      <!-- Google Sheets Import / Export Section -->
-      <div class="mb-10 bg-[#1A2517]/70 border border-gray-800/50 rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-xl bg-[#ACC8A2]/10 border border-[#ACC8A2]/20 flex items-center justify-center shrink-0">
-            <span class="iconify text-[#ACC8A2] text-2xl" data-icon="lucide:sheet"></span>
-          </div>
-          <div>
-            <h3 class="font-display text-lg font-medium text-gray-100 mb-1">Google Sheets / Microsoft Excel Import / Export</h3>
-            <p class="text-gray-500 text-sm leading-relaxed max-w-lg">Keep your library in sync with a spreadsheet — import rows from any shared Google Sheet or Microsoft Excel sheet, or export everything as a CSV that opens in either application.</p>
-          </div>
-        </div>
-        <div class="flex flex-wrap items-center gap-3 shrink-0">
-          <button id="gsImportControl" onclick="openGsModal()" class="flex items-center gap-2 px-5 py-3 rounded-xl border border-[#ACC8A2]/25 text-[#ACC8A2] hover:bg-[#ACC8A2]/10 text-sm font-semibold transition-colors">
-            <span class="iconify text-base" data-icon="lucide:download"></span>Import from Sheet
-          </button>
-          <button onclick="exportToGoogleSheets()" class="flex items-center gap-2 bg-[#ACC8A2] hover:bg-[#ACC8A2] text-[#1A2517] px-5 py-3 rounded-xl text-sm font-semibold transition-colors">
-            <span class="iconify text-base" data-icon="lucide:upload"></span>Export to Sheet
-          </button>
-          <button id="gsRemoveControl" onclick="removeImportedSheet()" class="hidden items-center gap-2 px-5 py-3 rounded-xl border border-red-500/25 text-red-400 hover:bg-red-500/10 text-sm font-semibold transition-colors">
-            <span class="iconify text-base" data-icon="lucide:trash-2"></span>Remove Imported File
-          </button>
-        </div>
-      </div>
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2">
+        <a href="adnex.html" class="flex items-center gap-2" title="Home">
           <div class="w-7 h-7 rounded-md bg-[#ACC8A2]/15 border border-[#ACC8A2]/25 flex items-center justify-center">
             <span class="iconify text-[#ACC8A2] text-sm" data-icon="lucide:box"></span>
           </div>
           <span class="font-display text-lg font-medium text-gray-200">Adnex Store</span>
-        </div>
+        </a>
         <p class="text-gray-600 text-sm">Built with care for developers everywhere.</p>
         <div class="flex items-center gap-4">
-          <a href="#" class="text-gray-600 hover:text-[#ACC8A2] transition-colors"><span class="iconify text-lg" data-icon="lucide:github"></span></a>
+          <a href="https://github.com/ska6076" class="text-gray-600 hover:text-[#ACC8A2] transition-colors"><span class="iconify text-lg" data-icon="lucide:github"></span></a>
           <a href="#" class="text-gray-600 hover:text-[#ACC8A2] transition-colors"><span class="iconify text-lg" data-icon="lucide:twitter"></span></a>
+          <a href="mailto:adnexvault@adnex.qzz.io" target="_self" aria-label="Email Adnex" title="adnexvault@adnex.qzz.io" class="text-gray-600 hover:text-[#ACC8A2] transition-colors"><span class="iconify text-lg" data-icon="lucide:mail"></span></a>
         </div>
       </div>
     </div>
