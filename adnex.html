@@ -236,7 +236,7 @@
         const logoUrl = getResourceLogo(r);
         return `<div class="link-card bg-[#1A2517]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer group" style="animation-delay:${i*0.05}s" onclick="openPreview(${r.id})">
           <div class="relative aspect-[16/10] bg-gray-900/40 overflow-hidden">
-            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-all duration-500" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="absolute inset-0 items-center justify-center bg-gray-900/40 hidden">
               <span class="iconify text-3xl text-gray-700" data-icon="lucide:image-off"></span>
             </div>
@@ -274,7 +274,7 @@
         const logoUrl = getResourceLogo(r);
         return `<div class="link-card flex items-center bg-[#1A2517]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer" style="animation-delay:${i*0.03}s" onclick="openPreview(${r.id})">
           <div class="w-32 h-20 shrink-0 relative overflow-hidden hidden sm:block bg-gray-900/40">
-            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-40 hover:opacity-70 transition-opacity duration-300" onerror="this.style.display='none'; this.parentElement.style.display='none'">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-100 transition-opacity duration-300" onerror="this.style.display='none'; this.parentElement.style.display='none'">
             <div class="absolute inset-0 bg-gradient-to-r from-transparent to-[#1A2517]/50"></div>
           </div>
           <div class="flex items-center gap-4 p-4 flex-1 min-w-0">
@@ -682,10 +682,10 @@
     #resources h2 { color:var(--ui-ink) !important; }
     #viewGrid, #viewList, #deleteAllBtn { color:var(--ui-slate) !important; }
     #viewGrid { background:rgba(74,120,224,.1) !important; border-color:rgba(74,120,224,.35) !important; color:var(--ui-blue) !important; }
-    .link-card { background:rgba(255,255,255,.64) !important; border-color:rgba(255,255,255,.78) !important; box-shadow:0 10px 26px rgba(90,100,115,.12); backdrop-filter:blur(12px) saturate(115%); -webkit-backdrop-filter:blur(12px) saturate(115%); }
-    .card-hover:hover { border-color:rgba(74,120,224,.6) !important; box-shadow:0 18px 32px rgba(90,100,115,.18) !important; }
+    .link-card { background:rgba(255,255,255,.64) !important; border-color:rgba(255,255,255,.78) !important; box-shadow:none !important; backdrop-filter:blur(12px) saturate(115%); -webkit-backdrop-filter:blur(12px) saturate(115%); }
+    .card-hover:hover { border-color:rgba(74,120,224,.6) !important; box-shadow:none !important; }
     .link-card .bg-black\/40, .link-card .bg-black\/30 { background:rgba(244,246,250,.75) !important; border-color:rgba(90,100,115,.22) !important; }
-    .link-card .bg-gradient-to-t, .link-card .bg-gradient-to-r { background-image:linear-gradient(to top,rgba(244,246,250,.96),transparent) !important; }
+    .link-card .bg-gradient-to-t, .link-card .bg-gradient-to-r { background-image:linear-gradient(to top,rgba(244,246,250,.36),transparent 52%) !important; }
     .link-card h3 { color:var(--ui-ink) !important; }
     .link-card [class*="text-gray-"], .link-card .text-\[\#ACC8A2\], .link-card .text-sky-400, .link-card .text-violet-400, .link-card .text-amber-400, .link-card .text-rose-400 { color:var(--ui-slate) !important; }
     .link-card [class*="bg-gray-800"] { background:rgba(90,100,115,.1) !important; }
@@ -1261,7 +1261,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const logoUrl = getResourceLogo(r);
         return `<div class="link-card bg-[#1A2517]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer group" style="animation-delay:${i*0.05}s" onclick="openPreview(${r.id})">
           <div class="relative aspect-[16/10] bg-gray-900/40 overflow-hidden">
-            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-50 group-hover:opacity-80 group-hover:scale-105 transition-all duration-500" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-all duration-500" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
             <div class="absolute inset-0 items-center justify-center bg-gray-900/40 hidden">
               <span class="iconify text-3xl text-gray-700" data-icon="lucide:image-off"></span>
             </div>
@@ -1299,7 +1299,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const logoUrl = getResourceLogo(r);
         return `<div class="link-card flex items-center bg-[#1A2517]/70 border border-gray-800/40 rounded-xl overflow-hidden card-hover cursor-pointer" style="animation-delay:${i*0.03}s" onclick="openPreview(${r.id})">
           <div class="w-32 h-20 shrink-0 relative overflow-hidden hidden sm:block bg-gray-900/40">
-            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-40 hover:opacity-70 transition-opacity duration-300" onerror="this.style.display='none'; this.parentElement.style.display='none'">
+            <img src="${screenshotUrl}" alt="${r.name}" loading="lazy" class="w-full h-full object-cover opacity-100 transition-opacity duration-300" onerror="this.style.display='none'; this.parentElement.style.display='none'">
             <div class="absolute inset-0 bg-gradient-to-r from-transparent to-[#1A2517]/50"></div>
           </div>
           <div class="flex items-center gap-4 p-4 flex-1 min-w-0">
