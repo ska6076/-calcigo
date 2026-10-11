@@ -54,7 +54,7 @@ body {
 .clearance-table {
   width: 100%;
   border-collapse: collapse;
-  border: none;
+  border: 2px solid #000;
 }
 
 .clearance-table td {
@@ -145,6 +145,14 @@ body {
 #pdfFile,
 #readPdfFile {
   font-size: 12px;
+}
+
+/* #pdfFile {
+  text-align: center;
+} */
+
+#pdfFile::file-selector-button {
+  display: none;
 }
 
 #tdEnable {
@@ -271,6 +279,7 @@ button {
   background-color: #ddd;
   padding: 10px 20px;
   border-radius: 40px;
+  text-align: center;
 }
 
 #mergeBtn {
