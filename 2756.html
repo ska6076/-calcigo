@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Insurance Clearance Form</title>
-    <link rel="stylesheet" href="nme.css"/>
+    <link rel="stylesheet" href="nme.css" />
     <link rel="icon" type="image/png" sizes="32x32" href="KIMS_IC.png">
     <link rel="manifest" href="/site.webmanifest">
 </head>
@@ -13,14 +13,14 @@
     <div class="page">
         <header class="hospital-header">
             <a href="https://www.kimshospitals.com/kondapur/" target="_blank"><img src="kims_logo.dd3a9a1.png"
-                    alt="Hospital Logo" class="logo" /></a>
+                    alt="KIMS Logo" class="logo" /></a>
             <div class="hospital-title">
                 <div class="hospital-name">KIMS HOSPITAL ENTERPRISES <b>P</b>VT. LTD</div>
                 <div class="form-title">Insurance Clearance</div>
             </div>
         </header>
 
-         <section class="layout">
+        <section class="layout">
             <div><a href="https://epreauth.fhpl.net/Home.aspx" target="_blank"><img src="fhpl.png" alt="error"></a>
             </div>
             <div><a href="https://healthconnect.careinsurance.com/Login/ProviderLogin" target="_blank"
@@ -128,7 +128,6 @@
                                 <span class="td-label">T/D :</span>
                                 <input type="text" id="tdInfo" name="tdInfo" placeholder="0.00" />
                             </label>
-
                         </div>
                     </td>
                 </tr>
@@ -136,6 +135,14 @@
                     <td class="label disborder">Difference Amount :</td>
                     <td><input type="number" id="differenceAmount" name="differenceAmount" min="0" placeholder="0.00" />
                     </td>
+                </tr>
+                <tr class="date-block">
+                    <td class="label disborder">TDS :</td>
+                    <td><input type="number" id="tdsInfo" name="tdsInfo" min="0" placeholder="0.00" /></td>
+                </tr>
+                <tr class="date-block">
+                    <td class="label disborder">UCR :</td>
+                    <td><input type="number" id="ucrInfo" name="ucrInfo" min="0" placeholder="0.00" /></td>
                 </tr>
                 <tr class="date-block">
                     <td class="label disborder">NME Amount :</td>
@@ -184,12 +191,8 @@
             </div>
 
             <div class="form-actions">
-                <!-- New: statement PDF reader input + button -->
-                <!-- <input type="file" id="readPdfFile" accept="application/pdf" />
-                <button type="button" id="readPdfBtn">Read PDF</button> -->
-                <!-- Existing: merge PDF input + button -->
                 <input type="file" id="pdfFile" accept="application/pdf" />
-                <button type="button" id="mergeBtn">Merge PDF</button>
+                <button type="button" id="mergeBtn">Merge</button>
                 <button type="reset">Clear</button>
                 <button type="button" id="downloadFormBtn">Download Form</button>
             </div>
@@ -207,3 +210,5 @@
 
 
 </html>
+
+
