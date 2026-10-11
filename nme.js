@@ -4,6 +4,8 @@ const approvedAmountInput = document.getElementById("approvedAmount");
 const hospitalDiscountInput = document.getElementById("hospitalDiscount");
 const tdEnableInput = document.getElementById("tdEnable");
 const tdInput = document.getElementById("tdInfo");
+const tdsInput = document.getElementById("tdsInfo");
+const ucrInput = document.getElementById("ucrInfo");
 const advanceAmountInput = document.getElementById("advanceAmount");
 const totalAmountInput = document.getElementById("totalAmount");
 const amountToCollectInput = document.getElementById("amountToCollect");
@@ -27,7 +29,7 @@ const tpaInput = document.getElementById("tpaName");
    Footer Authentication – Credentials stored in JS file
    ════════════════════════════════════════════════════════ */
 const VALID_USER_ID = "20004833";
-const VALID_PASSWORD = "20004833"; // numbers & alphabet
+const VALID_PASSWORD = "SecurePass123"; // numbers & alphabet
 const AUTH_KEY = "nme_auth_session";
 
 const loginOverlay = document.getElementById("loginOverlay");
@@ -116,16 +118,18 @@ function calculateTotals() {
     ? (parseFloat(tdInput.value) || 0)
     : 0;
   const advance = parseFloat(advanceAmountInput.value) || 0;
+  const tds = parseFloat(tdsInput.value) || 0;
+  const ucr = parseFloat(ucrInput.value) || 0;
 
   // Step 1: Total Amount = Bill - Approved - Discount - T/D
   let total = bill - approved - discount - td;
   if (total < 0) total = 0;
   totalAmountInput.value = total.toFixed(2);
 
-  // NME Amount = Total Amount - Co-payment Amount - Difference Amount
+  // NME Amount = Total Amount - Co-payment Amount - Difference Amount - TDS - UCR
   const copay = parseFloat(copaymentAmountInput.value) || 0;
   const diff = parseFloat(differenceAmountInput.value) || 0;
-  let nme = total - copay - diff;
+  let nme = total - copay - diff - tds - ucr;
   if (nme < 0) nme = 0;
   if (nmeAmountInput) nmeAmountInput.value = nme.toFixed(2);
 
@@ -158,9 +162,13 @@ function extractAmount(text, labelPattern) {
   return parseAmountString(match[1]);
 }
 
+function hasAnyDeductionEnabled() {
+  return !!(tdEnableInput && tdEnableInput.checked);
+}
+
 // Auto-set date on page load
 window.addEventListener("load", () => {
-  // Check auth state – stay logged in across refreshes until logout is clicked
+  // Check auth state – stay logged in across refreshes
   const isAuth = localStorage.getItem(AUTH_KEY) === "1";
   if (isAuth) {
     showApp();
@@ -177,7 +185,7 @@ window.addEventListener("load", () => {
     window._tpaOptions = Array.from(optionNodes).map(o => o.value);
   }
 
-  // Initialize T/D field state
+  // Initialize discount field states
   if (tdInput) {
     tdInput.disabled = !(tdEnableInput && tdEnableInput.checked);
   }
@@ -213,6 +221,12 @@ if (tdEnableInput) {
 if (tdInput) {
   tdInput.addEventListener("input", calculateTotals);
 }
+if (tdsInput) {
+  tdsInput.addEventListener("input", calculateTotals);
+}
+if (ucrInput) {
+  ucrInput.addEventListener("input", calculateTotals);
+}
 
 // Allow Enter key to snap to the closest matching TPA name
 if (tpaInput) {
@@ -247,8 +261,7 @@ async function downloadFormOnly() {
   let previousDisplay = null;
   let tdPrevVisibility = null;
   let tdSection = null;
-  let tdCheckboxPrevDisplay = null;
-  let tdCheckbox = null;
+  let discountCheckboxes = [];
   let layoutPrevDisplay = null;
   const layoutSection = document.querySelector(".layout");
 
@@ -270,15 +283,17 @@ async function downloadFormOnly() {
       layoutSection.style.display = "none";
     }
 
-    // Hide or adjust T/D section depending on checkbox state
+    // Hide or adjust deduction section depending on checkbox state
     tdSection = document.querySelector(".td-section");
-    if (tdSection && !(tdEnableInput && tdEnableInput.checked)) {
+    if (tdSection && !hasAnyDeductionEnabled()) {
       tdPrevVisibility = tdSection.style.visibility;
       tdSection.style.visibility = "hidden";
-    } else if (tdEnableInput && tdEnableInput.checked) {
-      tdCheckbox = tdEnableInput;
-      tdCheckboxPrevDisplay = tdCheckbox.style.display;
-      tdCheckbox.style.display = "none";
+    } else if (hasAnyDeductionEnabled()) {
+      discountCheckboxes = [tdEnableInput].filter(Boolean);
+      discountCheckboxes.forEach((checkbox) => {
+        checkbox.dataset.previousDisplay = checkbox.style.display;
+        checkbox.style.display = "none";
+      });
     }
 
     // Capture the form page as image (same settings as merge)
@@ -326,8 +341,11 @@ async function downloadFormOnly() {
     if (tdSection && tdPrevVisibility !== null) {
       tdSection.style.visibility = tdPrevVisibility;
     }
-    if (tdCheckbox && tdCheckboxPrevDisplay !== null) {
-      tdCheckbox.style.display = tdCheckboxPrevDisplay;
+    if (discountCheckboxes.length) {
+      discountCheckboxes.forEach((checkbox) => {
+        checkbox.style.display = checkbox.dataset.previousDisplay || "";
+      });
+      discountCheckboxes = [];
     }
     if (formActions) {
       formActions.style.display = previousDisplay || "";
@@ -345,8 +363,11 @@ async function downloadFormOnly() {
     if (tdSection && tdPrevVisibility !== null) {
       tdSection.style.visibility = tdPrevVisibility;
     }
-    if (tdCheckbox && tdCheckboxPrevDisplay !== null) {
-      tdCheckbox.style.display = tdCheckboxPrevDisplay;
+    if (discountCheckboxes.length) {
+      discountCheckboxes.forEach((checkbox) => {
+        checkbox.style.display = checkbox.dataset.previousDisplay || "";
+      });
+      discountCheckboxes = [];
     }
     if (formActions) {
       formActions.style.display = previousDisplay || "";
@@ -491,8 +512,7 @@ async function mergePdfWithForm() {
   let previousDisplay = null;
   let tdPrevVisibility = null;
   let tdSection = null;
-  let tdCheckboxPrevDisplay = null;
-  let tdCheckbox = null;
+  let discountCheckboxes = [];
   let layoutPrevDisplay = null;
   const layoutSection = document.querySelector(".layout");
 
@@ -513,16 +533,17 @@ async function mergePdfWithForm() {
       layoutSection.style.display = "none";
     }
 
-    // Temporarily hide T/D section if it is not enabled so it won't show in merged PDF
+    // Temporarily hide the deduction section if none are enabled so it won't show in merged PDF
     tdSection = document.querySelector(".td-section");
-    if (tdSection && !(tdEnableInput && tdEnableInput.checked)) {
+    if (tdSection && !hasAnyDeductionEnabled()) {
       tdPrevVisibility = tdSection.style.visibility;
       tdSection.style.visibility = "hidden";
-    } else if (tdEnableInput && tdEnableInput.checked) {
-      // If T/D is applied, hide only the checkbox so it won't appear in the merged PDF
-      tdCheckbox = tdEnableInput;
-      tdCheckboxPrevDisplay = tdCheckbox.style.display;
-      tdCheckbox.style.display = "none";
+    } else if (hasAnyDeductionEnabled()) {
+      discountCheckboxes = [tdEnableInput].filter(Boolean);
+      discountCheckboxes.forEach((checkbox) => {
+        checkbox.dataset.previousDisplay = checkbox.style.display;
+        checkbox.style.display = "none";
+      });
     }
 
     // 1. Capture the form page as an image (slightly lower scale to reduce size)
@@ -588,8 +609,11 @@ async function mergePdfWithForm() {
     if (tdSection && tdPrevVisibility !== null) {
       tdSection.style.visibility = tdPrevVisibility;
     }
-    if (tdCheckbox && tdCheckboxPrevDisplay !== null) {
-      tdCheckbox.style.display = tdCheckboxPrevDisplay;
+    if (discountCheckboxes.length) {
+      discountCheckboxes.forEach((checkbox) => {
+        checkbox.style.display = checkbox.dataset.previousDisplay || "";
+      });
+      discountCheckboxes = [];
     }
     if (formActions) {
       formActions.style.display = previousDisplay || "";
@@ -605,8 +629,11 @@ async function mergePdfWithForm() {
     if (tdSection && tdPrevVisibility !== null) {
       tdSection.style.visibility = tdPrevVisibility;
     }
-    if (tdCheckbox && tdCheckboxPrevDisplay !== null) {
-      tdCheckbox.style.display = tdCheckboxPrevDisplay;
+    if (discountCheckboxes.length) {
+      discountCheckboxes.forEach((checkbox) => {
+        checkbox.style.display = checkbox.dataset.previousDisplay || "";
+      });
+      discountCheckboxes = [];
     }
     if (formActions) {
       formActions.style.display = previousDisplay || "";
