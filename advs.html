@@ -111,6 +111,7 @@
                             <option value="Family Health Plan Insurance Ltd."></option>
                             <option value="Ericson Insurance Pvt. Ltd."></option>
                             <option value="Cholamandalam MS General Insurance Ltd."></option>
+                            <option value="ICICI Lombard General Insurance Company Ltd."></option>
                         </datalist>
                     </td>
                 </tr>
@@ -128,7 +129,6 @@
                                 <span class="td-label">T/D :</span>
                                 <input type="text" id="tdInfo" name="tdInfo" placeholder="0.00" />
                             </label>
-
                         </div>
                     </td>
                 </tr>
@@ -136,6 +136,14 @@
                     <td class="label disborder">Difference Amount :</td>
                     <td><input type="number" id="differenceAmount" name="differenceAmount" min="0" placeholder="0.00" />
                     </td>
+                </tr>
+                <tr class="date-block">
+                    <td class="label disborder">TDS :</td>
+                    <td><input type="number" id="tdsInfo" name="tdsInfo" min="0" placeholder="0.00" /></td>
+                </tr>
+                <tr class="date-block">
+                    <td class="label disborder">UCR :</td>
+                    <td><input type="number" id="ucrInfo" name="ucrInfo" min="0" placeholder="0.00" /></td>
                 </tr>
                 <tr class="date-block">
                     <td class="label disborder">NME Amount :</td>
@@ -184,12 +192,8 @@
             </div>
 
             <div class="form-actions">
-                <!-- New: statement PDF reader input + button -->
-                <!-- <input type="file" id="readPdfFile" accept="application/pdf" />
-                <button type="button" id="readPdfBtn">Read PDF</button> -->
-                <!-- Existing: merge PDF input + button -->
                 <input type="file" id="pdfFile" accept="application/pdf" />
-                <button type="button" id="mergeBtn">Merge PDF</button>
+                <button type="button" id="mergeBtn">Merge</button>
                 <button type="reset">Clear</button>
                 <button type="button" id="downloadFormBtn">Download Form</button>
             </div>
