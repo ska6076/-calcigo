@@ -15,12 +15,12 @@
             <a href="https://www.kimshospitals.com/kondapur/" target="_blank"><img src="kims_logo.dd3a9a1.png"
                     alt="KIMS Logo" class="logo" /></a>
             <div class="hospital-title">
-                <div class="hospital-name">KIMS HOSPITAL ENTERPRISE<b>S</b> PVT. LTD</div>
+                <div class="hospital-name">KIMS HOSPITAL ENTERPRISES PVT. LTD</div>
                 <div class="form-title">Insurance Clearance</div>
             </div>
         </header>
 
-        <!-- <section class="layout">
+        <section class="layout">
             <div><a href="https://epreauth.fhpl.net/Home.aspx" target="_blank"><img src="fhpl.png" alt="error"></a>
             </div>
             <div><a href="https://healthconnect.careinsurance.com/Login/ProviderLogin" target="_blank"
@@ -39,13 +39,13 @@
                         alt="error"></a></div>
             <div><a href="https://hrms.kimshospitals.com/AdrenalinMax/#/" target="_blank"><img src="adrenalin.png"
                         alt="error"></a></div>
-        </section> -->
+        </section>
 
         <form id="clearance-form" class="clearance-form">
             <table class="clearance-table">
                 <tr class="date-block date-block-top">
                     <td class="label disborder disborder2">Date :</td>
-                    <td class="disborder2"><input type="text" id="date" name="date" maxlength="16" /></td>
+                    <td class="disborder2"><input type="text" id="date" name="date" maxlength="16" disabled /></td>
                     <td class="disborder1 disborder2"></td>
                 </tr>
                 <tr class="date-block">
@@ -59,7 +59,7 @@
                 </tr>
 
                 <tr class="date-block section-separator">
-                    <td class="label disborder disborder2">Bill Amount :</td>
+                    <td class="label disborder disborder2">Bill <b>A</b>mount :</td>
                     <td class="disborder2"><input type="number" id="billAmount" name="billAmount" min="0" />
                     </td>
                     <td class="disborder1 disborder2"></td>
@@ -111,6 +111,7 @@
                             <option value="Family Health Plan Insurance Ltd."></option>
                             <option value="Ericson Insurance Pvt. Ltd."></option>
                             <option value="Cholamandalam MS General Insurance Ltd."></option>
+                            <option value="ICICI Lombard General Insurance Company Ltd."></option>
                         </datalist>
                     </td>
                 </tr>
@@ -119,7 +120,7 @@
                     <td class="disborder2"><input type="number" id="copaymentAmount" name="copaymentAmount" min="0"
                             placeholder="0.00" /></td>
                     <td class="hospital-discount-cell disborder1 disborder2" rowspan="3">
-                        <div class="hospital-discount-label" id="hospitaldiscount">Ho<b>s</b>pital Discount</div>
+                        <div class="hospital-discount-label" id="hospitaldiscount">Hospit<b>a</b>l Discount</div>
                         <input type="number" id="hospitalDiscount" name="hospitalDiscount" min="0" placeholder="0.00" />
 
                         <div class="td-section">
@@ -137,7 +138,7 @@
                     </td>
                 </tr>
                 <tr class="date-block">
-                    <td class="label disborder">NME Amount :</td>
+                    <td class="label disborder" >NME Amount :</td>
                     <td><input type="number" id="nmeAmount" name="nmeAmount" min="0" placeholder="0.00" disabled />
                     </td>
                 </tr>
@@ -183,10 +184,6 @@
             </div>
 
             <div class="form-actions">
-                <!-- New: statement PDF reader input + button -->
-                <!-- <input type="file" id="readPdfFile" accept="application/pdf" />
-                <button type="button" id="readPdfBtn">Read PDF</button> -->
-                <!-- Existing: merge PDF input + button -->
                 <input type="file" id="pdfFile" accept="application/pdf" />
                 <button type="button" id="mergeBtn">Merge</button>
                 <button type="reset">Clear</button>
@@ -195,12 +192,16 @@
         </form>
     </div>
 
+    <!-- Libraries for capturing HTML and merging PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <!-- PDF.js for reading statement PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="xyz.js"></script>
+    <script src="nme.js"></script>
 </body>
 
 
 </html>
+
+
