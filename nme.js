@@ -4,8 +4,6 @@ const approvedAmountInput = document.getElementById("approvedAmount");
 const hospitalDiscountInput = document.getElementById("hospitalDiscount");
 const tdEnableInput = document.getElementById("tdEnable");
 const tdInput = document.getElementById("tdInfo");
-const tdsInput = document.getElementById("tdsInfo");
-const ucrInput = document.getElementById("ucrInfo");
 const advanceAmountInput = document.getElementById("advanceAmount");
 const totalAmountInput = document.getElementById("totalAmount");
 const amountToCollectInput = document.getElementById("amountToCollect");
@@ -118,18 +116,16 @@ function calculateTotals() {
     ? (parseFloat(tdInput.value) || 0)
     : 0;
   const advance = parseFloat(advanceAmountInput.value) || 0;
-  const tds = parseFloat(tdsInput.value) || 0;
-  const ucr = parseFloat(ucrInput.value) || 0;
 
   // Step 1: Total Amount = Bill - Approved - Discount - T/D
   let total = bill - approved - discount - td;
   if (total < 0) total = 0;
   totalAmountInput.value = total.toFixed(2);
 
-  // NME Amount = Total Amount - Co-payment Amount - Difference Amount - TDS - UCR
+  // NME Amount = Total Amount - Co-payment Amount - Difference Amount
   const copay = parseFloat(copaymentAmountInput.value) || 0;
   const diff = parseFloat(differenceAmountInput.value) || 0;
-  let nme = total - copay - diff - tds - ucr;
+  let nme = total - copay - diff;
   if (nme < 0) nme = 0;
   if (nmeAmountInput) nmeAmountInput.value = nme.toFixed(2);
 
@@ -220,12 +216,6 @@ if (tdEnableInput) {
 }
 if (tdInput) {
   tdInput.addEventListener("input", calculateTotals);
-}
-if (tdsInput) {
-  tdsInput.addEventListener("input", calculateTotals);
-}
-if (ucrInput) {
-  ucrInput.addEventListener("input", calculateTotals);
 }
 
 // Allow Enter key to snap to the closest matching TPA name
