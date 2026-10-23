@@ -20,26 +20,9 @@
             </div>
         </header>
 
-        <section class="layout">
-            <div><a href="https://epreauth.fhpl.net/Home.aspx" target="_blank"><img src="fhpl.png" alt="error"></a>
-            </div>
-            <div><a href="https://healthconnect.careinsurance.com/Login/ProviderLogin" target="_blank"
-                    class="care-img"><img src="carehealth.png" alt="error"></a></div>
-            <div><a href="https://www.ilovepdf.com/" target="_blank"><img src="ilovepdf.png" alt="error"></a></div>
-            <div><a href="https://vidalhealthtpa.com/provider-portal/login" target="_blank"><img src="vidalhealth.png"
-                        alt="error"></a></div>
-            <div><a href="https://provider.ihx.in/ " target="_blank"><img src="ihxportal.png" alt="error"></a></div>
-            <div><a href="https://provider.paramounttpa.com/Login.aspx" target="_blank"><img src="paramount.png"
-                        alt="error"></a></div>
-            <div><a href="https://workplace.zoho.in/#mail_app/mail/views/all" target="_blank"><img src="zoho.png"
-                        alt="error"></a></div>
-            <div><a href="https://heritagehealthtpa.in/HospitalPortal/Login.aspx" target="_blank"><img src="Heritage.jpg"
-                        alt="error"></a></div>
-            <div><a href="https://www.healthindiatpa.com/HIHome.aspx" target="_blank"><img src="health.png"
-                        alt="error"></a></div>
-            <div><a href="https://hrms.kimshospitals.com/AdrenalinMax/#/" target="_blank"><img src="adrenalin.png"
-                        alt="error"></a></div>
-        </section>
+        <!-- <section class="layout">
+            
+        </section> -->
 
         <form id="clearance-form" class="clearance-form">
             <table class="clearance-table">
@@ -137,14 +120,6 @@
                     </td>
                 </tr>
                 <tr class="date-block">
-                    <td class="label disborder">TDS :</td>
-                    <td><input type="number" id="tdsInfo" name="tdsInfo" min="0" placeholder="0.00" /></td>
-                </tr>
-                <tr class="date-block">
-                    <td class="label disborder">UCR :</td>
-                    <td><input type="number" id="ucrInfo" name="ucrInfo" min="0" placeholder="0.00" /></td>
-                </tr>
-                <tr class="date-block">
                     <td class="label disborder">NME Amount :</td>
                     <td><input type="number" id="nmeAmount" name="nmeAmount" min="0" placeholder="0.00" disabled />
                     </td>
@@ -191,6 +166,10 @@
             </div>
 
             <div class="form-actions">
+                <!-- New: statement PDF reader input + button -->
+                <!-- <input type="file" id="readPdfFile" accept="application/pdf" />
+                <button type="button" id="readPdfBtn">Read PDF</button> -->
+                <!-- Existing: merge PDF input + button -->
                 <input type="file" id="pdfFile" accept="application/pdf" />
                 <button type="button" id="mergeBtn">Merge</button>
                 <button type="reset">Clear</button>
@@ -199,13 +178,11 @@
         </form>
     </div>
 
-    <!-- Libraries for capturing HTML and merging PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-    <!-- PDF.js for reading statement PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="nme.js"></script>
+    <script src="xyz.js"></script>
 </body>
 
 
