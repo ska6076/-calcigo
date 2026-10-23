@@ -28,8 +28,8 @@ const tpaInput = document.getElementById("tpaName");
 /* ════════════════════════════════════════════════════════
    Footer Authentication – Credentials stored in JS file
    ════════════════════════════════════════════════════════ */
-const VALID_USER_ID = "20004833";
-const VALID_PASSWORD = "SecurePass123"; // numbers & alphabet
+const VALID_USER_ID = "123";
+const VALID_PASSWORD = "123"; // numbers & alphabet
 const AUTH_KEY = "nme_auth_session";
 
 const loginOverlay = document.getElementById("loginOverlay");
