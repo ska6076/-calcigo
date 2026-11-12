@@ -62,7 +62,11 @@ body {
   height: 38px;
   text-align: right;
   font-size: larger;
+  white-space: nowrap;
+}
 
+.label {
+  white-space: nowrap;
 }
 
 .disborder {
@@ -127,6 +131,48 @@ body {
 
 .td-section {
   margin-top: 10px;
+}
+
+.approved-amount-inline {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  width: 100%;
+}
+
+.approved-topup-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.approved-amount-main-input,
+.approved-amount-extra-input {
+  width: 100% !important;
+  max-width: 100px;
+  min-width: 60px;
+}
+
+.approved-amount-inline {
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+.approved-use-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.approved-use-toggle {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #005c99;
+  vertical-align: middle;
 }
 
 .td-section label {
@@ -370,10 +416,14 @@ button[type="reset"] {
     outline: none !important;
   }
 
-  /* Only show T/D on printed page when its checkbox is checked */
-  .td-section input[type="checkbox"]:not(:checked)+.td-label,
-  .td-section input[type="checkbox"]:not(:checked)~input[type="number"] {
-    visibility: hidden;
+  .approved-topup-group:not(.has-print-topup),
+  .approved-use-toggle {
+    display: none !important;
+  }
+
+  .td-section:not(.has-print-td),
+  .td-section input[type="checkbox"] {
+    display: none !important;
   }
 
   /* Remove border from Remarks box when printing */
