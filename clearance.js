@@ -1,9 +1,13 @@
 const dateInput = document.getElementById("date");
 const billAmountInput = document.getElementById("billAmount");
 const approvedAmountInput = document.getElementById("approvedAmount");
+const approvedAmountExtraInput = document.getElementById("approvedAmountExtra");
+const useApprovedAmountExtraInput = document.getElementById("useApprovedAmountExtra");
 const hospitalDiscountInput = document.getElementById("hospitalDiscount");
 const tdEnableInput = document.getElementById("tdEnable");
 const tdInput = document.getElementById("tdInfo");
+const tdsInput = document.getElementById("tdsInfo");
+const ucrInput = document.getElementById("ucrInfo");
 const advanceAmountInput = document.getElementById("advanceAmount");
 const totalAmountInput = document.getElementById("totalAmount");
 const amountToCollectInput = document.getElementById("amountToCollect");
@@ -108,25 +112,51 @@ function setTodayDate() {
   dateInput.value = `${day}-${month}-${year} ${hours}:${minutes}`;
 }
 
+function updateApprovedTopupState() {
+  if (!approvedAmountExtraInput || !useApprovedAmountExtraInput) return;
+  approvedAmountExtraInput.disabled = !useApprovedAmountExtraInput.checked;
+  const topupAmount = parseFloat(approvedAmountExtraInput.value);
+  const hasPrintableTopup = useApprovedAmountExtraInput.checked
+    && approvedAmountExtraInput.value.trim() !== ""
+    && Number.isFinite(topupAmount);
+  approvedAmountExtraInput.closest(".approved-topup-group")
+    ?.classList.toggle("has-print-topup", hasPrintableTopup);
+  if (!useApprovedAmountExtraInput.checked) {
+    approvedAmountExtraInput.value = approvedAmountExtraInput.value || "";
+  }
+}
+
+function updateTdPrintState() {
+  const tdSection = tdEnableInput?.closest(".td-section");
+  if (!tdSection || !tdInput || !tdEnableInput) return;
+  const tdAmount = parseFloat(tdInput.value);
+  const hasPrintableTd = tdEnableInput.checked
+    && tdInput.value.trim() !== ""
+    && Number.isFinite(tdAmount);
+  tdSection.classList.toggle("has-print-td", hasPrintableTd);
+}
+
 function calculateTotals() {
   const bill = parseFloat(billAmountInput.value) || 0;
   const approved = parseFloat(approvedAmountInput.value) || 0;
+  const topup = useApprovedAmountExtraInput && useApprovedAmountExtraInput.checked
+    ? (parseFloat(approvedAmountExtraInput.value) || 0)
+    : 0;
+  const approvedTotal = approved + topup;
   const discount = parseFloat(hospitalDiscountInput.value) || 0;
   const td = tdEnableInput && tdEnableInput.checked
     ? (parseFloat(tdInput.value) || 0)
     : 0;
   const advance = parseFloat(advanceAmountInput.value) || 0;
 
-  // Step 1: Total Amount = Bill - Approved - Discount - T/D
-  let total = bill - approved - discount - td;
+  // Step 1: Total Amount = Bill - (Approved + Topup) - Discount - T/D
+  let total = bill - approvedTotal - discount - td;
   if (total < 0) total = 0;
   totalAmountInput.value = total.toFixed(2);
 
-  // NME Amount = Total Amount - Co-payment Amount - Difference Amount
-  const copay = parseFloat(copaymentAmountInput.value) || 0;
-  const diff = parseFloat(differenceAmountInput.value) || 0;
-  let nme = total - copay - diff;
-  if (nme < 0) nme = 0;
+  const copay = copaymentAmountInput ? (parseFloat(copaymentAmountInput.value) || 0) : 0;
+  const difference = differenceAmountInput ? (parseFloat(differenceAmountInput.value) || 0) : 0;
+  const nme = Math.max(0, total - copay - difference);
   if (nmeAmountInput) nmeAmountInput.value = nme.toFixed(2);
 
   // Step 2: Net after Advance
@@ -173,6 +203,7 @@ window.addEventListener("load", () => {
   }
 
   setTodayDate();
+  updateApprovedTopupState();
   calculateTotals();
 
   // Prepare TPA option list for quick keyboard selection
@@ -185,6 +216,7 @@ window.addEventListener("load", () => {
   if (tdInput) {
     tdInput.disabled = !(tdEnableInput && tdEnableInput.checked);
   }
+  updateTdPrintState();
   // Configure PDF.js worker if available (for reading statement PDFs)
   if (window.pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
     pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -194,6 +226,18 @@ window.addEventListener("load", () => {
 
 billAmountInput.addEventListener("input", calculateTotals);
 approvedAmountInput.addEventListener("input", calculateTotals);
+if (approvedAmountExtraInput) {
+  approvedAmountExtraInput.addEventListener("input", () => {
+    updateApprovedTopupState();
+    calculateTotals();
+  });
+}
+if (useApprovedAmountExtraInput) {
+  useApprovedAmountExtraInput.addEventListener("change", () => {
+    updateApprovedTopupState();
+    calculateTotals();
+  });
+}
 hospitalDiscountInput.addEventListener("input", calculateTotals);
 tdInput.addEventListener("input", calculateTotals);
 advanceAmountInput.addEventListener("input", calculateTotals);
@@ -211,11 +255,21 @@ if (tdEnableInput) {
         tdInput.value = "";
       }
     }
+    updateTdPrintState();
     calculateTotals();
   });
 }
 if (tdInput) {
-  tdInput.addEventListener("input", calculateTotals);
+  tdInput.addEventListener("input", () => {
+    updateTdPrintState();
+    calculateTotals();
+  });
+}
+if (tdsInput) {
+  tdsInput.addEventListener("input", calculateTotals);
+}
+if (ucrInput) {
+  ucrInput.addEventListener("input", calculateTotals);
 }
 
 // Allow Enter key to snap to the closest matching TPA name
@@ -242,6 +296,14 @@ form.addEventListener("reset", () => {
       tdInput.disabled = true;
       tdInput.value = "";
     }
+    updateTdPrintState();
+    if (useApprovedAmountExtraInput) {
+      useApprovedAmountExtraInput.checked = false;
+    }
+    if (approvedAmountExtraInput) {
+      approvedAmountExtraInput.value = "";
+    }
+    updateApprovedTopupState();
     calculateTotals();
   }, 0);
 });
