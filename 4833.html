@@ -66,8 +66,18 @@
                 </tr>
                 <tr class="date-block">
                     <td class="label disborder">Approved Amount :</td>
-                    <td><input type="number" id="approvedAmount" name="approvedAmount" min="0" /></td>
-                    <td class="disborder1"></td>
+                    <td>
+                        <div class="approved-amount-inline">
+                            <input type="number" id="approvedAmount" name="approvedAmount" min="0" class="approved-amount-main-input" />
+                            <div class="approved-topup-group">
+                                <label class="approved-use-toggle-label">
+                                    <input type="checkbox" id="useApprovedAmountExtra" name="useApprovedAmountExtra" class="approved-use-toggle" />
+                                    <span>Top-Up:</span>
+                                </label>
+                                <input type="number" id="approvedAmountExtra" name="approvedAmountExtra" min="0" class="approved-amount-extra-input" />
+                            </div>
+                        </div>
+                    </td>
                 </tr>
                 <tr class="date-block">
                     <td class="label disborder">Insurance TPA Name :</td>
@@ -203,5 +213,4 @@
 
 
 </html>
-
 
