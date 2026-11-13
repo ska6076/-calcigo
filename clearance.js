@@ -315,6 +315,9 @@ async function downloadFormOnly() {
   let tdSection = null;
   let discountCheckboxes = [];
   let layoutPrevDisplay = null;
+  let topupGroup = null;
+  let topupGroupPrevDisplay = null;
+  let topupTogglePrevDisplay = null;
   const layoutSection = document.querySelector(".layout");
 
   try {
@@ -333,6 +336,17 @@ async function downloadFormOnly() {
     if (layoutSection) {
       layoutPrevDisplay = layoutSection.style.display;
       layoutSection.style.display = "none";
+    }
+
+    topupGroup = approvedAmountExtraInput?.closest(".approved-topup-group");
+    if (topupGroup) {
+      topupGroupPrevDisplay = topupGroup.style.display;
+      if (!topupGroup.classList.contains("has-print-topup")) {
+        topupGroup.style.display = "none";
+      } else if (useApprovedAmountExtraInput) {
+        topupTogglePrevDisplay = useApprovedAmountExtraInput.style.display;
+        useApprovedAmountExtraInput.style.display = "none";
+      }
     }
 
     // Hide or adjust deduction section depending on checkbox state
@@ -390,6 +404,12 @@ async function downloadFormOnly() {
     if (layoutSection) {
       layoutSection.style.display = layoutPrevDisplay || "";
     }
+    if (topupGroup && topupGroupPrevDisplay !== null) {
+      topupGroup.style.display = topupGroupPrevDisplay;
+    }
+    if (topupTogglePrevDisplay !== null && useApprovedAmountExtraInput) {
+      useApprovedAmountExtraInput.style.display = topupTogglePrevDisplay;
+    }
     if (tdSection && tdPrevVisibility !== null) {
       tdSection.style.visibility = tdPrevVisibility;
     }
@@ -411,6 +431,12 @@ async function downloadFormOnly() {
     // Restore on error too
     if (layoutSection) {
       layoutSection.style.display = layoutPrevDisplay || "";
+    }
+    if (topupGroup && topupGroupPrevDisplay !== null) {
+      topupGroup.style.display = topupGroupPrevDisplay;
+    }
+    if (topupTogglePrevDisplay !== null && useApprovedAmountExtraInput) {
+      useApprovedAmountExtraInput.style.display = topupTogglePrevDisplay;
     }
     if (tdSection && tdPrevVisibility !== null) {
       tdSection.style.visibility = tdPrevVisibility;
