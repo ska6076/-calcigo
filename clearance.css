@@ -163,7 +163,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: larger;
+  font-size: 15px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
